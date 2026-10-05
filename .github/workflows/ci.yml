@@ -36,6 +36,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg  # carving tests need ffmpeg + ffprobe (libx264/libx265)
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
       - run: ruff format --check .
