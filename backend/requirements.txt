@@ -4,3 +4,6 @@ sqlalchemy>=2.0,<3
 psycopg[binary]>=3.2,<4
 pyyaml>=6,<7
 cryptography>=42,<47
+numpy==2.2.6  # analytics (P6)
+onnxruntime==1.23.2  # analytics, CPU only (MIT)
+Pillow==12.3.0  # analytics frames

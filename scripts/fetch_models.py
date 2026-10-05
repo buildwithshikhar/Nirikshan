@@ -8,13 +8,25 @@ The application never downloads anything at runtime.
 
 import hashlib
 import os
+import ssl
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 from app.analytics.registry import MODELS, models_dir, sha256_file  # noqa: E402
+
+
+def _ssl_context():
+    """System CA bundle, or certifi's when the interpreter has none (python.org macOS builds)."""
+    try:
+        import certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
 
 
 def fetch(spec) -> bool:
@@ -26,7 +38,15 @@ def fetch(spec) -> bool:
     tmp = dest.with_suffix(".part")
     print(f"downloading {spec.name} <- {spec.url}")
     h = hashlib.sha256()
-    with urllib.request.urlopen(spec.url, timeout=120) as r, open(tmp, "wb") as f:  # noqa: S310
+    try:
+        resp = urllib.request.urlopen(spec.url, timeout=120, context=_ssl_context())  # noqa: S310
+    except urllib.error.URLError as exc:
+        print(
+            f"download failed ({exc.reason}). On macOS python.org builds run "
+            "'Install Certificates.command' or 'pip install certifi'; checksums are still verified."
+        )
+        return False
+    with resp as r, open(tmp, "wb") as f:
         for chunk in iter(lambda: r.read(1 << 20), b""):
             h.update(chunk)
             f.write(chunk)

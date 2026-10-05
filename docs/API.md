@@ -22,3 +22,5 @@ Mutating calls (`POST`) require an `X-Examiner: <name>` header (attestation, not
 
 CLI: `python -m app.cli head <case_id> [--json]` verifies the chain and prints `head_hash`.
 CLI: `python -m app.cli reset-db --yes` (DEV ONLY) drops and recreates the schema; the app refuses to start on a database whose `schema_meta` version differs from the code's `SCHEMA_VERSION` (there are no migrations yet). `/api/system` reports `schema_version`.
+
+Analytics (triage only): `GET /api/analytics/models`; `POST /api/clips/{id}/analytics` (motion/objects/faces with parameters; 503 with the fetch command if a model is missing, 409 if the clip's MP4 no longer matches its recorded hash); `GET /api/clips/{id}/analytics`; `GET /api/analytics/{run_id}`. Every result carries the label `triage, not identification`, model hash and error rates.

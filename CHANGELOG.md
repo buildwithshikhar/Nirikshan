@@ -10,3 +10,4 @@
 - P4 (Hikvision): Master Sector/RATS/HIKBTREE parser with explicit options for the open block-size, timestamp-basis and Master Sector base conflicts; per-paper layout in the harness.
 - P4 (Honeywell): custom-header/Machine Data/block-index parser (paper facts only, unlicensed repo not used); per-paper layout in the harness.
 - Round A docs: SOPs, user manual, validation report draft, OEM comparison, real-image playbook, hardware shopping list.
+- P6: analytics triage (motion, YOLOX-Nano objects, YuNet face detection; offline, labelled triage, error rates measured and published with their limits); schema version 5; model fetch script with checksums (run in CI).

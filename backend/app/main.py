@@ -9,6 +9,8 @@ from app import (  # noqa: F401  (triggers: DDL events before create_all)
     schema,
     triggers,
 )
+from app.analytics import models as _analytics_models  # noqa: F401  (tables before create_all)
+from app.analytics.routes import router as analytics_router
 from app.db import SessionLocal, engine
 from app.models import AuditEntry
 from app.routes import audit_case_id, router
@@ -38,6 +40,7 @@ def health() -> dict[str, str]:
 
 
 app.include_router(router)
+app.include_router(analytics_router)
 
 
 @app.middleware("http")

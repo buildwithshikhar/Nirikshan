@@ -3,7 +3,8 @@ version of the code is refused at startup instead of being half-upgraded by crea
 missing tables but never missing columns). Bump SCHEMA_VERSION whenever a table or column changes.
 
 History: 1 = P1 evidence core; 2 = P2 carving tables; 3 = P4 (clips.engine/channel/parsed_json,
-carve_runs.parse_json); 4 = schema_meta introduced.
+carve_runs.parse_json); 4 = schema_meta introduced; 5 = P6 analytics tables
+(analytics_runs, detections, motion_intervals).
 """
 
 from sqlalchemy import Engine, inspect, select
@@ -12,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.db import Base
 from app.models import SchemaMeta
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 
 class SchemaError(RuntimeError):

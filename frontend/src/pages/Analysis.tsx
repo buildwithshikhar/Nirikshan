@@ -103,6 +103,9 @@ function ClipItem({ clip, onVerify }: { clip: ClipRow; onVerify: (id: number) =>
           <div className="space-y-1">
             <video controls preload="metadata" width={220} data-testid="clip-video"
               src={`${API_URL}/api/clips/${clip.id}/video`} />
+            <Link className="block text-xs text-accent hover:underline" to={`/clips/${clip.id}/analytics`}>
+              Triage analytics →
+            </Link>
             <button className="rounded bg-navy-700 px-2 py-0.5 text-xs hover:bg-navy-900" onClick={() => onVerify(clip.id)}>
               Verify MP4 hash
             </button>
