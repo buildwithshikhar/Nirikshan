@@ -71,6 +71,7 @@ class AnalyzeIn(BaseModel):
     max_pad: int = Field(default=64, ge=0, le=4096)
     join_gap: int = Field(default=0, ge=0, le=16 * 1024 * 1024)
     h264_continuity: bool = True
+    validate_params: bool = True
 
 
 class ClipOut(BaseModel):

@@ -304,3 +304,90 @@ def test_scan_memory_is_bounded_on_large_inputs(tmp_path):
     peak = tracemalloc.get_traced_memory()[1]
     tracemalloc.stop()
     assert n >= 1 and peak < 12 * (1 << 20)  # 32 MiB scanned, peak a few chunks
+
+
+# ---- parameter-set validation, EOF trimming, PPS references ---------------------------------
+
+
+def _first(data, kind):
+    for _, n in nal_units(data):
+        if kind == "h264_sps" and n[0] & 0x1F == 7:
+            return n
+        if kind == "h264_pps" and n[0] & 0x1F == 8:
+            return n
+        if kind == "h265_vps" and (n[0] >> 1) & 0x3F == 32:
+            return n
+        if kind == "h265_sps" and (n[0] >> 1) & 0x3F == 33:
+            return n
+        if kind == "h265_pps" and (n[0] >> 1) & 0x3F == 34:
+            return n
+
+
+@pytest.mark.parametrize("name", ["h264_baseline", "h264_main_b", "h264_high"])
+def test_real_h264_parameter_sets_validate_and_mutations_do_not(streams, name):
+    from app.carving import bits
+
+    sps, pps = _first(streams[name], "h264_sps"), _first(streams[name], "h264_pps")
+    parsed = bits.validate_h264_sps(sps)
+    assert parsed and parsed.log2_max_frame_num >= 4
+    assert bits.validate_h264_pps(pps, {parsed.sps_id}) is not None
+    assert bits.validate_h264_pps(pps, {parsed.sps_id + 5}) is None  # PPS must reference the SPS
+    bad = bytes([sps[0], 0x01, *sps[2:]])  # profile_idc 1 is not a profile
+    assert bits.validate_h264_sps(bad) is None
+    assert bits.validate_h264_sps(sps[:5]) is None  # truncated
+
+
+def test_real_h265_parameter_sets_validate_and_mutations_do_not(streams):
+    from app.carving import bits
+
+    d = streams["h265_main"]
+    vps, sps, pps = _first(d, "h265_vps"), _first(d, "h265_sps"), _first(d, "h265_pps")
+    v = bits.validate_h265_vps(vps)
+    assert v is not None
+    s = bits.validate_h265_sps(sps, {v})
+    assert s is not None and bits.validate_h265_pps(pps, {s}) is not None
+    assert bits.validate_h265_vps(vps[:2] + b"\x00" * 10) is None  # reserved 0xFFFF missing
+    assert bits.validate_h265_sps(sps, {v + 1}) is None  # SPS must reference an existing VPS
+
+
+def test_fake_parameter_set_groups_are_rejected_unless_validation_is_disabled():
+    rnd = random.Random(5)
+    sc = b"\x00\x00\x00\x01"
+    accepted = 0
+    for _ in range(200):
+        fake = (
+            sc
+            + b"\x67"
+            + filler(12, rnd.randrange(10**6))
+            + sc
+            + b"\x68"
+            + filler(4, rnd.randrange(10**6))
+        )
+        fake += sc + b"\x65" + b"\x88" + filler(100, rnd.randrange(10**6))
+        accepted += bool(carve(fake)[0])
+    assert accepted == 0
+    # with validation off the same junk can become "clips": that is what the check prevents
+    loose = 0
+    for _ in range(200):
+        fake = sc + b"\x67" + filler(12, rnd.randrange(10**6)) + sc + b"\x68\xce" + filler(4, 1)
+        fake += sc + b"\x65\x88" + filler(100, rnd.randrange(10**6))
+        loose += bool(carve(fake, validate_params=False)[0])
+    assert loose > 0
+
+
+@pytest.mark.parametrize("name", CODECS)
+def test_trailing_zero_bytes_at_eof_are_not_part_of_the_clip(streams, name):
+    data = streams[name]
+    for tail in (b"\x00", b"\x00\x00"):
+        clips, _, _ = carve(data + tail)
+        assert clips[0].extents == [[0, len(data)]]
+
+
+def test_slice_with_unknown_pps_ends_the_clip(streams):
+    """A P slice whose pps_id was never sent in the clip is not accepted into it."""
+    data = streams["h264_baseline"]
+    # nal_ref_idc=2 non-IDR slice; header bits: first_mb ue(0)='1', slice_type ue(0)='1', pps_id ue(1)='010'
+    fake = b"\x00\x00\x01\x41\xd0" + b"\x88" * 20
+    clips, orphans, _ = carve(data + fake)
+    assert clips[0].extents == [[0, len(data)]]
+    assert clips[0].end_reason == "slice references a PPS not seen in the clip"

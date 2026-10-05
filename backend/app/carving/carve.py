@@ -25,7 +25,13 @@ from app.carving.bits import (
     parse_h264_pps_id,
     parse_h264_slice,
     parse_h264_sps,
+    parse_h265_pps_id,
     parse_h265_slice_pps_id,
+    validate_h264_pps,
+    validate_h264_sps,
+    validate_h265_pps,
+    validate_h265_sps,
+    validate_h265_vps,
 )
 
 
@@ -34,6 +40,7 @@ class CarveParams:
     max_pad: int = 64  # max zero padding / gap between consecutive NAL units inside a clip
     max_nal: int = 16 * 1024 * 1024
     h264_continuity: bool = True
+    validate_params: bool = True  # syntax-check SPS/PPS/VPS before starting a clip
     join_gap: int = 0  # >0 enables H.264 fragment reassembly across gaps up to this many bytes
 
 
@@ -110,7 +117,15 @@ class Carver:
         self.pend: list[_Item] = []
         self.orphan: Orphan | None = None
         self.last_end = 0  # end of the last NAL seen (committed or pending)
-        self.stats = {"nal_units": 0, "stray_nal_units": 0, "oversize_nal_units": 0}
+        self.stats = {
+            "nal_units": 0,
+            "stray_nal_units": 0,
+            "oversize_nal_units": 0,
+            "join_candidates": 0,
+            "join_accepted": 0,
+        }
+        # (end of the clip's last NAL, start of the candidate NAL, accepted): for validation
+        self.join_log: list[tuple[int, int, bool]] = []
 
     # ---- driver ---------------------------------------------------------------------------
     def run(self, events: Iterable) -> Iterator[Clip | Orphan]:
@@ -125,7 +140,9 @@ class Carver:
                     yield from self._handle(self._nal(pending, ev.pos))
                     pending = None
             elif pending is not None and ev.size > pending.hdr:  # Eof
-                yield from self._handle(self._nal(pending, ev.size))
+                tail = self.read_at(max(pending.hdr, ev.size - 2), 2)  # <3 zeros: not a ZeroRun
+                end = ev.size - (len(tail) - len(tail.rstrip(b"\x00")))
+                yield from self._handle(self._nal(pending, max(end, pending.hdr + 1)))
                 pending = None
         yield from self._close_active("end of image")
         yield from self._flush_orphan()
@@ -180,6 +197,20 @@ class Carver:
         t = h[0]
         return ("vcl" if t < 32 else "param" if t in (32, 33, 34) else "other"), t
 
+    def _pps_ids(self, codec: str, items) -> set[int]:
+        out = set()
+        for it in items:
+            if it.param and it.param == (codec, "pps"):
+                raw = self._nal_bytes(it.start, it.end)
+                pid = parse_h264_pps_id(raw) if codec == "h264" else parse_h265_pps_id(raw)
+                if pid is not None:
+                    out.add(pid)
+        return out
+
+    @staticmethod
+    def _slice_pps(codec: str, sl) -> int:
+        return sl.pps_id if codec == "h264" else sl
+
     @staticmethod
     def _is_irap(codec: str, t: int) -> bool:
         return t == 5 if codec == "h264" else 16 <= t <= 21
@@ -219,12 +250,14 @@ class Carver:
         kind, t = self._kind(codec, n.head)
         joined = False
         if gap > self.p.max_pad:
-            if (
-                self.p.join_gap
-                and gap <= self.p.join_gap
-                and kind == "vcl"
-                and self._continues(a, n)
-            ):
+            candidate = bool(self.p.join_gap) and gap <= self.p.join_gap and kind == "vcl"
+            ok = candidate and self._continues(a, n)
+            if candidate and codec == "h264":
+                self.stats["join_candidates"] += 1
+                self.stats["join_accepted"] += int(ok)
+                if len(self.join_log) < 10000:
+                    self.join_log.append((a.clip.extents[-1][1], n.start, ok))
+            if ok:
                 joined = True
             else:
                 self.pend = []
@@ -244,6 +277,11 @@ class Carver:
             yield from self._break(n, gap, "implausible slice header")
             return
         irap = self._is_irap(codec, t)
+        known = a.pps_ids | self._pps_ids(codec, self.pend)
+        if known and self._slice_pps(codec, sl) not in known:
+            self.pend = []
+            yield from self._break(n, gap, "slice references a PPS not seen in the clip")
+            return
         if codec == "h264" and self.p.h264_continuity and not irap and not joined:
             if a.last_fn is not None and sl.frame_num is not None:
                 if (sl.frame_num - a.last_fn) % (1 << a.sps.log2_max_frame_num) not in (0, 1):
@@ -256,6 +294,7 @@ class Carver:
                 yield from self._close_active("parameter sets changed")
                 yield from self._idle(n, gap)  # self.pend still holds the new group
                 return
+        a.pps_ids |= self._pps_ids(codec, self.pend)
         for it in self.pend:  # commit held-back items (repeated headers, SEI, ...)
             self._extend(a, it.start, it.end)
             a.clip.nal_count += 1
@@ -309,6 +348,26 @@ class Carver:
         self.pend = []
         yield from self._add_orphan(n, next(iter(valid)), reason)
 
+    def _group_valid(self, codec: str, items) -> bool:
+        """SPS/PPS(/VPS) of the group parse with in-range fields and reference each other."""
+        raw = {k: [] for k in ("vps", "sps", "pps")}
+        for it in items:
+            if it.param:
+                raw[it.param[1]].append(self._nal_bytes(it.start, it.end))
+        if codec == "h264":
+            sps = [validate_h264_sps(b) for b in raw["sps"]]
+            if not sps or any(s is None for s in sps):
+                return False
+            ids = {s.sps_id for s in sps}
+            return all(validate_h264_pps(b, ids) is not None for b in raw["pps"])
+        vps = [validate_h265_vps(b) for b in raw["vps"]]
+        if not vps or any(v is None for v in vps):
+            return False
+        sps = [validate_h265_sps(b, set(vps)) for b in raw["sps"]]
+        if not sps or any(s is None for s in sps):
+            return False
+        return all(validate_h265_pps(b, set(sps)) is not None for b in raw["pps"])
+
     def _try_start(self, n: _Nal, codec: str, t: int) -> bool:
         if not self._is_irap(codec, t):
             return False
@@ -325,15 +384,18 @@ class Carver:
         ):
             idx -= 1  # AUD/SEI directly in front of the parameter sets belong to the clip
         items = [p for p in self.pend[idx:] if p.param is None or p.param[0] == codec]
-        sps, pps_ids = None, set()
+        if self.p.validate_params and not self._group_valid(codec, items):
+            return False
+        sps = None
         if codec == "h264":
             for p in items:
-                if p.param == ("h264", "sps") and sps is None:
+                if p.param == ("h264", "sps"):
                     sps = parse_h264_sps(self._nal_bytes(p.start, p.end))
-                elif p.param == ("h264", "pps"):
-                    pid = parse_h264_pps_id(self._nal_bytes(p.start, p.end))
-                    if pid is not None:
-                        pps_ids.add(pid)
+                    break
+        pps_ids = self._pps_ids(codec, items)
+        sl0 = self._slice(codec, t, n, None)
+        if pps_ids and self._slice_pps(codec, sl0) not in pps_ids:
+            return False  # the IRAP slice does not reference any PPS that came with it
         clip = Clip(codec, [[items[0].start, items[0].end]], nal_count=len(items))
         a = _Active(clip, frozenset((p.param[1], p.digest) for p in items if p.param), sps, pps_ids)
         for it in items[1:]:

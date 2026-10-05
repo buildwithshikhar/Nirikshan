@@ -181,7 +181,12 @@ def analyze_evidence(
     """Identify the vendor and carve clips. Synchronous in P2 (large images block the request)."""
     ev = _evidence(db, evidence_id)
     p = body or schemas.AnalyzeIn()
-    params = CarveParams(p.max_pad, 16 * 1024 * 1024, p.h264_continuity, p.join_gap)
+    params = CarveParams(
+        max_pad=p.max_pad,
+        h264_continuity=p.h264_continuity,
+        validate_params=p.validate_params,
+        join_gap=p.join_gap,
+    )
     try:
         run = analyze.analyze(db, ev, examiner, params)
     except FfmpegMissing as exc:
