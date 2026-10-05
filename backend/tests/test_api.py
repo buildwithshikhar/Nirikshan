@@ -105,7 +105,7 @@ def test_audit_trail_records_requests(client, session):
 def test_system_reports_ffmpeg_state_and_key(client, monkeypatch):
     from app import routes
 
-    monkeypatch.setattr(routes.shutil, "which", lambda _: None)
+    monkeypatch.setattr(routes, "find_tool", lambda _: None)
     s = client.get("/api/system").json()
     assert s["ffmpeg"] == {"available": False, "version": None} and "degraded" in s["mode"]
     k = client.get("/api/signing-key").json()
@@ -118,7 +118,7 @@ def test_system_with_ffmpeg_present(client, monkeypatch):
 
     from app import routes
 
-    monkeypatch.setattr(routes.shutil, "which", lambda _: "/usr/bin/ffmpeg")
+    monkeypatch.setattr(routes, "find_tool", lambda _: "/usr/bin/ffmpeg")
     monkeypatch.setattr(
         routes.subprocess,
         "run",

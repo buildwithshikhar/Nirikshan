@@ -1,5 +1,4 @@
 import re
-import shutil
 import subprocess
 from typing import Annotated
 
@@ -9,6 +8,7 @@ from sqlalchemy.exc import IntegrityError as DbIntegrityError
 from sqlalchemy.orm import Session
 
 from app import __version__, custody, evidence, schemas, signing
+from app.carving.export import find_tool
 from app.clock import ntp_status
 from app.config import allow_block_devices, evidence_roots
 from app.db import get_db
@@ -45,7 +45,7 @@ def _evidence(db: Session, evidence_id: int) -> Evidence:
 
 @router.get("/system")
 def system() -> dict:
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_tool("ffmpeg")
     version = None
     if ffmpeg:
         try:

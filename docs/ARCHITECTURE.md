@@ -1,6 +1,6 @@
 # Architecture
 
-Phased plan: [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md). Current state: **P1 evidence core**.
+Phased plan: [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md). Current state: **P1 evidence core + P2 carving**.
 
 - **Backend** (`backend/app`): FastAPI + SQLAlchemy; SQLite by default, Postgres via `DATABASE_URL` (the P1 suite, including the append-only triggers, passed against Postgres 16 from the compose file).
 - **Frontend** (`frontend/src`): React 19 + Vite + Tailwind 4.
@@ -46,3 +46,25 @@ cd backend && .venv/bin/python -m app.cli head <case_id> [--json]   # exit 0 = v
 
 ### Known limits
 Examiner identity is an `X-Examiner` attestation, not authentication. Tail truncation of the custody log is detectable only against an externally recorded `head_hash`. `custody_entries` and `audit_log` have BEFORE UPDATE/DELETE triggers (SQLite and Postgres; also TRUNCATE on Postgres, see `app/triggers.py`) so direct SQL edits fail. A database owner/superuser can still drop the triggers; that is exactly what the hash chain and signatures detect, so the triggers are a safeguard against accidents and casual edits, not the integrity guarantee. Real-disk (block device) acquisition has only been tested with file-backed fixtures.
+
+## Vendor-agnostic carving (P2)
+
+Code: `backend/app/carving/` (`nal.py` scanner, `carve.py` clip builder, `export.py` MP4 export, `bits.py` header parsing).
+
+**Scanner (`nal.scan`).** Streams the image in 4 MiB chunks (memory O(chunk)) and yields Annex-B start codes and zero runs. Start codes that straddle chunk boundaries are handled by carrying the unfinished tail; tests compare results across chunk sizes from 1 byte upward. A NAL unit ends at the next start code or at a run of 3+ zero bytes that is not a start code (emulation prevention guarantees `00 00 00/01/02` never occur inside a NAL, so this is how trailing zeros and zero-filled gaps are detected).
+
+**NAL header layouts** (checked against FFmpeg `h2645_parse.c` and `hevc/hevc.h`, master, 2026-10-05; cited in `nal.py`): H.264 = 1 byte (`forbidden(1) ref_idc(2) type(5)`); H.265 = 2 bytes (`forbidden(1) type(6) layer_id(6) temporal_id_plus1(3)`), type = `(b0>>1)&0x3F`. The ITU-T texts themselves were not available to us.
+
+**Clip builder (`Carver`).** A clip begins at an IRAP picture (H.264 IDR; H.265 BLA/IDR/CRA) accompanied by parameter sets (SPS+PPS; VPS+SPS+PPS for H.265) and continues while NAL units are plausible and contiguous (max padding 64 bytes by default). It ends on: a gap, an invalid NAL header, an implausible slice header, new parameter sets, an oversize NAL, or (H.264) a `frame_num` discontinuity, which catches foreign data spliced into a clip. Anything that cannot become a clip is returned as an **orphan** (slices without a preceding IRAP + parameter sets, or an IRAP without parameter sets) with its byte range; nothing is dropped silently. Optional H.264 **fragment reassembly** (`join_gap`, off by default) joins runs across a gap when the next slice has a known PPS and a continuing `frame_num`.
+
+**Export (`export_clip`).** Extents are concatenated into a raw bitstream (SHA-256 recorded), muxed with `ffmpeg -c copy` (never re-encoded; tests assert every slice NAL in the MP4 is byte-identical to the input), then the raw bitstream is **decoded** to detect damage. Statuses: `ok`, `decode_errors` (MP4 is kept, errors listed), `export_failed`. `-avoid_negative_ts make_zero` is required: without it, B-frame streams copied from a raw bitstream lose two frames when the MP4 is decoded. Durations come from the stream frame rate (ffmpeg assumes 25 fps without timing info) and are **not** wall-clock recording durations.
+
+### Known limits (not hidden)
+- **Encrypted payloads** are not handled; they carve as noise or not at all.
+- **MJPEG / MPEG-4 Part 2** streams (seen in the Dahua DHAV codec table) have no NAL start codes and are not carved.
+- **Interleaved multi-channel streams** without channel IDs are carved as one stream: frames from different cameras can be merged or split by the parameter-set/`frame_num` rules; channel demultiplexing needs vendor metadata (P4).
+- **Random non-zero garbage** between NAL units cannot be distinguished from payload and is absorbed into the preceding NAL; only the decode test reveals it. Zero-filled gaps are detected exactly.
+- **H.265** has no continuity check and no reassembly (needs POC/DPB logic); a gap ends the clip.
+- Fragment reassembly is a heuristic: with a 4-bit `frame_num` a wrong candidate passes the test about 1 time in 8. It stays off by default and joined clips are labelled `reassembled`.
+- Vendor headers inside the stream (e.g. DHAV frame headers, Honeywell 20-byte headers) are not stripped in P2; they sit between NAL units and show up as absorbed bytes or as decode errors until the P4 parsers handle them.
+- Measured recovery rates on ground-truth images are produced in P3, not claimed here.

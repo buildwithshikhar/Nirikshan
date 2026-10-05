@@ -50,3 +50,16 @@ def image(tmp_path):
     p = tmp_path / "src.dd"
     p.write_bytes(bytes(range(256)) * 4096 + b"tail")
     return p
+
+
+@pytest.fixture(scope="session")
+def streams():
+    """Cached SYNTHETIC ffmpeg streams (2 s, 25 fps, GOP 25 => 2 IRAP pictures each)."""
+    from tests import media
+
+    return {
+        "h264_baseline": media.gen("h264", profile="baseline"),
+        "h264_main_b": media.gen("h264", profile="main", bframes=2),
+        "h264_high": media.gen("h264", profile="high", size="352x288"),
+        "h265_main": media.gen("h265"),
+    }
