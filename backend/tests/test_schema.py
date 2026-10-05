@@ -88,6 +88,7 @@ def test_cli_reset_requires_confirmation_and_hides_the_password(client, session,
 
     session.add(Case(case_number="X", title="t", examiner="e"))
     session.commit()
+    session.commit()
     assert cli.main(["reset-db"]) == 2
     err = capsys.readouterr().err
     assert (
@@ -96,6 +97,7 @@ def test_cli_reset_requires_confirmation_and_hides_the_password(client, session,
         and "workspaces on disk are not deleted" in err
     )
     assert session.query(Case).count() == 1
+    session.commit()  # release locks: on Postgres an open transaction would block the DROP TABLE
     assert cli.main(["reset-db", "--yes"]) == 0
     out = capsys.readouterr().out
     assert f"schema version {schema.SCHEMA_VERSION}" in out and "NOT removed" in out
