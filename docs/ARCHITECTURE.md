@@ -68,3 +68,15 @@ Code: `backend/app/carving/` (`nal.py` scanner, `carve.py` clip builder, `export
 - Fragment reassembly is a heuristic: with a 4-bit `frame_num` a wrong candidate passes the test about 1 time in 8. It stays off by default and joined clips are labelled `reassembled`.
 - Vendor headers inside the stream (e.g. DHAV frame headers, Honeywell 20-byte headers) are not stripped in P2; they sit between NAL units and show up as absorbed bytes or as decode errors until the P4 parsers handle them.
 - Measured recovery rates on ground-truth images are produced in P3, not claimed here.
+
+## Device identification and the parser plugin interface (P2)
+
+Code: `backend/app/vendors/`. A `VendorParser` declares `vendor`, `tier` (`B` or `C`, never `A`), `sources` (RESEARCH sections), and contributes fixed-offset `probes()` and byte `signatures()` (each with an optional structural validator). `ParserRegistry.identify()` runs **one streaming pass** over the image for all parsers' signatures (bounded memory, boundary-safe) and returns `Match` objects: vendor, tier, confidence, evidence offsets (first 20 per signature; exact total counts reported), the RESEARCH basis and caveats. Optional `enumerate()` (structured parsing, P4) and `carve_hints()` exist on the interface but are unused by the generic carver.
+
+| Vendor | Signatures used (all from docs/RESEARCH.md) | Best confidence |
+|---|---|---|
+| Hikvision | `HIKVISION@HANGZHOU` at 0x200 (Master Sector), `HIKBTREE`, `RATS` + documented follower bytes | medium: Master Sector at 0x200, or two distinct signature kinds; else low |
+| Dahua | `DHAV` frame whose length field and `dhav` + u32 trailer agree (dhav.c arithmetic); `DAHUA` file prefix (exported file) | medium: >= 3 verified frames; else low |
+| Honeywell | 20-byte custom header (`82/02`, `80 01 00`, start code at +20, plausible length/time) + Machine Data `HN<digits>` at sector 34 | medium: >= 3 headers and Machine Data; else low |
+
+**Confidence semantics.** `medium` = a documented signature was found *and* structurally validated; `low` = a weaker or single signature. `high` is never produced because no vendor is Tier A (validated on a real image of our own). CP Plus, Uniview, TP-Link, Godrej and Matrix have no public signature, so they have no parser; their images are carved generically and the vendor stays "unknown". CP Plus is not assumed to be Dahua-compatible. Honeywell's tools repository is unlicensed and was not used. `OFNI` (Hikvision IDR table) is documented but too short to identify reliably without parsing, so it is not used in P2.
