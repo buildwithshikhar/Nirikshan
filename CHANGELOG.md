@@ -8,3 +8,4 @@
 - P3: seeded SYNTHETIC validation harness (22 scenarios incl. negatives), `make validate`, committed baseline, regression thresholds; carver hardening (parameter-set syntax validation, PPS-reference rule, EOF zero trimming, join log).
 - P4 (Dahua): DHAV frame parser behind the plugin interface (parsed/inferred/unknown field tags, raw timestamps without timezone, generic cross-check, fallback on any inconsistency); per-paper DHAV layout for the validation harness; clips carry `engine`/`channel`.
 - P4 (Hikvision): Master Sector/RATS/HIKBTREE parser with explicit options for the open block-size, timestamp-basis and Master Sector base conflicts; per-paper layout in the harness.
+- P4 (Honeywell): custom-header/Machine Data/block-index parser (paper facts only, unlicensed repo not used); per-paper layout in the harness.
