@@ -15,3 +15,5 @@ Mutating calls (`POST`) require an `X-Examiner: <name>` header (attestation, not
 | GET | `/api/cases/{id}/custody` | Custody entries |
 | GET | `/api/cases/{id}/custody/verify` | Chain + signature verification `{ok, entries, head_hash, key_id, failures[]}` |
 | GET | `/api/audit?case_id=&limit=` | Audit trail |
+
+CLI: `python -m app.cli head <case_id> [--json]` verifies the chain and prints `head_hash`.

@@ -30,11 +30,13 @@ test('create case -> acquire -> verify evidence -> verify custody chain', async 
   const row = page.getByRole('row').filter({ hasText: 'Synthetic HDD' })
   await expect(row).toContainText('acquired')
   await expect(row).toContainText(/SHA-256 [0-9a-f]{64}/)
+  await expect(page.getByTestId('head-hash')).toContainText(/[0-9a-f]{64}/)
   await row.getByRole('button', { name: 'Verify' }).click()
   await expect(row).toContainText('verified')
 
   await page.getByRole('link', { name: 'Custody log →' }).click()
   await expect(page.getByRole('cell', { name: 'evidence_acquired' })).toBeVisible()
+  await expect(page.getByTestId('head-hash')).toContainText(/[0-9a-f]{64}/)
   await page.getByRole('button', { name: 'Verify chain and signatures' }).click()
   await expect(page.getByTestId('chain-result')).toContainText('CHAIN VALID')
 })

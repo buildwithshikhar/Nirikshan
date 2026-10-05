@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { type ChainResult, type CustodyEntry, api } from '../api'
+import HeadHash from '../components/HeadHash'
 
 export default function CustodyLog() {
   const id = Number(useParams().id)
@@ -10,6 +11,7 @@ export default function CustodyLog() {
 
   useEffect(() => {
     api.custody(id).then(setEntries).catch((e) => setError(e.message))
+    api.verifyChain(id).then(setChain).catch((e) => setError(e.message))
   }, [id])
 
   const check = () =>
@@ -31,13 +33,13 @@ export default function CustodyLog() {
               {chain.ok ? 'CHAIN VALID' : 'CHAIN INVALID'}
             </span>{' '}
             ({chain.entries} entries, key {chain.key_id})
-            <div className="font-mono text-[11px] text-slate-400">head {chain.head_hash}</div>
             {chain.failures.map((f, i) => (
               <div key={i} className="text-red-400">entry {f.seq}: {f.reason}</div>
             ))}
           </div>
         )}
       </div>
+      <HeadHash chain={chain} />
       {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
       <section className="overflow-x-auto rounded-lg bg-navy-800 p-5">
         <table className="w-full text-left text-sm">

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { type Case, type Evidence, api } from '../api'
+import { type Case, type ChainResult, type Evidence, api } from '../api'
+import HeadHash from '../components/HeadHash'
 
 const WB = ['unknown', 'yes', 'no'] as const
 
@@ -17,10 +18,12 @@ export default function CaseDetail() {
   const [form, setForm] = useState({ source_path: '', label: '', write_blocker: 'unknown' })
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [chain, setChain] = useState<ChainResult | null>(null)
 
   const load = useCallback(() => {
     api.getCase(id).then(setKase).catch((e) => setError(e.message))
     api.listEvidence(id).then(setEvidence).catch((e) => setError(e.message))
+    api.verifyChain(id).then(setChain).catch(() => setChain(null))
   }, [id])
   useEffect(load, [load])
 
@@ -74,6 +77,7 @@ export default function CaseDetail() {
           The write-blocker choice is an examiner attestation and is not verified by the tool.
         </p>
       </form>
+      <HeadHash chain={chain} />
       {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
       <section className="rounded-lg bg-navy-800 p-5">
         <h2 className="mb-2 font-medium">Evidence</h2>

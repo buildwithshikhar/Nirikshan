@@ -32,6 +32,13 @@ Analysis stages must call `open_verified()`: it re-hashes, logs an `evidence_ver
 Each entry holds: `seq`, `timestamp_utc` (system clock, UTC), `action`, `evidence_id`, `examiner`, `tool_version`, `ntp_status`, canonical-JSON `details`, `prev_hash`, `entry_hash`, `signature`, `key_id`.
 `entry_hash = SHA-256(canonical JSON of all fields except entry_hash/signature/key_id)`; `signature = Ed25519(entry_hash)`. `GET /api/cases/{id}/custody/verify` checks sequence continuity, `prev_hash` links, recomputed hashes and signatures; a chain recomputed by someone without the key fails on signatures.
 
+### Recording the head_hash outside the system
+The chain alone cannot reveal that the newest entries were deleted. **Record `head_hash` outside Nirikshan** (signed paper log, case file, email to a supervisor, the P7 report) at the end of each session and after every acquisition. Later, a mismatch between the recorded value and the current chain (or a chain that is shorter than the entry count you recorded) proves truncation or rollback. `head_hash` is shown with a Copy button on the case and custody pages, returned by `GET /api/cases/{id}/custody/verify`, and printed by the CLI:
+
+```
+cd backend && .venv/bin/python -m app.cli head <case_id> [--json]   # exit 0 = valid, 1 = invalid, 2 = no such case
+```
+
 ### Key handling
 - Private key: `$NIRIKSHAN_KEY_DIR/custody_ed25519.pem` (default `~/.nirikshan/keys`), generated on first use, mode 0600; refused if the directory is inside `NIRIKSHAN_DATA_DIR` or the file is group/world accessible.
 - Back it up separately from case data. Losing it means old entries can no longer be verified by this installation; leaking it lets anyone forge entries. Rotation is not implemented (entries carry `key_id`, so verification of multiple keys can be added later).
