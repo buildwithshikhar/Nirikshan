@@ -17,6 +17,8 @@ export default defineConfig({
       url: `http://localhost:${API_PORT}/health`,
       env: {
         DATABASE_URL: backendDb,
+        NIRIKSHAN_DATA_DIR: './e2e-data',
+        NIRIKSHAN_KEY_DIR: '../e2e-keys',
         CORS_ORIGINS: `http://localhost:${WEB_PORT}`,
       },
       reuseExistingServer: false,

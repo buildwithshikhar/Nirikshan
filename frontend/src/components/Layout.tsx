@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { getExaminer, setExaminer } from '../api'
 import { type BackendStatus, useBackendStatus } from '../useBackendStatus'
 
-const NAV = [{ to: '/', label: 'Dashboard' }]
+const NAV = [
+  { to: '/', label: 'Dashboard' },
+  { to: '/cases', label: 'Cases' },
+]
 
 const STATUS: Record<BackendStatus, { dot: string; label: string }> = {
   checking: { dot: 'bg-slate-400', label: 'Checking API…' },
@@ -12,6 +17,7 @@ const STATUS: Record<BackendStatus, { dot: string; label: string }> = {
 
 export default function Layout() {
   const status = STATUS[useBackendStatus()]
+  const [examiner, setName] = useState(getExaminer())
 
   return (
     <div className="flex min-h-screen">
@@ -44,7 +50,17 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2 rounded-full bg-navy-800 px-3 py-1 text-xs">
+          <input
+            aria-label="Examiner name"
+            placeholder="Examiner name (required to act)"
+            value={examiner}
+            onChange={(e) => {
+              setName(e.target.value)
+              setExaminer(e.target.value)
+            }}
+            className="ml-auto w-56 rounded-md bg-navy-800 px-3 py-1 text-xs outline-none ring-1 ring-navy-700 focus:ring-accent"
+          />
+          <div className="ml-3 flex items-center gap-2 rounded-full bg-navy-800 px-3 py-1 text-xs">
             <span className={`h-2 w-2 rounded-full ${status.dot}`} />
             {status.label}
           </div>

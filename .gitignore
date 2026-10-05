@@ -62,3 +62,5 @@ coverage/
 *.db
 test-results/
 playwright-report/
+e2e-data/
+e2e-keys/
