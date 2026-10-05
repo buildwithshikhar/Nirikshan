@@ -3,6 +3,7 @@ import os
 from sqlalchemy import select
 
 from app.models import AuditEntry, CustodyEntry, Evidence
+from app.triggers import drop_triggers
 
 
 def _case(client, number="N-1"):
@@ -78,6 +79,7 @@ def test_tampered_image_reported_over_api(client, image):
 
 def test_api_tamper_detected_by_chain_endpoint(client, session):
     c = _case(client)
+    drop_triggers(session)  # simulate a DB owner
     row = session.scalars(select(CustodyEntry)).first()
     row.examiner = "someone else"
     session.commit()

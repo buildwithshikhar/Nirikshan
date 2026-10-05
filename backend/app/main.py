@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import __version__
+from app import __version__, triggers  # noqa: F401  (registers DDL events before create_all)
 from app.db import Base, SessionLocal, engine
 from app.models import AuditEntry
 from app.routes import audit_case_id, router

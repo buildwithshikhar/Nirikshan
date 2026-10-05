@@ -1,12 +1,20 @@
 import json
 from datetime import datetime
 
+import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from sqlalchemy import select
 
 from app import custody, signing
 from app.custody import GENESIS, compute_hash
 from app.models import Case, CustodyEntry
+from app.triggers import drop_triggers
+
+
+@pytest.fixture(autouse=True)
+def _db_owner_tampering(session):
+    """Tamper tests simulate a DB owner who removed the append-only triggers."""
+    drop_triggers(session)
 
 
 def _case(session):
