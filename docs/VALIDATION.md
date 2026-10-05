@@ -25,17 +25,21 @@ Scenario ids `@dhav`, `@hik`, `@honeywell` use layouts built only from fields in
 
 | Layout / scenario | Generic carver | Vendor parser |
 |---|---|---|
-| DHAV `clean_live` | recall 100% (60/60), byte-exact 0% (0/60), frame recall 85% (2764/3250) | recall 100% (60/60), byte-exact 100% (60/60), frame recall 100% (3250/3250) |
+| DHAV `clean_live` | recall 100% (60/60), byte-exact 0% (0/60) (vendor headers sit inside the extents), frame recall 100% (3250/3250) after the stray-header tolerance (it was 85% before) | recall 100% (60/60), byte-exact 100% (60/60), frame recall 100% (3250/3250) |
 | DHAV `multi_channel_frame` (frame-interleaved cameras) | clip precision 71% (58/82) (cameras mixed) | clip precision 100% (49/49) (channel byte parsed) |
 | DHAV `random_gaps_between` | byte-exact 0% (0/60) | byte-exact 100% (60/60) (payload bounded by frame length) |
 | Hikvision `clean_live` | recall 100% (60/60) | recall 100% (60/60) |
 | Hikvision `deleted_intact_zero` (HIKBTREE entries cleared) | recall 100% (60/60) | recall 33% (20/60): **the parser cannot see video whose entry was cleared; the generic carver is the safety net** |
-| Honeywell `clean_live` | recall 75% (45/60), frame recall 69% (2325/3375) (20-byte headers sit between NAL units) | recall 100% (60/60), byte-exact 100% (60/60) |
+| Honeywell `clean_live` | recall 100% (60/60), byte-exact 0% (vendor headers sit inside the extents), frame recall 100% (3375/3375) after the stray-header tolerance (clip recall 75%, frame recall 69% before) | recall 100% (60/60), byte-exact 100% (60/60) |
 
 Cross-check disagreements are reported per scenario in `results.json`/`results.md` (kinds: `parser_clip_not_found_by_generic`, `generic_clip_not_explained_by_parser`, `frame_count_mismatch`, `generic_includes_extra_bytes`). Examples from the baseline: Hikvision `deleted_intact_zero` generic_clip_not_explained_by_parser 40; DHAV `clean_live` frame_count_mismatch 42, parser_clip_not_found_by_generic 18. They are listed, not hidden; `frame_count_mismatch` and `generic_includes_extra_bytes` are expected effects of vendor headers, while the frequent `parser_clip_not_found_by_generic` rows were not investigated one by one. The regression thresholds are checked in strict mode: a scenario missing from a full run fails (a harness bug once dropped the Dahua engine silently; this guard was added because of it).
 
+## Pipeline default (Round A)
+The default pipeline is parser-first, then generic carving over the bytes no parser clip spans (`*+generic` engines in the baseline), so a partial parser never loses clips: Hikvision `deleted_intact_zero` recall is 33% for the parser alone and 100% for parser-first + generic on the synthetic layout.
+
 ## Defects the harness found during development (fixed)
 - Fake parameter-set groups (random bytes behind SPS/PPS/IDR headers) produced 64 false-positive clips in two adversarial images and 384 in two noise images. Fixed with SPS/PPS/VPS syntax validation and a "slice must reference a PPS from the clip" rule (`validate_params`, default on). Risk: a real device with non-standard parameter sets would be rejected; the option can be switched off per run (`validate_params=false`) and this has not been exercised on real streams.
+- Vendor header fields can contain `00 00 01`; the generic carver read them as invalid start codes and fragmented clips on vendor-framed data (the cause of most `parser_clip_not_found_by_generic` rows). An invalid NAL header within the pad window is now tolerated (other-codec parameter sets still end a clip); the first version of this fix swallowed an H.265 clip that directly followed an H.264 clip and was caught by the strict thresholds.
 - A lone zero byte at the end of an image was included in the last NAL (fixed).
 - A positional-argument shift dropped the Dahua engine from the first parser baseline and the threshold checker skipped the missing scenarios silently (fixed; thresholds now fail on missing scenarios in full runs).
 - Scenario modelling flaw: a "newer recording" was written as raw bytes into DHAV-layout images, which a DHAV parser correctly could not see; the generator now writes it in the image's own layout. The cross-check had exposed it.

@@ -34,3 +34,9 @@ docker compose up -d db
 # run the backend suite against it:
 # TEST_DATABASE_URL=postgresql://nirikshan:nirikshan@localhost:5433/nirikshan .venv/bin/pytest -q
 ```
+
+## Documentation
+- [User manual](docs/USER_MANUAL.md) and [SOPs](docs/sop/) (acquisition, hashing and integrity, recovery, timestamp handling, reporting)
+- [Validation (SYNTHETIC)](docs/VALIDATION.md), [validation report draft](docs/VALIDATION_REPORT.md), [OEM comparison](docs/OEM_COMPARISON.md), [research basis](docs/RESEARCH.md)
+- [Real-image playbook](docs/REAL_IMAGE_PLAYBOOK.md) and [hardware shopping list](docs/HARDWARE_SHOPPING.md)
+- [Architecture](docs/ARCHITECTURE.md), [API](docs/API.md), [parsers](docs/parsers/)
