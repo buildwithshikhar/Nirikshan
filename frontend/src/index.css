@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-900: #0a1628;
+  --color-navy-800: #0f2040;
+  --color-navy-700: #16305c;
+  --color-accent: #f97316;
+  --color-accent-hover: #ea580c;
+}
+
+body {
+  @apply bg-navy-900 text-slate-100 antialiased;
+}
