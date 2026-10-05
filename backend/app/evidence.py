@@ -21,6 +21,10 @@ from app.config import allow_block_devices, data_dir, evidence_roots
 from app.hashing import CHUNK, Digests, hash_file, hash_stream
 from app.models import Evidence
 
+# Indirections so tests can patch them without touching the global os module.
+_stat = os.stat
+_open = os.open
+
 
 class AcquisitionError(Exception):
     """Caller-correctable problem with the source (maps to HTTP 400)."""
@@ -51,7 +55,7 @@ def open_source_readonly(path: str) -> tuple[int, str, int, Path]:
     """
     try:
         resolved = Path(path).expanduser().resolve(strict=True)
-        st = os.stat(resolved)
+        st = _stat(resolved)
     except (OSError, RuntimeError) as exc:
         raise AcquisitionError(f"cannot stat source: {getattr(exc, 'strerror', exc)}") from exc
     kind = classify(st.st_mode)
@@ -65,7 +69,7 @@ def open_source_readonly(path: str) -> tuple[int, str, int, Path]:
         if not any(resolved.is_relative_to(r) for r in roots):
             raise PathNotAllowed("source is outside the configured evidence roots")
     try:
-        fd = os.open(resolved, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        fd = _open(resolved, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
     except OSError as exc:
         raise AcquisitionError(f"cannot open source read-only: {exc.strerror}") from exc
     size = st.st_size if kind == "file" else os.lseek(fd, 0, os.SEEK_END)

@@ -105,8 +105,8 @@ def test_block_device_requires_explicit_flag(image, monkeypatch):
 
     real = os.stat
     monkeypatch.setattr(
-        evidence.os,
-        "stat",
+        evidence,
+        "_stat",
         lambda p, *a, **k: FakeStat() if str(p) == str(image.resolve()) else real(p),
     )
     with pytest.raises(PathNotAllowed, match="block devices are disabled"):

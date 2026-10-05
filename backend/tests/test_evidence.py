@@ -45,7 +45,7 @@ def test_source_is_opened_read_only_and_left_untouched(session, case_id, image, 
         flags.append((str(path), f))
         return real_open(path, f, *a, **k)
 
-    monkeypatch.setattr(evidence.os, "open", spy)
+    monkeypatch.setattr(evidence, "_open", spy)
     _acquire(session, case_id, image)
     src_flags = [f for p, f in flags if p == str(image.resolve())]
     assert src_flags and all(f & (os.O_WRONLY | os.O_RDWR | os.O_CREAT) == 0 for f in src_flags)
@@ -68,8 +68,8 @@ def test_block_device_path_uses_readonly_open_and_lseek_size(session, case_id, i
         st_size = 0  # block devices report 0; size must come from lseek
 
     monkeypatch.setattr(
-        evidence.os,
-        "stat",
+        evidence,
+        "_stat",
         lambda p, *a, **k: FakeStat() if str(p) == str(image.resolve()) else real_stat(p),
     )
     ev = _acquire(session, case_id, image)
