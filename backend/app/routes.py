@@ -1,18 +1,23 @@
+import json
 import re
 import subprocess
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError as DbIntegrityError
 from sqlalchemy.orm import Session
 
-from app import __version__, custody, evidence, schemas, signing
-from app.carving.export import find_tool
+from app import __version__, analyze, custody, evidence, schemas, signing
+from app.carving.carve import CarveParams
+from app.carving.export import FfmpegMissing, find_tool
 from app.clock import ntp_status
 from app.config import allow_block_devices, evidence_roots
 from app.db import get_db
-from app.models import AuditEntry, Case, CustodyEntry, Evidence
+from app.hashing import hash_file
+from app.models import AuditEntry, CarveRun, Case, Clip, CustodyEntry, Evidence
 
 router = APIRouter(prefix="/api")
 DbSession = Annotated[Session, Depends(get_db)]
@@ -137,6 +142,107 @@ def list_custody(case_id: int, db: DbSession):
 def verify_custody(case_id: int, db: DbSession):
     _case(db, case_id)
     return custody.verify_chain(db, case_id)
+
+
+def _clip_out(row: Clip) -> schemas.ClipOut:
+    out = schemas.ClipOut.model_validate(row)
+    out.has_video = bool(row.mp4_path) and Path(row.mp4_path).is_file()
+    return out
+
+
+def _run_detail(db: Session, run: CarveRun) -> dict:
+    clips = db.scalars(
+        select(Clip).where(Clip.run_id == run.id).order_by(Clip.kind, Clip.seq)
+    ).all()
+    return {
+        "id": run.id,
+        "case_id": run.case_id,
+        "evidence_id": run.evidence_id,
+        "status": run.status,
+        "examiner": run.examiner,
+        "params": json.loads(run.params_json),
+        "vendor_matches": json.loads(run.vendor_json),
+        "stats": json.loads(run.stats_json),
+        "tool_version": run.tool_version,
+        "ffmpeg_version": run.ffmpeg_version,
+        "started_at": run.started_at,
+        "finished_at": run.finished_at,
+        "identify_seconds": run.ident_seconds,
+        "carve_seconds": run.carve_seconds,
+        "error": run.error,
+        "clips": [_clip_out(c) for c in clips],
+    }
+
+
+@router.post("/evidence/{evidence_id}/analyze", status_code=201)
+def analyze_evidence(
+    evidence_id: int, db: DbSession, examiner: Examiner, body: schemas.AnalyzeIn | None = None
+):
+    """Identify the vendor and carve clips. Synchronous in P2 (large images block the request)."""
+    ev = _evidence(db, evidence_id)
+    p = body or schemas.AnalyzeIn()
+    params = CarveParams(p.max_pad, 16 * 1024 * 1024, p.h264_continuity, p.join_gap)
+    try:
+        run = analyze.analyze(db, ev, examiner, params)
+    except FfmpegMissing as exc:
+        raise HTTPException(503, str(exc)) from exc
+    except evidence.IntegrityError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    return _run_detail(db, run)
+
+
+@router.get("/evidence/{evidence_id}/runs")
+def list_runs(evidence_id: int, db: DbSession):
+    _evidence(db, evidence_id)
+    runs = db.scalars(
+        select(CarveRun).where(CarveRun.evidence_id == evidence_id).order_by(CarveRun.id.desc())
+    ).all()
+    return [_run_detail(db, r) for r in runs]
+
+
+@router.get("/runs/{run_id}")
+def get_run(run_id: int, db: DbSession):
+    run = db.get(CarveRun, run_id)
+    if run is None:
+        raise HTTPException(404, "Run not found")
+    return _run_detail(db, run)
+
+
+def _clip(db: Session, clip_id: int) -> Clip:
+    row = db.get(Clip, clip_id)
+    if row is None:
+        raise HTTPException(404, "Clip not found")
+    return row
+
+
+@router.get("/clips/{clip_id}/video")
+def clip_video(clip_id: int, db: DbSession):
+    row = _clip(db, clip_id)
+    if not row.mp4_path or not Path(row.mp4_path).is_file():
+        raise HTTPException(404, "No exported video for this clip")
+    return FileResponse(row.mp4_path, media_type="video/mp4", filename=f"clip_{row.id}.mp4")
+
+
+@router.post("/clips/{clip_id}/verify")
+def verify_clip(clip_id: int, db: DbSession, examiner: Examiner):
+    """Re-hash the exported MP4 and compare with the hash recorded at carve time."""
+    row = _clip(db, clip_id)
+    if not row.mp4_path:
+        raise HTTPException(404, "No exported video for this clip")
+    try:
+        observed = hash_file(row.mp4_path).sha256
+    except OSError:
+        observed = ""
+    ok = observed == row.mp4_sha256
+    custody.append_entry(
+        db,
+        row.case_id,
+        "clip_verified",
+        examiner,
+        {"clip_id": row.id, "ok": ok, "expected": row.mp4_sha256, "observed": observed},
+        row.evidence_id,
+    )
+    return {"ok": ok, "expected": row.mp4_sha256, "observed": observed}
 
 
 @router.get("/audit", response_model=list[schemas.AuditOut])

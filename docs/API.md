@@ -12,6 +12,10 @@ Mutating calls (`POST`) require an `X-Examiner: <name>` header (attestation, not
 | POST | `/api/cases/{id}/evidence` | Acquire `{source_path, label, write_blocker: yes\|no\|unknown}`; returns hashes. 403 if the resolved path is outside `NIRIKSHAN_EVIDENCE_ROOTS` or a block device is not enabled |
 | GET | `/api/cases/{id}/evidence` | Evidence list |
 | POST | `/api/evidence/{id}/verify` | Re-hash stored image, compare, log custody entry |
+| POST | `/api/evidence/{id}/analyze` | Identify vendor + carve clips (body optional: `max_pad` 0-4096 default 64, `join_gap` 0-16 MiB default 0 = reassembly off, `h264_continuity` default true). Reads the image only after re-verifying its hashes (409 + `carve_failed` custody entry on mismatch; 503 if ffmpeg/ffprobe are missing). Synchronous. Returns the run with `vendor_matches` (vendor, tier, confidence, evidence offsets, caveats), `stats`, timings and `clips` (kind `clip` or `orphan`, byte extents, SHA-256 of the carved bitstream and of the MP4, `decode_status` ok / decode_errors / export_failed, listed decode errors, nominal duration) |
+| GET | `/api/evidence/{id}/runs`, `/api/runs/{id}` | Carve runs |
+| GET | `/api/clips/{id}/video` | The exported MP4 (`video/mp4`, Range supported) |
+| POST | `/api/clips/{id}/verify` | Re-hash the exported MP4 against the hash recorded at carve time (custody entry `clip_verified`) |
 | GET | `/api/cases/{id}/custody` | Custody entries |
 | GET | `/api/cases/{id}/custody/verify` | Chain + signature verification `{ok, entries, head_hash, key_id, failures[]}` |
 | GET | `/api/audit?case_id=&limit=` | Audit trail |

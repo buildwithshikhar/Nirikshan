@@ -65,3 +65,40 @@ class AuditOut(BaseModel):
     path: str
     status_code: int
     case_id: int | None
+
+
+class AnalyzeIn(BaseModel):
+    max_pad: int = Field(default=64, ge=0, le=4096)
+    join_gap: int = Field(default=0, ge=0, le=16 * 1024 * 1024)
+    h264_continuity: bool = True
+
+
+class ClipOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    run_id: int
+    evidence_id: int
+    kind: str
+    seq: int
+    codec: str
+    start_offset: int
+    end_offset: int
+    size_bytes: int
+    extents_json: str
+    nal_count: int
+    irap_count: int
+    vcl_count: int
+    reassembled: int
+    reason: str
+    notes_json: str
+    bitstream_sha256: str
+    mp4_sha256: str
+    decode_status: str
+    decode_errors_json: str
+    error: str
+    width: int | None
+    height: int | None
+    fps: str
+    packets: int | None
+    duration_s: float | None
+    has_video: bool = False
