@@ -74,21 +74,22 @@ def letterbox(rgb: np.ndarray, size: tuple[int, int], pad_value: int) -> tuple[n
 
 def nms(boxes: np.ndarray, scores: np.ndarray, iou_thr: float) -> list[int]:
     """Greedy NMS (stable order: score desc, then index asc). boxes are x1,y1,x2,y2."""
-    order = sorted(range(len(scores)), key=lambda i: (-float(scores[i]), i))
-    keep: list[int] = []
+    boxes = np.asarray(boxes, dtype=np.float64)
+    order = np.lexsort((np.arange(len(scores)), -np.asarray(scores, dtype=np.float64)))
     areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
-    while order:
-        i = order.pop(0)
+    keep: list[int] = []
+    while order.size:
+        i, rest = int(order[0]), order[1:]
         keep.append(i)
-        rest = []
-        for j in order:
-            xx1, yy1 = max(boxes[i, 0], boxes[j, 0]), max(boxes[i, 1], boxes[j, 1])
-            xx2, yy2 = min(boxes[i, 2], boxes[j, 2]), min(boxes[i, 3], boxes[j, 3])
-            inter = max(0.0, xx2 - xx1) * max(0.0, yy2 - yy1)
-            union = areas[i] + areas[j] - inter
-            if union <= 0 or inter / union <= iou_thr:
-                rest.append(j)
-        order = rest
+        if not rest.size:
+            break
+        iw = np.minimum(boxes[i, 2], boxes[rest, 2]) - np.maximum(boxes[i, 0], boxes[rest, 0])
+        ih = np.minimum(boxes[i, 3], boxes[rest, 3]) - np.maximum(boxes[i, 1], boxes[rest, 1])
+        inter = np.clip(iw, 0, None) * np.clip(ih, 0, None)
+        union = areas[i] + areas[rest] - inter
+        with np.errstate(divide="ignore", invalid="ignore"):
+            iou = np.where(union > 0, inter / union, 0.0)
+        order = rest[iou <= iou_thr]
     return keep
 
 

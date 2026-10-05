@@ -1,0 +1,515 @@
+{
+  "entries": {
+    "faces": {
+      "configs": [
+        {
+          "condition": "original",
+          "confidence_threshold": 0.5,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 0,
+          "fp": 2,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 0.9987,
+          "precision_ci_bootstrap": [
+            0.9967,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9952,
+            0.9996
+          ],
+          "recall": 1.0,
+          "recall_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9975,
+            1.0
+          ],
+          "tp": 1521
+        },
+        {
+          "condition": "original",
+          "confidence_threshold": 0.7,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 0,
+          "fp": 2,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 0.9987,
+          "precision_ci_bootstrap": [
+            0.9967,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9952,
+            0.9996
+          ],
+          "recall": 1.0,
+          "recall_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9975,
+            1.0
+          ],
+          "tp": 1521
+        },
+        {
+          "condition": "original",
+          "confidence_threshold": 0.9,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 2,
+          "fp": 1,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 0.9993,
+          "precision_ci_bootstrap": [
+            0.998,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9963,
+            0.9999
+          ],
+          "recall": 0.9987,
+          "recall_ci_bootstrap": [
+            0.9967,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9952,
+            0.9996
+          ],
+          "tp": 1519
+        },
+        {
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.5,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 0,
+          "fp": 8,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 0.9948,
+          "precision_ci_bootstrap": [
+            0.9909,
+            0.998
+          ],
+          "precision_ci_wilson": [
+            0.9897,
+            0.9973
+          ],
+          "recall": 1.0,
+          "recall_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9975,
+            1.0
+          ],
+          "tp": 1521
+        },
+        {
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.7,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 1,
+          "fp": 2,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 0.9987,
+          "precision_ci_bootstrap": [
+            0.9967,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9952,
+            0.9996
+          ],
+          "recall": 0.9993,
+          "recall_ci_bootstrap": [
+            0.998,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9963,
+            0.9999
+          ],
+          "tp": 1520
+        },
+        {
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.9,
+          "dataset": "BioID Face Database v1.2 (Jesorsky et al., 2001), 1521 images",
+          "dataset_licence": "No licence text in the distribution (description.txt); published for face-detection research; used locally, not redistributed",
+          "dataset_url": "https://www.bioid.com/facedb/",
+          "fn": 28,
+          "fp": 0,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "match_rule": "box contains both annotated eye points, width 1.2-4.0x eye distance",
+          "n_images": 1521,
+          "nms_iou": 0.45,
+          "precision": 1.0,
+          "precision_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9974,
+            1.0
+          ],
+          "recall": 0.9816,
+          "recall_ci_bootstrap": [
+            0.9744,
+            0.9882
+          ],
+          "recall_ci_wilson": [
+            0.9735,
+            0.9872
+          ],
+          "tp": 1493
+        }
+      ],
+      "measured_classes": [
+        "face"
+      ],
+      "model": {
+        "input_size": [
+          640,
+          640
+        ],
+        "key": "faces",
+        "licence": "MIT",
+        "licence_url": "https://github.com/opencv/opencv_zoo/blob/main/models/face_detection_yunet/LICENSE",
+        "name": "YuNet",
+        "sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+        "size_bytes": 232589,
+        "source_url": "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
+        "version": "2023mar"
+      },
+      "unmeasured_note": "BioID is frontal, single-face, 384x286 grey images. Profile, occluded, small or multiple faces were NOT measured. Matching uses eye-containment (BioID has no boxes), not IoU 0.5. Unannotated extra faces would count as false positives."
+    },
+    "motion": {
+      "configs": [
+        {
+          "condition": "320x240_crf23",
+          "dataset": "30 synthetic clips (noise texture, 40x40 block at 5 px/frame)",
+          "fn": 0,
+          "fp": 0,
+          "label": "synthetic, not representative of DVR footage",
+          "match_rule": "interval frame-IoU >= 0.5",
+          "n_images": 30,
+          "precision": 1.0,
+          "precision_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9286,
+            1.0
+          ],
+          "recall": 1.0,
+          "recall_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9286,
+            1.0
+          ],
+          "tp": 50
+        },
+        {
+          "condition": "352x288_crf33",
+          "dataset": "30 synthetic clips (noise texture, 40x40 block at 5 px/frame)",
+          "fn": 0,
+          "fp": 0,
+          "label": "synthetic, not representative of DVR footage",
+          "match_rule": "interval frame-IoU >= 0.5",
+          "n_images": 30,
+          "precision": 1.0,
+          "precision_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "precision_ci_wilson": [
+            0.9312,
+            1.0
+          ],
+          "recall": 1.0,
+          "recall_ci_bootstrap": [
+            1.0,
+            1.0
+          ],
+          "recall_ci_wilson": [
+            0.9312,
+            1.0
+          ],
+          "tp": 52
+        }
+      ],
+      "measured_classes": [],
+      "measured_params": {
+        "bg_alpha": 1.0,
+        "blur": 1,
+        "max_samples": null,
+        "merge_gap": 2,
+        "min_area": 24,
+        "min_samples": 1,
+        "stride": 2,
+        "threshold": 25,
+        "width": 160
+      },
+      "model": null,
+      "unmeasured_note": "Motion = changed pixels only. Lighting changes, noise and compression artefacts on real DVR footage were NOT measured."
+    },
+    "objects": {
+      "configs": [
+        {
+          "class": "person",
+          "condition": "original",
+          "confidence_threshold": 0.3,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 8,
+          "fp": 189,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.6871,
+          "precision_ci_bootstrap": [
+            0.6397,
+            0.7325
+          ],
+          "precision_ci_wilson": [
+            0.649,
+            0.7228
+          ],
+          "recall": 0.9811,
+          "recall_ci_bootstrap": [
+            0.9659,
+            0.9933
+          ],
+          "recall_ci_wilson": [
+            0.9631,
+            0.9904
+          ],
+          "tp": 415
+        },
+        {
+          "class": "person",
+          "condition": "original",
+          "confidence_threshold": 0.5,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 10,
+          "fp": 116,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.7807,
+          "precision_ci_bootstrap": [
+            0.7314,
+            0.8245
+          ],
+          "precision_ci_wilson": [
+            0.7435,
+            0.8139
+          ],
+          "recall": 0.9764,
+          "recall_ci_bootstrap": [
+            0.9609,
+            0.99
+          ],
+          "recall_ci_wilson": [
+            0.957,
+            0.9871
+          ],
+          "tp": 413
+        },
+        {
+          "class": "person",
+          "condition": "original",
+          "confidence_threshold": 0.7,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 25,
+          "fp": 54,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.8805,
+          "precision_ci_bootstrap": [
+            0.8437,
+            0.9123
+          ],
+          "precision_ci_wilson": [
+            0.8474,
+            0.9073
+          ],
+          "recall": 0.9409,
+          "recall_ci_bootstrap": [
+            0.9142,
+            0.9636
+          ],
+          "recall_ci_wilson": [
+            0.9142,
+            0.9597
+          ],
+          "tp": 398
+        },
+        {
+          "class": "person",
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.3,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 15,
+          "fp": 147,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.7351,
+          "precision_ci_bootstrap": [
+            0.6917,
+            0.7786
+          ],
+          "precision_ci_wilson": [
+            0.6969,
+            0.7701
+          ],
+          "recall": 0.9645,
+          "recall_ci_bootstrap": [
+            0.9432,
+            0.9828
+          ],
+          "recall_ci_wilson": [
+            0.9423,
+            0.9784
+          ],
+          "tp": 408
+        },
+        {
+          "class": "person",
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.5,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 27,
+          "fp": 80,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.8319,
+          "precision_ci_bootstrap": [
+            0.7908,
+            0.8673
+          ],
+          "precision_ci_wilson": [
+            0.7957,
+            0.8628
+          ],
+          "recall": 0.9362,
+          "recall_ci_bootstrap": [
+            0.9108,
+            0.9615
+          ],
+          "recall_ci_wilson": [
+            0.9087,
+            0.9558
+          ],
+          "tp": 396
+        },
+        {
+          "class": "person",
+          "condition": "352x288_crf30",
+          "confidence_threshold": 0.7,
+          "dataset": "Penn-Fudan Pedestrian Database (Wang et al., 2007), person class",
+          "dataset_licence": "No licence grant stated; readme.txt: copyright retained by authors, works may not be reposted. Used locally for evaluation, not redistributed",
+          "dataset_url": "https://www.cis.upenn.edu/~jshi/ped_html/",
+          "fn": 65,
+          "fp": 22,
+          "iou_threshold": 0.5,
+          "label": "public benchmark, not DVR footage; will not transfer to DVR footage",
+          "n_images": 170,
+          "nms_iou": 0.45,
+          "precision": 0.9421,
+          "precision_ci_bootstrap": [
+            0.9136,
+            0.9657
+          ],
+          "precision_ci_wilson": [
+            0.9139,
+            0.9615
+          ],
+          "recall": 0.8463,
+          "recall_ci_bootstrap": [
+            0.8054,
+            0.8853
+          ],
+          "recall_ci_wilson": [
+            0.8089,
+            0.8776
+          ],
+          "tp": 358
+        }
+      ],
+      "measured_classes": [
+        "person"
+      ],
+      "model": {
+        "input_size": [
+          416,
+          416
+        ],
+        "key": "objects",
+        "licence": "Apache-2.0",
+        "licence_url": "https://github.com/Megvii-BaseDetection/YOLOX/blob/main/LICENSE",
+        "name": "YOLOX-Nano",
+        "sha256": "c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d",
+        "size_bytes": 3659407,
+        "source_url": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.onnx",
+        "version": "0.1.1rc0 (COCO, 416x416)"
+      },
+      "unmeasured_note": "Other COCO classes (e.g. car) were NOT measured; treat as unknown."
+    }
+  },
+  "generated_by": "scripts/eval_analytics.py",
+  "label": "triage, not identification",
+  "statement": "Nothing here was validated on real DVR footage. Public-benchmark numbers will not transfer to low-resolution, highly compressed DVR footage; synthetic numbers are not representative either."
+}

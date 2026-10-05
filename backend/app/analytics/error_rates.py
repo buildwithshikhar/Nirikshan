@@ -27,4 +27,9 @@ def for_kind(kind: str, params: dict | None = None) -> dict:
     thr = (params or {}).get("conf_threshold")
     measured = {c.get("confidence_threshold") for c in entry.get("configs", [])}
     entry["run_threshold_measured"] = thr in measured if thr is not None else None
+    mp = entry.get("measured_params")
+    if mp is not None and params is not None:
+        entry["run_params_match_measured"] = all(
+            params.get(k) == v for k, v in mp.items() if k != "max_samples"
+        )
     return entry
