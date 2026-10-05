@@ -10,13 +10,16 @@ def load() -> dict:
     return {k: v for k, v in json.loads(PATH.read_text()).items() if not k.startswith("_")}
 
 
-def check(res: dict, thresholds: dict | None = None) -> list[str]:
-    """Violations as strings; empty = pass. Scenarios absent from `res` are skipped."""
+def check(res: dict, thresholds: dict | None = None, require_present: bool = False) -> list[str]:
+    """Violations as strings; empty = pass. Scenarios absent from `res` are skipped unless
+    `require_present` (use it on full runs: a silently missing scenario must fail)."""
     out: list[str] = []
     by_id = {s["id"]: s for s in res["scenarios"]}
     for sid, rules in (thresholds or load()).items():
         sc = by_id.get(sid)
         if sc is None:
+            if require_present:
+                out.append(f"{sid}: scenario missing from the results")
             continue
         for metric, rule in rules.items():
             m = sc["metrics"].get(metric)

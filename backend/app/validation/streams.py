@@ -1,6 +1,7 @@
 """SYNTHETIC elementary streams generated with ffmpeg (testsrc2 pattern). Not DVR footage."""
 
 import io
+import random
 import subprocess
 from dataclasses import dataclass, field
 
@@ -193,3 +194,13 @@ def derived(pool: "StreamPool", name: str, hue: int) -> Stream:
         data = _encode(v)
         pool._cache[key] = Stream(v, data, _nal_table(data, v.codec))
     return pool._cache[key]
+
+
+def pick(rng: random.Random, pool: StreamPool, n: int, codec: str | None = None) -> list[Stream]:
+    """n streams; neighbours always have different variants (different parameter sets)."""
+    pop = pool.by_codec(codec) if codec else pool.all()
+    out: list[Stream] = []
+    for _ in range(n):
+        choices = [s for s in pop if not out or s.variant.name != out[-1].variant.name]
+        out.append(rng.choice(choices))
+    return out

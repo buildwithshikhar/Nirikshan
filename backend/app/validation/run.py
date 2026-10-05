@@ -327,7 +327,7 @@ def main(argv=None) -> int:
     ap.add_argument("--check", action="store_true", help="exit 1 if regression thresholds fail")
     a = ap.parse_args(argv)
     res = run_all(a.seed, a.trials, a.engine, not a.no_export, set(a.only) if a.only else None)
-    viol = thresholds.check(res)
+    viol = thresholds.check(res, require_present=not a.only and a.engine == "all")
     res["thresholds"] = {"file": "app/validation/thresholds.json", "violations": viol}
     md = to_markdown(res)
     print(md)

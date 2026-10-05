@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from app.validation.image import Builder, noise
-from app.validation.streams import NalInfo, Stream, StreamPool, aux_stream, derived
+from app.validation.streams import NalInfo, Stream, StreamPool, aux_stream, derived, pick
 
 
 @dataclass
@@ -25,16 +25,6 @@ class Scenario:
     layout: str = "raw"
     layout_label: str = ""  # per-paper label for vendor layouts
     engines: tuple = ("generic",)
-
-
-def pick(rng: random.Random, pool: StreamPool, n: int, codec: str | None = None) -> list[Stream]:
-    """n streams; neighbours always have different variants (different parameter sets)."""
-    pop = pool.by_codec(codec) if codec else pool.all()
-    out: list[Stream] = []
-    for _ in range(n):
-        choices = [s for s in pop if not out or s.variant.name != out[-1].variant.name]
-        out.append(rng.choice(choices))
-    return out
 
 
 def _clips(b: Builder, streams: list[Stream], expected="recover", state="live") -> list[str]:
@@ -600,17 +590,18 @@ def _dhav_variants() -> list[Scenario]:
         if sc.id in DHAV_SET:
             out.append(
                 Scenario(
-                    f"{sc.id}@dhav",
-                    sc.title + " (DHAV per-paper layout)",
-                    sc.kind,
-                    sc.description + " Frames wrapped in DHAV headers/trailers per dhav.c.",
-                    sc.build,
-                    sc.carve,
-                    sc.trials,
-                    sc.export,
-                    sc.group + "@dhav" if sc.group else sc.id + "@dhav",
-                    "dhav",
-                    ("generic", "dahua"),
+                    id=f"{sc.id}@dhav",
+                    title=sc.title + " (DHAV per-paper layout)",
+                    kind=sc.kind,
+                    description=sc.description
+                    + " Frames wrapped in DHAV headers/trailers per dhav.c.",
+                    build=sc.build,
+                    carve=sc.carve,
+                    trials=sc.trials,
+                    export=sc.export,
+                    group=(sc.group or sc.id) + "@dhav",
+                    layout="dhav",
+                    engines=("generic", "dahua"),
                 )
             )
     return out

@@ -30,8 +30,7 @@ from collections.abc import Callable
 
 from app.validation.image import BANNER, Builder
 from app.validation.layouts import access_units
-from app.validation.scenarios import pick
-from app.validation.streams import Stream, StreamPool
+from app.validation.streams import Stream, StreamPool, pick
 
 LAYOUT = (
     "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), "

@@ -21,8 +21,7 @@ import struct
 from collections.abc import Callable
 
 from app.validation.image import BANNER, Builder
-from app.validation.scenarios import pick
-from app.validation.streams import Stream, StreamPool
+from app.validation.streams import Stream, StreamPool, pick
 
 LAYOUT = (
     "hikvision-fs: per-paper layout (Han 2015 + Dragonas 2023 via docs/parsers/hikvision-fields.md;"

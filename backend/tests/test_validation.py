@@ -172,12 +172,14 @@ def test_threshold_checker_flags_violations():
     v = thresholds.check(res, th)
     assert len(v) == 3 and any("min 0.6" in s for s in v) and any("k=3" in s for s in v)
     assert thresholds.check(res, {"x": {"a": {"min": 0.4}}, "gone": {"a": {"min": 1}}}) == []
+    strict = thresholds.check(res, {"gone": {"a": {"min": 1}}}, require_present=True)
+    assert strict == ["gone: scenario missing from the results"]
 
 
 def test_regression_thresholds_hold_on_a_fresh_run():
     """CI guard: full matrix, 3 trials, ffmpeg export + decode test."""
     res = R.run_all(SEED, 3, export=True)
-    assert thresholds.check(res) == []
+    assert thresholds.check(res, require_present=True) == []
     neg = [s for s in res["scenarios"] if s["kind"] == "negative"]
     assert neg and all(s["metrics"]["clips_decoded_ok"]["k"] == 0 for s in neg)
     assert all(s["failure_count"] >= 0 for s in res["scenarios"])
@@ -187,6 +189,14 @@ def test_committed_baseline_is_intact_synthetic_and_within_thresholds():
     res = json.loads(BASELINE.read_text())
     assert res["synthetic"] is True and res["seed"] == SEED and res["trials"] >= 20
     assert R.digest(res) == res["results_digest"], "baseline was edited by hand"
-    assert thresholds.check(res) == []
+    assert thresholds.check(res, require_present=True) == []
     md = BASELINE.with_suffix(".md").read_text()
     assert "SYNTHETIC" in md[:600] and "circular check" in md[:900]
+
+
+def test_every_vendor_scenario_runs_with_its_parser_engine():
+    ids = {(s.id, e) for s in SCENARIOS for e in s.engines}
+    for sid in ("clean_live@dhav", "clean_live@hik", "clean_live@honeywell"):
+        assert (sid, "generic") in ids
+    assert ("clean_live@dhav", "dahua") in ids and ("clean_live@hik", "hikvision") in ids
+    assert ("clean_live@honeywell", "honeywell") in ids
