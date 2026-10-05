@@ -1,0 +1,64 @@
+# --- Node / React / Vite (frontend) ---
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+.env
+.env.local
+.env.*.local
+
+# --- Python / FastAPI (backend + ml) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# --- Environment / secrets ---
+.env
+*.env
+!.env.example
+*.pem
+*.key
+
+# --- Evidence, disk images, ML models, datasets (large/sensitive binaries — keep out of git) ---
+evidence/
+*.dd
+*.img
+*.E01
+*.mp4
+*.h264
+*.h265
+ml/checkpoints/
+ml/models/*.pt
+ml/models/*.pth
+ml/models/*.onnx
+data/raw/
+data/processed/
+*.csv
+!docs/sample_data/*.csv
+
+*.log
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Build / misc ---
+*.tsbuildinfo
+coverage/
+.turbo/
+# --- Generated at runtime ---
+*.db
+test-results/
+playwright-report/
