@@ -375,3 +375,28 @@ def check_clip(
     else:
         out["summary"] = summarize(readings, tolerance_s, min_readable)
     return out
+
+
+def metadata_start_wall(rec) -> datetime | None:
+    """Device wall clock (naive) implied by a TimestampRecord, for comparison with the OSD.
+    None when it cannot be derived without guessing (invalid date, unknown basis, UTC-basis
+    epoch without a timezone)."""
+    from zoneinfo import ZoneInfo
+
+    from app.timeline.timestamps import INVALID_DATE, UNSUPPORTED_FORMAT, parse_wall_clock
+
+    if INVALID_DATE in rec.flags or UNSUPPORTED_FORMAT in rec.flags:
+        return None
+    fmt = rec.format.lower()
+    try:
+        if "dhav" in fmt:
+            return parse_wall_clock(rec.wall_clock_as_stored)
+        if rec.epoch_basis == "device_local" or (
+            rec.epoch_basis is None and rec.assumed_timezone == "UTC"
+        ):
+            return parse_wall_clock(rec.wall_clock_as_stored)
+        if rec.epoch_basis == "utc" and rec.assumed_timezone and rec.utc_lo is not None:
+            return rec.utc_lo.astimezone(ZoneInfo(rec.assumed_timezone)).replace(tzinfo=None)
+    except ValueError:
+        return None
+    return None
