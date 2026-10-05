@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os'
+import { realpathSync } from 'node:fs'
 import { defineConfig } from '@playwright/test'
 
 const API_PORT = 8010
@@ -17,6 +19,7 @@ export default defineConfig({
       url: `http://localhost:${API_PORT}/health`,
       env: {
         DATABASE_URL: backendDb,
+        NIRIKSHAN_EVIDENCE_ROOTS: realpathSync(tmpdir()),
         NIRIKSHAN_DATA_DIR: './e2e-data',
         NIRIKSHAN_KEY_DIR: '../e2e-keys',
         CORS_ORIGINS: `http://localhost:${WEB_PORT}`,

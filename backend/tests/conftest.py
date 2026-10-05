@@ -17,6 +17,8 @@ def _dirs(tmp_path, monkeypatch):
     """Per-test workspace and signing-key dirs (key dir deliberately outside the data dir)."""
     monkeypatch.setenv("NIRIKSHAN_DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setenv("NIRIKSHAN_KEY_DIR", str(tmp_path / "keys"))
+    monkeypatch.setenv("NIRIKSHAN_EVIDENCE_ROOTS", str(tmp_path.resolve()))
+    monkeypatch.delenv("NIRIKSHAN_ALLOW_BLOCK_DEVICES", raising=False)
     return tmp_path
 
 

@@ -47,7 +47,7 @@ def test_source_is_opened_read_only_and_left_untouched(session, case_id, image, 
 
     monkeypatch.setattr(evidence.os, "open", spy)
     _acquire(session, case_id, image)
-    src_flags = [f for p, f in flags if p == str(image)]
+    src_flags = [f for p, f in flags if p == str(image.resolve())]
     assert src_flags and all(f & (os.O_WRONLY | os.O_RDWR | os.O_CREAT) == 0 for f in src_flags)
     assert (image.read_bytes(), image.stat().st_mtime_ns) == before
 
@@ -59,6 +59,7 @@ def test_read_only_source_file_is_acquirable(session, case_id, image):
 
 def test_block_device_path_uses_readonly_open_and_lseek_size(session, case_id, image, monkeypatch):
     """File-backed fixture + mocked S_IFBLK stat. Real-disk acquisition is UNVERIFIED."""
+    monkeypatch.setenv("NIRIKSHAN_ALLOW_BLOCK_DEVICES", "1")
     real_stat = os.stat
     size = image.stat().st_size
 
@@ -67,7 +68,9 @@ def test_block_device_path_uses_readonly_open_and_lseek_size(session, case_id, i
         st_size = 0  # block devices report 0; size must come from lseek
 
     monkeypatch.setattr(
-        evidence.os, "stat", lambda p, *a, **k: FakeStat() if str(p) == str(image) else real_stat(p)
+        evidence.os,
+        "stat",
+        lambda p, *a, **k: FakeStat() if str(p) == str(image.resolve()) else real_stat(p),
     )
     ev = _acquire(session, case_id, image)
     assert ev.source_type == "block_device" and ev.size_bytes == size

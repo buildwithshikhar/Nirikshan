@@ -17,6 +17,9 @@ Phased plan: [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md). Current state:
 | `clock.py` | UTC timestamps, best-effort NTP status |
 | `main.py` | Audit middleware: every `/api` request recorded in `audit_log` |
 
+### Source path policy
+`NIRIKSHAN_EVIDENCE_ROOTS` (os.pathsep-separated) lists the only folders acquisition sources may come from; with none configured every acquisition is refused (403). The requested path is resolved (`../` collapsed, symlinks followed) first, the policy is applied to the resolved path, and that resolved path is what is opened (`O_RDONLY|O_NOFOLLOW`). Block devices are not subject to roots but need `NIRIKSHAN_ALLOW_BLOCK_DEVICES=1`. The custody entry records both the requested and resolved path. Residual risk: a path swapped between check and open by someone with write access to an evidence root (TOCTOU) is narrowed by opening the resolved path with `O_NOFOLLOW`, not eliminated.
+
 ### Acquisition flow
 1. Source is stat'ed; only regular files and block devices are accepted (`classify`). It is opened `O_RDONLY`; block-device size comes from `lseek`.
 2. Bytes are streamed once, updating MD5 and SHA-256 and writing the copy.

@@ -17,13 +17,17 @@ from sqlalchemy.orm import Session
 
 from app import custody
 from app.clock import utc_now_iso
-from app.config import data_dir
+from app.config import allow_block_devices, data_dir, evidence_roots
 from app.hashing import CHUNK, Digests, hash_file, hash_stream
 from app.models import Evidence
 
 
 class AcquisitionError(Exception):
     """Caller-correctable problem with the source (maps to HTTP 400)."""
+
+
+class PathNotAllowed(AcquisitionError):
+    """Source is outside the configured evidence roots / block devices disabled (HTTP 403)."""
 
 
 class IntegrityError(Exception):
@@ -38,21 +42,35 @@ def classify(mode: int) -> str:
     raise AcquisitionError("source must be a regular file or a block device")
 
 
-def open_source_readonly(path: str) -> tuple[int, str, int]:
-    """Return (fd, source_type, reported_size). The only place a source is opened."""
-    p = Path(path).expanduser()
+def open_source_readonly(path: str) -> tuple[int, str, int, Path]:
+    """Return (fd, source_type, reported_size, resolved_path). The only place a source is opened.
+
+    The path is fully resolved (symlinks followed, ../ collapsed) *before* the policy check, and
+    the resolved path is what gets opened (O_NOFOLLOW), so a symlink under an evidence root that
+    points elsewhere is judged by its target.
+    """
     try:
-        st = os.stat(p)
-    except OSError as exc:
-        raise AcquisitionError(f"cannot stat source: {exc.strerror}") from exc
+        resolved = Path(path).expanduser().resolve(strict=True)
+        st = os.stat(resolved)
+    except (OSError, RuntimeError) as exc:
+        raise AcquisitionError(f"cannot stat source: {getattr(exc, 'strerror', exc)}") from exc
     kind = classify(st.st_mode)
+    if kind == "block_device":
+        if not allow_block_devices():
+            raise PathNotAllowed("block devices are disabled (set NIRIKSHAN_ALLOW_BLOCK_DEVICES=1)")
+    else:
+        roots = evidence_roots()
+        if not roots:
+            raise PathNotAllowed("no evidence roots configured (set NIRIKSHAN_EVIDENCE_ROOTS)")
+        if not any(resolved.is_relative_to(r) for r in roots):
+            raise PathNotAllowed("source is outside the configured evidence roots")
     try:
-        fd = os.open(p, os.O_RDONLY)
+        fd = os.open(resolved, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
     except OSError as exc:
         raise AcquisitionError(f"cannot open source read-only: {exc.strerror}") from exc
     size = st.st_size if kind == "file" else os.lseek(fd, 0, os.SEEK_END)
     os.lseek(fd, 0, os.SEEK_SET)
-    return fd, kind, size
+    return fd, kind, size, resolved
 
 
 def image_dir(case_id: int) -> Path:
@@ -62,11 +80,11 @@ def image_dir(case_id: int) -> Path:
 def acquire(
     db: Session, case_id: int, source_path: str, label: str, write_blocker: str, examiner: str
 ) -> Evidence:
-    fd, kind, reported = open_source_readonly(source_path)
+    fd, kind, reported, resolved = open_source_readonly(source_path)
     ev = Evidence(
         case_id=case_id,
         label=label,
-        source_path=str(Path(source_path).expanduser().resolve()),
+        source_path=str(resolved),
         source_type=kind,
         write_blocker=write_blocker,
         status="acquiring",
@@ -115,6 +133,7 @@ def acquire(
         examiner,
         {
             "label": label,
+            "requested_path": source_path,
             "source_path": ev.source_path,
             "source_type": kind,
             "write_blocker_used": write_blocker,

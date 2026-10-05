@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app import __version__, custody, evidence, schemas, signing
 from app.clock import ntp_status
+from app.config import allow_block_devices, evidence_roots
 from app.db import get_db
 from app.models import AuditEntry, Case, CustodyEntry, Evidence
 
@@ -57,6 +58,8 @@ def system() -> dict:
         "ffmpeg": {"available": ffmpeg is not None, "version": version},
         "mode": "full" if ffmpeg else "degraded (no ffmpeg: MP4 export unavailable)",
         "ntp_status": ntp_status(),
+        "evidence_roots": [str(r) for r in evidence_roots()],
+        "block_devices_allowed": allow_block_devices(),
         "signing_key_id": signing.key_id(signing.public_key()),
     }
 
@@ -103,6 +106,8 @@ def acquire_evidence(case_id: int, body: schemas.AcquireIn, db: DbSession, exami
         return evidence.acquire(
             db, case_id, body.source_path, body.label, body.write_blocker, examiner
         )
+    except evidence.PathNotAllowed as exc:
+        raise HTTPException(403, str(exc)) from exc
     except evidence.AcquisitionError as exc:
         raise HTTPException(400, str(exc)) from exc
 
