@@ -686,8 +686,10 @@ class _Run:
         lo, hi = m["video_off"], min(m["hik1_off"], self.size)
         a = self.parse_btree(m["hik1_off"], m["hik1_size"], "HIKBTREE1", lo, hi)
         b = self.parse_btree(m["hik2_off"], m["hik2_size"], "HIKBTREE2", lo, hi)
-        if a is None and b is not None:
-            self.warnings.append("HIKBTREE1 unusable; entries taken from the backup HIKBTREE2")
+        if not a and b:
+            self.warnings.append(
+                "HIKBTREE1 unusable or without entries; entries taken from the backup HIKBTREE2"
+            )
         if a is not None and b is not None:
 
             def key(es):
@@ -701,8 +703,7 @@ class _Run:
                 "entry-by-entry comparison; [H] only says HIKBTREE2 is a backup, so a difference "
                 "is reported, not judged",
             )
-        use = a if a is not None else b
-        return use or []
+        return a or b or []
 
     def parse_btree(self, base, size, tag, lo, hi) -> list[dict] | None:
         if not 0 < size <= 16 << 20 or base + 0x60 > self.size:
@@ -855,7 +856,8 @@ class _Run:
                     "documented no-video values (fields check 7)"
                 )
             if e["exists"] and e["channel"] == 0xFF:
-                self.bad(f"entry @0x{e['off']:X}: existence 0x00 with channel 0xFF")
+                self.bad(f"entry @0x{e['off']:X}: existence 0x00 with channel 0xFF; block skipped")
+        full = [e for e in full if e["channel"] != 0xFF]
         if not full:
             return
         if not used:
@@ -916,7 +918,7 @@ class _Run:
                 self.bad(f"entry @0x{es[0]['off']:X}: start time > end time; timestamps omitted")
                 real = False
             ch = es[0]["channel"] if len(chans) == 1 else None
-            self.carve_block(es[0], start, end, end - IDR_REC * nrec, nrec, ch, real)
+            self.carve_block(es[0], start, end, end - IDR_REC * nrec, nrec, ch, real, clamped)
         self.stats.update(idr_table_records=idr_total, idr_table_blocks=idr_blocks)
         self.add(
             "idr_table",
@@ -952,7 +954,7 @@ class _Run:
             k += 1
         return k
 
-    def carve_block(self, e, start, end, vend, nrec, ch, real) -> None:
+    def carve_block(self, e, start, end, vend, nrec, ch, real, clamped=False) -> None:
         def read_at(o, n):
             self.f.seek(o)
             return self.f.read(n)
@@ -966,15 +968,15 @@ class _Run:
                         ParsedOrphan(ch, item.start, item.end, item.nal_count, item.reason)
                     )
                 continue
-            if item.codec != "h264":
+            if item.codec != "h264" or clamped:
+                why = (
+                    "block range was clamped (size in use does not fit the image): channel and "
+                    "block attribution unreliable, not emitted as a clip"
+                    if clamped
+                    else f"{item.codec}: Hikvision H.265 framing is undocumented; not claimed"
+                )
                 self.orphans.append(
-                    ParsedOrphan(
-                        ch,
-                        item.start,
-                        item.end,
-                        item.vcl_count,
-                        f"{item.codec}: Hikvision H.265 framing is undocumented; not claimed",
-                    )
+                    ParsedOrphan(None if clamped else ch, item.start, item.end, item.vcl_count, why)
                 )
                 continue
             c = ParsedClip(

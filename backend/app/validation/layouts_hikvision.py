@@ -113,6 +113,7 @@ def hikbtree(base: int, entries: list[bytes], created: int = INIT_T + 4) -> byte
     struct.pack_into("<QQQQ", b, 0x30, base + 0x5000, base + 0x5000, base + 0x1000, base + 0x2000)
     per = (4096 - 0x10) // 48
     pages = [entries[i : i + per] for i in range(0, max(len(entries), 1), per)][:2]
+    pages += [[]] * (2 - len(pages))  # two pages as in the Han sample (page list total = 2)
     struct.pack_into("<I", b, 0x1000, len(pages))
     for k, pg in enumerate(pages):
         struct.pack_into("<Q", b, 0x1008 + 8 * k, base + 0x2000 + 0x1000 * k)  # slot stride 8
