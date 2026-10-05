@@ -119,6 +119,26 @@ class Builder:
         self.frame_no[t.id] = n0 + len(frames)
         return first, len(self.buf)
 
+    def foreign(self, cid: str, at: int, length: int) -> None:
+        """A newer recording of clip `cid` overwrote [at, at+length), written in this image's
+        layout (raw bytes, or DHAV frames) and truncated at `length`; any shortfall is zeroed."""
+        t = self.clips[cid]
+        if self.layout == LAYOUT_DHAV:
+            blob, rel = bytearray(), []
+            for fr, off, plen, sstart in wrap_stream(
+                t.stream, 0, len(t.stream.data), t.channel, 5000
+            ):
+                if len(blob) + len(fr) > length:
+                    break
+                rel.append((len(blob) + off, len(blob) + off + plen, sstart))
+                blob += fr
+        else:
+            blob = bytearray(t.stream.data[:length])
+            rel = [(0, len(blob), 0)]
+        data = bytes(blob) + b"\x00" * (length - len(blob))
+        self.overwrite(at, data[:length])
+        t.pieces += [Piece(at + a, at + b, ss, cid) for a, b, ss in rel]
+
     def overwrite(self, img_start: int, data: bytes) -> None:
         self.buf[img_start : img_start + len(data)] = data
 

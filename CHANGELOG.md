@@ -7,3 +7,4 @@
 - P2: vendor-agnostic H.264/H.265 carving, parser plugin interface and signature identification (Hikvision, Dahua, Honeywell: Tier B), `-c copy` MP4 export with decode test, per-clip hashes and custody entries, analysis API and UI.
 - P3: seeded SYNTHETIC validation harness (22 scenarios incl. negatives), `make validate`, committed baseline, regression thresholds; carver hardening (parameter-set syntax validation, PPS-reference rule, EOF zero trimming, join log).
 - P4 (Dahua): DHAV frame parser behind the plugin interface (parsed/inferred/unknown field tags, raw timestamps without timezone, generic cross-check, fallback on any inconsistency); per-paper DHAV layout for the validation harness; clips carry `engine`/`channel`.
+- P4 (Hikvision): Master Sector/RATS/HIKBTREE parser with explicit options for the open block-size, timestamp-basis and Master Sector base conflicts; per-paper layout in the harness.

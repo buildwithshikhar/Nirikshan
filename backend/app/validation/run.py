@@ -183,7 +183,7 @@ def run_scenario(
         "description": sc.description,
         "carve_params": sc.carve,
         "trials": n,
-        "layout": LAYOUT_DHAV if sc.layout == "dhav" else LAYOUT_RAW,
+        "layout": sc.layout_label or (LAYOUT_DHAV if sc.layout == "dhav" else LAYOUT_RAW),
         "crosscheck_disagreements": c.crosscheck,
         "counts": {k: v for k, v in asdict(c).items() if k != "failures"},
         "metrics": metrics,

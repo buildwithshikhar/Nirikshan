@@ -23,6 +23,7 @@ class Scenario:
     export: bool = True
     group: str = ""  # scenarios with the same group share seeds (identical images)
     layout: str = "raw"
+    layout_label: str = ""  # per-paper label for vendor layouts
     engines: tuple = ("generic",)
 
 
@@ -168,13 +169,7 @@ def _overwritten(rng, pool, mode):
             if x.variant.name != victim.variant.name and x.variant.name != surv.variant.name
         )
         b.clip("N", new, state="live")
-        from app.validation.image import Piece
-
-        chunk = new.data[:length]
-        b.overwrite(s + start, chunk)
-        b.clips["N"].pieces.append(Piece(s + start, s + start + len(chunk), 0, "N"))
-        if len(chunk) < length:  # newer clip shorter than the overwritten span: remainder zeroed
-            b.overwrite(s + start + len(chunk), b"\x00" * (length - len(chunk)))
+        b.foreign("N", s + start, length)
     b.notes.append(f"{mode} overwrite of {where} {frac:.0%}")
     return b
 
@@ -207,12 +202,7 @@ def fully_overwritten(rng, pool, i):
             x for x in pool.all() if x.variant.name not in (victim.variant.name, surv.variant.name)
         )
         b.clip("N", new)
-        from app.validation.image import Piece
-
-        b.overwrite(s, new.data[: e - s])
-        b.clips["N"].pieces.append(Piece(s, s + min(len(new.data), e - s), 0, "N"))
-        if len(new.data) < e - s:
-            b.overwrite(s + len(new.data), b"\x00" * (e - s - len(new.data)))
+        b.foreign("N", s, e - s)
     b.zeros(4096)
     b.notes.append(f"fully overwritten with {mode}")
     return b
@@ -627,3 +617,38 @@ def _dhav_variants() -> list[Scenario]:
 
 
 SCENARIOS += _dhav_variants()
+
+
+def _vendor_variants(module: str, suffix: str, engine: str) -> list[Scenario]:
+    """Scenarios from a vendor layout module (SCENARIOS dict + LAYOUT label). Images come from
+    the module's per-paper layout builder, never from a real device."""
+    import importlib
+
+    try:
+        mod = importlib.import_module(f"app.validation.{module}")
+    except ImportError:
+        return []
+    base = {s.id: s for s in SCENARIOS if s.layout == "raw"}
+    out = []
+    for key, fn in mod.SCENARIOS.items():
+        ref = base.get(key)
+        out.append(
+            Scenario(
+                f"{key}@{suffix}",
+                (ref.title if ref else key) + f" ({suffix} per-paper layout)",
+                ref.kind if ref else "positive",
+                (ref.description if ref else key) + " Image built from documented fields only.",
+                fn,
+                trials=None,
+                export=True,
+                group=f"{key}@{suffix}",
+                layout=suffix,
+                layout_label=mod.LAYOUT,
+                engines=("generic", engine),
+            )
+        )
+    return out
+
+
+SCENARIOS += _vendor_variants("layouts_hikvision", "hik", "hikvision")
+SCENARIOS += _vendor_variants("layouts_honeywell", "honeywell", "honeywell")
