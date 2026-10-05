@@ -576,7 +576,7 @@ def test_pipeline_runs_parser_beside_generic(client, pool, tmp_path, local_regis
     assert p["tier"] == "B" and p["status"] == "parsed" and p["crosscheck"]["parser_clips"] == 2
     assert p["options"]["time_basis_label"] == "utc"
     parsed = [c for c in run["clips"] if c["engine"] == "Honeywell" and c["kind"] == "clip"]
-    assert len(parsed) == 2 and {c["engine"] for c in run["clips"]} == {"generic", "Honeywell"}
+    assert len(parsed) == 2 and {c["engine"] for c in run["clips"]} == {"Honeywell"}
     assert sorted(c["channel"] for c in parsed if c["channel"] is not None) == [1]
     info = json.loads(parsed[0]["parsed_json"])
     assert info["timestamps"][0]["tz_basis"].startswith("utc") and info["fields"]

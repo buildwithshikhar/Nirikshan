@@ -81,11 +81,13 @@ def run_generic(
     return out, carver.stats, carver.join_log
 
 
-def run_parser(vendor: str):
-    """Engine factory: the vendor's structured parser, scored like carved clips, plus a
-    cross-check against the generic carver on the same image."""
+def run_parser(vendor: str, combined: bool = False):
+    """Engine factory: the vendor's structured parser scored like carved clips, plus a cross-check
+    against the generic carver on the same image. With `combined`, generic carving also runs
+    over the byte ranges no parser clip spans (the default pipeline: parser first)."""
 
     def engine(img: bytes, params: CarveParams, export: bool, tmp: Path):
+        from app.carving.ranges import carve_ranges, merge_spans, uncovered
         from app.vendors import default_registry
         from app.vendors.parse import crosscheck
 
@@ -97,13 +99,19 @@ def run_parser(vendor: str):
             if isinstance(item, CarvedClip):
                 generic.append(item)
         res.crosscheck = crosscheck(res.clips, generic)
+        items = [(c.codec, c.extents, c.exportable) for c in res.clips]
+        if combined:
+            ranges = uncovered(merge_spans((c.start, c.end) for c in res.clips), len(img))
+            for it in carve_ranges(io.BytesIO(img), ranges, params):
+                if isinstance(it, CarvedClip):
+                    items.append((it.codec, it.extents, True))
         out: list[Carved] = []
-        for k, c in enumerate(res.clips):
-            if not c.exportable:
+        for k, (codec, extents, exportable) in enumerate(items):
+            if not exportable:
                 continue
-            cl = Carved(c.codec, [list(e) for e in c.extents])
+            cl = Carved(codec, [list(e) for e in extents])
             if export:
-                ex = export_clip(f, c.extents, c.codec, tmp, f"p{k}")
+                ex = export_clip(f, extents, codec, tmp, f"p{k}")
                 cl.decode_status, cl.recorded_sha256 = ex.decode_status, ex.bitstream_sha256
                 if ex.mp4_path:
                     digest_ = hashlib.sha256(Path(ex.mp4_path).read_bytes()).hexdigest()
@@ -119,6 +127,9 @@ ENGINES = {
     "dahua": run_parser("Dahua"),
     "hikvision": run_parser("Hikvision"),
     "honeywell": run_parser("Honeywell"),
+    "dahua+generic": run_parser("Dahua", combined=True),
+    "hikvision+generic": run_parser("Hikvision", combined=True),
+    "honeywell+generic": run_parser("Honeywell", combined=True),
 }
 BENIGN = {"generic_includes_extra_bytes", "frame_count_mismatch"}  # expected header absorption
 

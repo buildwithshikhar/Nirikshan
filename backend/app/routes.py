@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError as DbIntegrityError
 from sqlalchemy.orm import Session
 
-from app import __version__, analyze, custody, evidence, schemas, signing
+from app import __version__, analyze, custody, evidence, schema, schemas, signing
 from app.carving.carve import CarveParams
 from app.carving.export import FfmpegMissing, find_tool
 from app.clock import ntp_status
@@ -60,6 +60,7 @@ def system() -> dict:
             pass
     return {
         "tool_version": __version__,
+        "schema_version": schema.SCHEMA_VERSION,
         "ffmpeg": {"available": ffmpeg is not None, "version": version},
         "mode": "full" if ffmpeg else "degraded (no ffmpeg: MP4 export unavailable)",
         "ntp_status": ntp_status(),
@@ -189,7 +190,7 @@ def analyze_evidence(
         join_gap=p.join_gap,
     )
     try:
-        run = analyze.analyze(db, ev, examiner, params, p.parser_options)
+        run = analyze.analyze(db, ev, examiner, params, p.parser_options, p.generic_scope)
     except FfmpegMissing as exc:
         raise HTTPException(503, str(exc)) from exc
     except evidence.IntegrityError as exc:

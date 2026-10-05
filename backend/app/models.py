@@ -10,6 +10,14 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
 
+class SchemaMeta(Base):
+    """Single-row schema version marker (no migrations framework yet)."""
+
+    __tablename__ = "schema_meta"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    version: Mapped[int] = mapped_column(Integer)
+
+
 class Case(Base):
     __tablename__ = "cases"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -656,7 +656,7 @@ def test_pipeline_runs_parser_beside_generic(client, pool, tmp_path, session, lo
     assert p["crosscheck"]["parser_clips"] == 2
     fields = {f["name"]: f["status"] for f in p["fields"]}
     assert fields["checksum"] == "unknown" and fields["block_size_conflict_in_source"] == "unknown"
-    assert {c["engine"] for c in run["clips"]} == {"generic", "Hikvision"}
+    assert {c["engine"] for c in run["clips"]} == {"Hikvision"}  # parser-first: all covered
     parsed = [c for c in run["clips"] if c["engine"] == "Hikvision" and c["kind"] == "clip"]
     assert sorted(c["channel"] for c in parsed) == [2, 5]
     assert all(c["decode_status"] == "ok" for c in parsed)

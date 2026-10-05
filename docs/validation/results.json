@@ -7,7 +7,7 @@
  "engine": "all",
  "export_decode_test": true,
  "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
- "results_digest": "12b26364c75b18873e52e24c1f9ffb1b51faa0f5cb31e6d597afd136779a929c",
+ "results_digest": "ba75170eb2516cd0306aff1b72c33fd1fc5b32cc8cc613cfb92814802166526b",
  "scenarios": [
   {
    "carve_params": {},
@@ -122,7 +122,7 @@
     }
    },
    "scenario": "clean_live",
-   "seconds": 15.71,
+   "seconds": 9.54,
    "title": "Clean live clips, back to back",
    "trials": 20
   },
@@ -239,7 +239,7 @@
     }
    },
    "scenario": "deleted_intact_zero",
-   "seconds": 10.48,
+   "seconds": 9.52,
    "title": "Deleted-then-intact, zero-padded",
    "trials": 20
   },
@@ -356,7 +356,7 @@
     }
    },
    "scenario": "zero_gaps",
-   "seconds": 9.86,
+   "seconds": 9.22,
    "title": "Zero-filled gaps between clips",
    "trials": 20
   },
@@ -473,7 +473,7 @@
     }
    },
    "scenario": "zero_pad_inside_narrow",
-   "seconds": 8.64,
+   "seconds": 5.92,
    "title": "Zero padding inside a clip (<= 48 B)",
    "trials": 20
   },
@@ -627,7 +627,7 @@
     }
    },
    "scenario": "zero_pad_inside_wide",
-   "seconds": 0.12,
+   "seconds": 0.08,
    "title": "Zero padding inside a clip (100-300 B)",
    "trials": 20
   },
@@ -744,7 +744,7 @@
     }
    },
    "scenario": "random_gaps_between",
-   "seconds": 10.25,
+   "seconds": 9.09,
    "title": "Random-garbage gaps between clips",
    "trials": 20
   },
@@ -861,7 +861,7 @@
     }
    },
    "scenario": "random_gaps_inside",
-   "seconds": 12.6,
+   "seconds": 7.99,
    "title": "Random garbage inserted inside a clip",
    "trials": 20
   },
@@ -978,7 +978,7 @@
     }
    },
    "scenario": "partial_overwrite_zero",
-   "seconds": 8.77,
+   "seconds": 6.04,
    "title": "Partially overwritten by zeros",
    "trials": 20
   },
@@ -1095,7 +1095,7 @@
     }
    },
    "scenario": "partial_overwrite_foreign",
-   "seconds": 11.8,
+   "seconds": 9.01,
    "title": "Partially overwritten by a newer recording",
    "trials": 20
   },
@@ -1212,7 +1212,7 @@
     }
    },
    "scenario": "fully_overwritten",
-   "seconds": 4.2,
+   "seconds": 3.5,
    "title": "Fully overwritten clip (negative component)",
    "trials": 20
   },
@@ -1329,7 +1329,7 @@
     }
    },
    "scenario": "fragmented_zero_join_off",
-   "seconds": 8.57,
+   "seconds": 7.12,
    "title": "Fragmented, zero gaps, reassembly off",
    "trials": 20
   },
@@ -1466,7 +1466,7 @@
     }
    },
    "scenario": "fragmented_zero_join_on",
-   "seconds": 3.71,
+   "seconds": 3.01,
    "title": "Fragmented, zero gaps, reassembly on (join_gap 100 KB)",
    "trials": 20
   },
@@ -1583,7 +1583,7 @@
     }
    },
    "scenario": "fragmented_decoy_join_off",
-   "seconds": 9.97,
+   "seconds": 7.12,
    "title": "Fragments split by another recording, reassembly off",
    "trials": 20
   },
@@ -1701,7 +1701,7 @@
     }
    },
    "scenario": "fragmented_decoy_join_on",
-   "seconds": 1.99,
+   "seconds": 1.38,
    "title": "Fragments split by another recording, reassembly on",
    "trials": 300
   },
@@ -1818,7 +1818,7 @@
     }
    },
    "scenario": "adversarial_noise_with_clips",
-   "seconds": 9.14,
+   "seconds": 5.63,
    "title": "Adversarial noise around real clips",
    "trials": 20
   },
@@ -2024,7 +2024,7 @@
     }
    },
    "scenario": "multi_channel_gop",
-   "seconds": 5.12,
+   "seconds": 3.59,
    "title": "Multi-channel, GOP-interleaved, identical parameter sets",
    "trials": 20
   },
@@ -2230,7 +2230,7 @@
     }
    },
    "scenario": "multi_channel_frame",
-   "seconds": 4.33,
+   "seconds": 2.93,
    "title": "Multi-channel, frame-interleaved, identical parameter sets",
    "trials": 20
   },
@@ -2287,7 +2287,7 @@
     }
    },
    "scenario": "neg_noise_start_codes",
-   "seconds": 1.91,
+   "seconds": 1.1,
    "title": "Negative: noise with false start codes",
    "trials": 20
   },
@@ -2344,7 +2344,7 @@
     }
    },
    "scenario": "neg_encrypted_whole",
-   "seconds": 0.04,
+   "seconds": 0.03,
    "title": "Negative: whole stream encrypted (AES-CTR)",
    "trials": 20
   },
@@ -2490,7 +2490,7 @@
     }
    },
    "scenario": "neg_encrypted_slices_params_clear",
-   "seconds": 3.12,
+   "seconds": 2.4,
    "title": "Negative: slice payloads encrypted, parameter sets clear",
    "trials": 20
   },
@@ -2547,7 +2547,7 @@
     }
    },
    "scenario": "neg_encrypted_all_payloads",
-   "seconds": 0.04,
+   "seconds": 0.03,
    "title": "Negative: all NAL payloads encrypted, headers clear",
    "trials": 20
   },
@@ -2604,7 +2604,7 @@
     }
    },
    "scenario": "neg_mjpeg",
-   "seconds": 1.55,
+   "seconds": 1.17,
    "title": "Negative: MJPEG stream",
    "trials": 20
   },
@@ -2661,28 +2661,28 @@
     }
    },
    "scenario": "neg_mpeg4",
-   "seconds": 1.83,
+   "seconds": 1.15,
    "title": "Negative: MPEG-4 Part 2 stream",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 158,
-    "carved_bytes": 11243893,
+    "carved": 68,
+    "carved_bytes": 12842973,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 158,
+    "decode_ok": 68,
     "exact": 0,
     "exact_eligible": 60,
     "export_failed": 0,
-    "extra_bytes": 87010,
-    "frames_covered_any": 2764,
+    "extra_bytes": 105352,
+    "frames_covered_any": 3250,
     "frames_recoverable": 3250,
-    "frames_recovered": 2764,
-    "hash_checked": 158,
-    "hash_ok": 158,
+    "frames_recovered": 3250,
+    "hash_checked": 68,
+    "hash_ok": 68,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -2691,7 +2691,7 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 158,
+    "tp": 68,
     "truth_detected": 60,
     "truth_expected": 60
    },
@@ -2715,11 +2715,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9763,
+      0.9465,
       1.0
      ],
-     "k": 158,
-     "n": 158,
+     "k": 68,
+     "n": 68,
      "rate": 1.0
     },
     "clip_recall": {
@@ -2733,52 +2733,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.9763,
+      0.9465,
       1.0
      ],
-     "k": 158,
-     "n": 158,
+     "k": 68,
+     "n": 68,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9986,
+      0.9988,
       1.0
      ],
-     "k": 2764,
-     "n": 2764,
+     "k": 3250,
+     "n": 3250,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.8378,
-      0.8623
+      0.9988,
+      1.0
      ],
-     "k": 2764,
+     "k": 3250,
      "n": 3250,
-     "rate": 0.8505
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9763,
+      0.9465,
       1.0
      ],
-     "k": 158,
-     "n": 158,
+     "k": 68,
+     "n": 68,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0237
+      0.0535
      ],
      "k": 0,
-     "n": 158,
+     "n": 68,
      "rate": 0.0
     }
    },
    "scenario": "clean_live@dhav",
-   "seconds": 25.43,
+   "seconds": 9.1,
    "title": "Clean live clips, back to back (DHAV per-paper layout)",
    "trials": 20
   },
@@ -2788,10 +2788,9 @@
     "carved": 60,
     "carved_bytes": 12737621,
     "crosscheck": {
-     "frame_count_mismatch": 42,
-     "parser_clip_not_found_by_generic": 18
+     "frame_count_mismatch": 8
     },
-    "crosscheck_images": 13,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -2816,8 +2815,7 @@
     "truth_expected": 60
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 42,
-    "parser_clip_not_found_by_generic": 18
+    "frame_count_mismatch": 8
    },
    "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -2856,12 +2854,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.4329,
-      0.8188
+      0.0,
+      0.1611
      ],
-     "k": 13,
+     "k": 0,
      "n": 20,
-     "rate": 0.65
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -2910,28 +2908,30 @@
     }
    },
    "scenario": "clean_live@dhav",
-   "seconds": 11.14,
+   "seconds": 8.46,
    "title": "Clean live clips, back to back (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 165,
-    "carved_bytes": 10965828,
-    "crosscheck": {},
+    "carved": 60,
+    "carved_bytes": 12737621,
+    "crosscheck": {
+     "frame_count_mismatch": 8
+    },
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 165,
-    "exact": 0,
+    "decode_ok": 60,
+    "exact": 60,
     "exact_eligible": 60,
     "export_failed": 0,
-    "extra_bytes": 88497,
-    "frames_covered_any": 2826,
-    "frames_recoverable": 3300,
-    "frames_recovered": 2826,
-    "hash_checked": 165,
-    "hash_ok": 165,
+    "extra_bytes": 0,
+    "frames_covered_any": 3250,
+    "frames_recoverable": 3250,
+    "frames_recovered": 3250,
+    "hash_checked": 60,
+    "hash_ok": 60,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -2940,7 +2940,135 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 165,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 8
+   },
+   "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "clean_live@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3250,
+     "n": 3250,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3250,
+     "n": 3250,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "clean_live@dhav",
+   "seconds": 9.03,
+   "title": "Clean live clips, back to back (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 69,
+    "carved_bytes": 12431884,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 69,
+    "exact": 0,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 106641,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 69,
+    "hash_ok": 69,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 69,
     "truth_detected": 60,
     "truth_expected": 60
    },
@@ -2964,11 +3092,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9772,
+      0.9473,
       1.0
      ],
-     "k": 165,
-     "n": 165,
+     "k": 69,
+     "n": 69,
      "rate": 1.0
     },
     "clip_recall": {
@@ -2982,52 +3110,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.9772,
+      0.9473,
       1.0
      ],
-     "k": 165,
-     "n": 165,
+     "k": 69,
+     "n": 69,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9986,
+      0.9988,
       1.0
      ],
-     "k": 2826,
-     "n": 2826,
+     "k": 3300,
+     "n": 3300,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.844,
-      0.8679
+      0.9988,
+      1.0
      ],
-     "k": 2826,
+     "k": 3300,
      "n": 3300,
-     "rate": 0.8564
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9772,
+      0.9473,
       1.0
      ],
-     "k": 165,
-     "n": 165,
+     "k": 69,
+     "n": 69,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0228
+      0.0527
      ],
      "k": 0,
-     "n": 165,
+     "n": 69,
      "rate": 0.0
     }
    },
    "scenario": "deleted_intact_zero@dhav",
-   "seconds": 26.18,
+   "seconds": 10.97,
    "title": "Deleted-then-intact, zero-padded (DHAV per-paper layout)",
    "trials": 20
   },
@@ -3037,10 +3165,9 @@
     "carved": 60,
     "carved_bytes": 12325243,
     "crosscheck": {
-     "frame_count_mismatch": 39,
-     "parser_clip_not_found_by_generic": 21
+     "frame_count_mismatch": 9
     },
-    "crosscheck_images": 19,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -3065,8 +3192,7 @@
     "truth_expected": 60
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 39,
-    "parser_clip_not_found_by_generic": 21
+    "frame_count_mismatch": 9
    },
    "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -3105,12 +3231,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.7639,
-      0.9911
+      0.0,
+      0.1611
      ],
-     "k": 19,
+     "k": 0,
      "n": 20,
-     "rate": 0.95
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -3159,137 +3285,19 @@
     }
    },
    "scenario": "deleted_intact_zero@dhav",
-   "seconds": 10.7,
+   "seconds": 9.36,
    "title": "Deleted-then-intact, zero-padded (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 166,
-    "carved_bytes": 11031253,
-    "crosscheck": {},
-    "crosscheck_images": 0,
-    "decode_errors": 0,
-    "decode_ok": 166,
-    "exact": 0,
-    "exact_eligible": 60,
-    "export_failed": 0,
-    "extra_bytes": 88850,
-    "frames_covered_any": 2838,
-    "frames_recoverable": 3300,
-    "frames_recovered": 2838,
-    "hash_checked": 166,
-    "hash_ok": 166,
-    "images": 20,
-    "join_right_accepted": 0,
-    "join_right_candidates": 0,
-    "join_wrong_accepted": 0,
-    "join_wrong_candidates": 0,
-    "mixed": 0,
-    "neg_clips": 0,
-    "neg_decode_ok": 0,
-    "tp": 166,
-    "truth_detected": 60,
-    "truth_expected": 60
-   },
-   "crosscheck_disagreements": {},
-   "description": "Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.",
-   "engine": "generic",
-   "failure_count": 0,
-   "failures": [],
-   "id": "zero_gaps@dhav[generic]",
-   "kind": "positive",
-   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
-   "metrics": {
-    "byte_exact": {
-     "ci95": [
-      0.0,
-      0.0602
-     ],
-     "k": 0,
-     "n": 60,
-     "rate": 0.0
-    },
-    "clip_precision": {
-     "ci95": [
-      0.9774,
-      1.0
-     ],
-     "k": 166,
-     "n": 166,
-     "rate": 1.0
-    },
-    "clip_recall": {
-     "ci95": [
-      0.9398,
-      1.0
-     ],
-     "k": 60,
-     "n": 60,
-     "rate": 1.0
-    },
-    "decode_ok": {
-     "ci95": [
-      0.9774,
-      1.0
-     ],
-     "k": 166,
-     "n": 166,
-     "rate": 1.0
-    },
-    "frame_precision": {
-     "ci95": [
-      0.9986,
-      1.0
-     ],
-     "k": 2838,
-     "n": 2838,
-     "rate": 1.0
-    },
-    "frame_recall": {
-     "ci95": [
-      0.8477,
-      0.8714
-     ],
-     "k": 2838,
-     "n": 3300,
-     "rate": 0.86
-    },
-    "hash_integrity": {
-     "ci95": [
-      0.9774,
-      1.0
-     ],
-     "k": 166,
-     "n": 166,
-     "rate": 1.0
-    },
-    "mixed_clips": {
-     "ci95": [
-      0.0,
-      0.0226
-     ],
-     "k": 0,
-     "n": 166,
-     "rate": 0.0
-    }
-   },
-   "scenario": "zero_gaps@dhav",
-   "seconds": 27.2,
-   "title": "Zero-filled gaps between clips (DHAV per-paper layout)",
-   "trials": 20
-  },
-  {
-   "carve_params": {},
-   "counts": {
     "carved": 60,
-    "carved_bytes": 12347041,
+    "carved_bytes": 12325243,
     "crosscheck": {
-     "frame_count_mismatch": 38,
-     "parser_clip_not_found_by_generic": 22
+     "frame_count_mismatch": 9
     },
-    "crosscheck_images": 15,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -3314,8 +3322,254 @@
     "truth_expected": 60
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 38,
-    "parser_clip_not_found_by_generic": 22
+    "frame_count_mismatch": 9
+   },
+   "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "deleted_intact_zero@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "deleted_intact_zero@dhav",
+   "seconds": 8.87,
+   "title": "Deleted-then-intact, zero-padded (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 70,
+    "carved_bytes": 12453651,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 70,
+    "exact": 0,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 106610,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 70,
+    "hash_ok": 70,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 70,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {},
+   "description": "Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "zero_gaps@dhav[generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.948,
+      1.0
+     ],
+     "k": 70,
+     "n": 70,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.948,
+      1.0
+     ],
+     "k": 70,
+     "n": 70,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.948,
+      1.0
+     ],
+     "k": 70,
+     "n": 70,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.052
+     ],
+     "k": 0,
+     "n": 70,
+     "rate": 0.0
+    }
+   },
+   "scenario": "zero_gaps@dhav",
+   "seconds": 10.06,
+   "title": "Zero-filled gaps between clips (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 12347041,
+    "crosscheck": {
+     "frame_count_mismatch": 10
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 10
    },
    "description": "Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -3354,12 +3608,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.5313,
-      0.8881
+      0.0,
+      0.1611
      ],
-     "k": 15,
+     "k": 0,
      "n": 20,
-     "rate": 0.75
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -3408,137 +3662,19 @@
     }
    },
    "scenario": "zero_gaps@dhav",
-   "seconds": 10.2,
+   "seconds": 9.01,
    "title": "Zero-filled gaps between clips (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 169,
-    "carved_bytes": 10752520,
-    "crosscheck": {},
-    "crosscheck_images": 0,
-    "decode_errors": 0,
-    "decode_ok": 169,
-    "exact": 0,
-    "exact_eligible": 60,
-    "export_failed": 0,
-    "extra_bytes": 238991,
-    "frames_covered_any": 2838,
-    "frames_recoverable": 3300,
-    "frames_recovered": 2838,
-    "hash_checked": 169,
-    "hash_ok": 169,
-    "images": 20,
-    "join_right_accepted": 0,
-    "join_right_candidates": 0,
-    "join_wrong_accepted": 0,
-    "join_wrong_candidates": 0,
-    "mixed": 0,
-    "neg_clips": 0,
-    "neg_decode_ok": 0,
-    "tp": 169,
-    "truth_detected": 60,
-    "truth_expected": 60
-   },
-   "crosscheck_disagreements": {},
-   "description": "100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.",
-   "engine": "generic",
-   "failure_count": 0,
-   "failures": [],
-   "id": "random_gaps_between@dhav[generic]",
-   "kind": "positive",
-   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
-   "metrics": {
-    "byte_exact": {
-     "ci95": [
-      0.0,
-      0.0602
-     ],
-     "k": 0,
-     "n": 60,
-     "rate": 0.0
-    },
-    "clip_precision": {
-     "ci95": [
-      0.9778,
-      1.0
-     ],
-     "k": 169,
-     "n": 169,
-     "rate": 1.0
-    },
-    "clip_recall": {
-     "ci95": [
-      0.9398,
-      1.0
-     ],
-     "k": 60,
-     "n": 60,
-     "rate": 1.0
-    },
-    "decode_ok": {
-     "ci95": [
-      0.9778,
-      1.0
-     ],
-     "k": 169,
-     "n": 169,
-     "rate": 1.0
-    },
-    "frame_precision": {
-     "ci95": [
-      0.9986,
-      1.0
-     ],
-     "k": 2838,
-     "n": 2838,
-     "rate": 1.0
-    },
-    "frame_recall": {
-     "ci95": [
-      0.8477,
-      0.8714
-     ],
-     "k": 2838,
-     "n": 3300,
-     "rate": 0.86
-    },
-    "hash_integrity": {
-     "ci95": [
-      0.9778,
-      1.0
-     ],
-     "k": 169,
-     "n": 169,
-     "rate": 1.0
-    },
-    "mixed_clips": {
-     "ci95": [
-      0.0,
-      0.0222
-     ],
-     "k": 0,
-     "n": 169,
-     "rate": 0.0
-    }
-   },
-   "scenario": "random_gaps_between@dhav",
-   "seconds": 27.24,
-   "title": "Random-garbage gaps between clips (DHAV per-paper layout)",
-   "trials": 20
-  },
-  {
-   "carve_params": {},
-   "counts": {
     "carved": 60,
-    "carved_bytes": 11872115,
+    "carved_bytes": 12347041,
     "crosscheck": {
-     "frame_count_mismatch": 35,
-     "parser_clip_not_found_by_generic": 25
+     "frame_count_mismatch": 10
     },
-    "crosscheck_images": 18,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -3563,8 +3699,256 @@
     "truth_expected": 60
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 35,
-    "parser_clip_not_found_by_generic": 25
+    "frame_count_mismatch": 10
+   },
+   "description": "Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "zero_gaps@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "zero_gaps@dhav",
+   "seconds": 8.75,
+   "title": "Zero-filled gaps between clips (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 73,
+    "carved_bytes": 12128866,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 73,
+    "exact": 0,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 256751,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 73,
+    "hash_ok": 73,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 73,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {},
+   "description": "100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "random_gaps_between@dhav[generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.95,
+      1.0
+     ],
+     "k": 73,
+     "n": 73,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.95,
+      1.0
+     ],
+     "k": 73,
+     "n": 73,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.95,
+      1.0
+     ],
+     "k": 73,
+     "n": 73,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.05
+     ],
+     "k": 0,
+     "n": 73,
+     "rate": 0.0
+    }
+   },
+   "scenario": "random_gaps_between@dhav",
+   "seconds": 10.98,
+   "title": "Random-garbage gaps between clips (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 11872115,
+    "crosscheck": {
+     "frame_count_mismatch": 13,
+     "generic_includes_extra_bytes": 39
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 13,
+    "generic_includes_extra_bytes": 39
    },
    "description": "100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -3603,12 +3987,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.699,
-      0.9721
+      0.0,
+      0.1611
      ],
-     "k": 18,
+     "k": 0,
      "n": 20,
-     "rate": 0.9
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -3657,28 +4041,31 @@
     }
    },
    "scenario": "random_gaps_between@dhav",
-   "seconds": 13.56,
+   "seconds": 9.33,
    "title": "Random-garbage gaps between clips (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 86,
-    "carved_bytes": 5553725,
-    "crosscheck": {},
+    "carved": 60,
+    "carved_bytes": 11872115,
+    "crosscheck": {
+     "frame_count_mismatch": 13,
+     "generic_includes_extra_bytes": 39
+    },
     "crosscheck_images": 0,
-    "decode_errors": 6,
-    "decode_ok": 80,
-    "exact": 0,
-    "exact_eligible": 20,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
     "export_failed": 0,
-    "extra_bytes": 42248,
-    "frames_covered_any": 1347,
-    "frames_recoverable": 1582,
-    "frames_recovered": 1347,
-    "hash_checked": 86,
-    "hash_ok": 86,
+    "extra_bytes": 0,
+    "frames_covered_any": 3300,
+    "frames_recoverable": 3300,
+    "frames_recovered": 3300,
+    "hash_checked": 60,
+    "hash_ok": 60,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -3687,7 +4074,136 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 86,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 13,
+    "generic_includes_extra_bytes": 39
+   },
+   "description": "100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "random_gaps_between@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3300,
+     "n": 3300,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "random_gaps_between@dhav",
+   "seconds": 8.87,
+   "title": "Random-garbage gaps between clips (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 48,
+    "carved_bytes": 6320898,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 6,
+    "decode_ok": 42,
+    "exact": 0,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 50946,
+    "frames_covered_any": 1582,
+    "frames_recoverable": 1582,
+    "frames_recovered": 1582,
+    "hash_checked": 48,
+    "hash_ok": 48,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 48,
     "truth_detected": 40,
     "truth_expected": 40
    },
@@ -3711,11 +4227,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9572,
+      0.9259,
       1.0
      ],
-     "k": 86,
-     "n": 86,
+     "k": 48,
+     "n": 48,
      "rate": 1.0
     },
     "clip_recall": {
@@ -3729,52 +4245,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.856,
-      0.9676
+      0.753,
+      0.9414
      ],
-     "k": 80,
-     "n": 86,
-     "rate": 0.9302
+     "k": 42,
+     "n": 48,
+     "rate": 0.875
     },
     "frame_precision": {
      "ci95": [
-      0.9972,
+      0.9976,
       1.0
      ],
-     "k": 1347,
-     "n": 1347,
+     "k": 1582,
+     "n": 1582,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.8331,
-      0.8681
+      0.9976,
+      1.0
      ],
-     "k": 1347,
+     "k": 1582,
      "n": 1582,
-     "rate": 0.8515
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9572,
+      0.9259,
       1.0
      ],
-     "k": 86,
-     "n": 86,
+     "k": 48,
+     "n": 48,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0428
+      0.0741
      ],
      "k": 0,
-     "n": 86,
+     "n": 48,
      "rate": 0.0
     }
    },
    "scenario": "partial_overwrite_zero@dhav",
-   "seconds": 12.93,
+   "seconds": 6.61,
    "title": "Partially overwritten by zeros (DHAV per-paper layout)",
    "trials": 20
   },
@@ -3784,12 +4300,10 @@
     "carved": 45,
     "carved_bytes": 6260099,
     "crosscheck": {
-     "frame_count_mismatch": 27,
-     "generic_clip_not_explained_by_parser": 2,
-     "generic_includes_extra_bytes": 2,
-     "parser_clip_not_found_by_generic": 7
+     "frame_count_mismatch": 11,
+     "generic_includes_extra_bytes": 4
     },
-    "crosscheck_images": 7,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 45,
     "exact": 20,
@@ -3814,10 +4328,8 @@
     "truth_expected": 40
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 27,
-    "generic_clip_not_explained_by_parser": 2,
-    "generic_includes_extra_bytes": 2,
-    "parser_clip_not_found_by_generic": 7
+    "frame_count_mismatch": 11,
+    "generic_includes_extra_bytes": 4
    },
    "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -3856,12 +4368,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.1812,
-      0.5671
+      0.0,
+      0.1611
      ],
-     "k": 7,
+     "k": 0,
      "n": 20,
-     "rate": 0.35
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -3910,28 +4422,160 @@
     }
    },
    "scenario": "partial_overwrite_zero@dhav",
-   "seconds": 7.78,
+   "seconds": 6.23,
    "title": "Partially overwritten by zeros (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 100,
-    "carved_bytes": 6973222,
+    "carved": 47,
+    "carved_bytes": 6266517,
+    "crosscheck": {
+     "frame_count_mismatch": 11,
+     "generic_includes_extra_bytes": 4
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 2,
+    "decode_ok": 45,
+    "exact": 20,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 1582,
+    "frames_recoverable": 1582,
+    "frames_recovered": 1582,
+    "hash_checked": 47,
+    "hash_ok": 47,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 47,
+    "truth_detected": 40,
+    "truth_expected": 40
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 11,
+    "generic_includes_extra_bytes": 4
+   },
+   "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "partial_overwrite_zero@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9244,
+      1.0
+     ],
+     "k": 47,
+     "n": 47,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.8575,
+      0.9883
+     ],
+     "k": 45,
+     "n": 47,
+     "rate": 0.9574
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9976,
+      1.0
+     ],
+     "k": 1582,
+     "n": 1582,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9976,
+      1.0
+     ],
+     "k": 1582,
+     "n": 1582,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9244,
+      1.0
+     ],
+     "k": 47,
+     "n": 47,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0756
+     ],
+     "k": 0,
+     "n": 47,
+     "rate": 0.0
+    }
+   },
+   "scenario": "partial_overwrite_zero@dhav",
+   "seconds": 6.58,
+   "title": "Partially overwritten by zeros (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 69,
+    "carved_bytes": 7756762,
     "crosscheck": {},
     "crosscheck_images": 0,
-    "decode_errors": 6,
-    "decode_ok": 94,
+    "decode_errors": 7,
+    "decode_ok": 62,
     "exact": 0,
     "exact_eligible": 20,
     "export_failed": 0,
-    "extra_bytes": 40218,
-    "frames_covered_any": 2045,
+    "extra_bytes": 49070,
+    "frames_covered_any": 2291,
     "frames_recoverable": 1894,
-    "frames_recovered": 1648,
-    "hash_checked": 100,
-    "hash_ok": 100,
+    "frames_recovered": 1894,
+    "hash_checked": 69,
+    "hash_ok": 69,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -3940,7 +4584,7 @@
     "mixed": 20,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 100,
+    "tp": 69,
     "truth_detected": 60,
     "truth_expected": 60
    },
@@ -3964,11 +4608,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.963,
+      0.9473,
       1.0
      ],
-     "k": 100,
-     "n": 100,
+     "k": 69,
+     "n": 69,
      "rate": 1.0
     },
     "clip_recall": {
@@ -3982,52 +4626,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.8752,
-      0.9722
+      0.8051,
+      0.95
      ],
-     "k": 94,
-     "n": 100,
-     "rate": 0.94
+     "k": 62,
+     "n": 69,
+     "rate": 0.8986
     },
     "frame_precision": {
      "ci95": [
-      0.7882,
-      0.8224
+      0.8107,
+      0.8417
      ],
-     "k": 1648,
-     "n": 2045,
-     "rate": 0.8059
+     "k": 1894,
+     "n": 2291,
+     "rate": 0.8267
     },
     "frame_recall": {
      "ci95": [
-      0.8542,
-      0.8845
+      0.998,
+      1.0
      ],
-     "k": 1648,
+     "k": 1894,
      "n": 1894,
-     "rate": 0.8701
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.963,
+      0.9473,
       1.0
      ],
-     "k": 100,
-     "n": 100,
+     "k": 69,
+     "n": 69,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
-      0.1334,
-      0.2888
+      0.1962,
+      0.4057
      ],
      "k": 20,
-     "n": 100,
-     "rate": 0.2
+     "n": 69,
+     "rate": 0.2899
     }
    },
    "scenario": "partial_overwrite_foreign@dhav",
-   "seconds": 14.9,
+   "seconds": 9.29,
    "title": "Partially overwritten by a newer recording (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4037,12 +4681,10 @@
     "carved": 65,
     "carved_bytes": 7679721,
     "crosscheck": {
-     "frame_count_mismatch": 27,
-     "generic_clip_not_explained_by_parser": 1,
-     "generic_includes_extra_bytes": 3,
-     "parser_clip_not_found_by_generic": 7
+     "frame_count_mismatch": 15,
+     "generic_includes_extra_bytes": 7
     },
-    "crosscheck_images": 8,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 65,
     "exact": 20,
@@ -4067,10 +4709,8 @@
     "truth_expected": 60
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 27,
-    "generic_clip_not_explained_by_parser": 1,
-    "generic_includes_extra_bytes": 3,
-    "parser_clip_not_found_by_generic": 7
+    "frame_count_mismatch": 15,
+    "generic_includes_extra_bytes": 7
    },
    "description": "Region replaced by the start of another clip (itself a truth clip). Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -4109,12 +4749,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.2188,
-      0.6134
+      0.0,
+      0.1611
      ],
-     "k": 8,
+     "k": 0,
      "n": 20,
-     "rate": 0.4
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -4163,7 +4803,7 @@
     }
    },
    "scenario": "partial_overwrite_foreign@dhav",
-   "seconds": 9.74,
+   "seconds": 8.96,
    "title": "Partially overwritten by a newer recording (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4171,18 +4811,21 @@
    "carve_params": {},
    "counts": {
     "carved": 66,
-    "carved_bytes": 4995681,
-    "crosscheck": {},
+    "carved_bytes": 7681026,
+    "crosscheck": {
+     "frame_count_mismatch": 15,
+     "generic_includes_extra_bytes": 7
+    },
     "crosscheck_images": 0,
-    "decode_errors": 0,
-    "decode_ok": 66,
-    "exact": 0,
+    "decode_errors": 1,
+    "decode_ok": 65,
+    "exact": 20,
     "exact_eligible": 20,
     "export_failed": 0,
-    "extra_bytes": 30644,
-    "frames_covered_any": 1485,
-    "frames_recoverable": 1344,
-    "frames_recovered": 1194,
+    "extra_bytes": 0,
+    "frames_covered_any": 2027,
+    "frames_recoverable": 1894,
+    "frames_recovered": 1894,
     "hash_checked": 66,
     "hash_ok": 66,
     "images": 20,
@@ -4190,10 +4833,139 @@
     "join_right_candidates": 0,
     "join_wrong_accepted": 0,
     "join_wrong_candidates": 0,
-    "mixed": 8,
+    "mixed": 20,
     "neg_clips": 0,
     "neg_decode_ok": 0,
     "tp": 66,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 15,
+    "generic_includes_extra_bytes": 7
+   },
+   "description": "Region replaced by the start of another clip (itself a truth clip). Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "partial_overwrite_foreign@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.945,
+      1.0
+     ],
+     "k": 66,
+     "n": 66,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.919,
+      0.9973
+     ],
+     "k": 65,
+     "n": 66,
+     "rate": 0.9848
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9228,
+      0.9444
+     ],
+     "k": 1894,
+     "n": 2027,
+     "rate": 0.9344
+    },
+    "frame_recall": {
+     "ci95": [
+      0.998,
+      1.0
+     ],
+     "k": 1894,
+     "n": 1894,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.945,
+      1.0
+     ],
+     "k": 66,
+     "n": 66,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.2055,
+      0.4222
+     ],
+     "k": 20,
+     "n": 66,
+     "rate": 0.303
+    }
+   },
+   "scenario": "partial_overwrite_foreign@dhav",
+   "seconds": 8.95,
+   "title": "Partially overwritten by a newer recording (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 29,
+    "carved_bytes": 5464016,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 29,
+    "exact": 0,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 36465,
+    "frames_covered_any": 1637,
+    "frames_recoverable": 1344,
+    "frames_recovered": 1344,
+    "hash_checked": 29,
+    "hash_ok": 29,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 6,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 29,
     "truth_detected": 26,
     "truth_expected": 26
    },
@@ -4217,11 +4989,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.945,
+      0.883,
       1.0
      ],
-     "k": 66,
-     "n": 66,
+     "k": 29,
+     "n": 29,
      "rate": 1.0
     },
     "clip_recall": {
@@ -4235,52 +5007,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.945,
+      0.883,
       1.0
      ],
-     "k": 66,
-     "n": 66,
+     "k": 29,
+     "n": 29,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.7831,
-      0.8234
+      0.8017,
+      0.8388
      ],
-     "k": 1194,
-     "n": 1485,
-     "rate": 0.804
+     "k": 1344,
+     "n": 1637,
+     "rate": 0.821
     },
     "frame_recall": {
      "ci95": [
-      0.8704,
-      0.9041
+      0.9971,
+      1.0
      ],
-     "k": 1194,
+     "k": 1344,
      "n": 1344,
-     "rate": 0.8884
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.945,
+      0.883,
       1.0
      ],
-     "k": 66,
-     "n": 66,
+     "k": 29,
+     "n": 29,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
-      0.0627,
-      0.2214
+      0.0985,
+      0.3839
      ],
-     "k": 8,
-     "n": 66,
-     "rate": 0.1212
+     "k": 6,
+     "n": 29,
+     "rate": 0.2069
     }
    },
    "scenario": "fully_overwritten@dhav",
-   "seconds": 9.27,
+   "seconds": 5.38,
    "title": "Fully overwritten clip (negative component) (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4290,10 +5062,9 @@
     "carved": 26,
     "carved_bytes": 5420613,
     "crosscheck": {
-     "frame_count_mismatch": 14,
-     "parser_clip_not_found_by_generic": 8
+     "frame_count_mismatch": 3
     },
-    "crosscheck_images": 8,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 26,
     "exact": 20,
@@ -4318,8 +5089,7 @@
     "truth_expected": 26
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 14,
-    "parser_clip_not_found_by_generic": 8
+    "frame_count_mismatch": 3
    },
    "description": "One intact survivor plus a clip fully overwritten (zeros, noise or another clip); the destroyed clip must not appear. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -4358,12 +5128,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.2188,
-      0.6134
+      0.0,
+      0.1611
      ],
-     "k": 8,
+     "k": 0,
      "n": 20,
-     "rate": 0.4
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -4412,7 +5182,137 @@
     }
    },
    "scenario": "fully_overwritten@dhav",
-   "seconds": 4.08,
+   "seconds": 4.57,
+   "title": "Fully overwritten clip (negative component) (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 26,
+    "carved_bytes": 5420613,
+    "crosscheck": {
+     "frame_count_mismatch": 3
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 26,
+    "exact": 20,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 1450,
+    "frames_recoverable": 1344,
+    "frames_recovered": 1344,
+    "hash_checked": 26,
+    "hash_ok": 26,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 6,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 26,
+    "truth_detected": 26,
+    "truth_expected": 26
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 3
+   },
+   "description": "One intact survivor plus a clip fully overwritten (zeros, noise or another clip); the destroyed clip must not appear. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "fully_overwritten@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.8713,
+      1.0
+     ],
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.8713,
+      1.0
+     ],
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.8713,
+      1.0
+     ],
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9123,
+      0.9392
+     ],
+     "k": 1344,
+     "n": 1450,
+     "rate": 0.9269
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9971,
+      1.0
+     ],
+     "k": 1344,
+     "n": 1344,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.8713,
+      1.0
+     ],
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.1103,
+      0.4205
+     ],
+     "k": 6,
+     "n": 26,
+     "rate": 0.2308
+    }
+   },
+   "scenario": "fully_overwritten@dhav",
+   "seconds": 3.74,
    "title": "Fully overwritten clip (negative component) (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4421,30 +5321,30 @@
     "join_gap": 100000
    },
    "counts": {
-    "carved": 57,
-    "carved_bytes": 3780194,
+    "carved": 24,
+    "carved_bytes": 4201974,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 57,
+    "decode_ok": 24,
     "exact": 0,
     "exact_eligible": 20,
     "export_failed": 0,
-    "extra_bytes": 28445,
-    "frames_covered_any": 936,
+    "extra_bytes": 33094,
+    "frames_covered_any": 1055,
     "frames_recoverable": 1125,
-    "frames_recovered": 936,
-    "hash_checked": 57,
-    "hash_ok": 57,
+    "frames_recovered": 1055,
+    "hash_checked": 24,
+    "hash_ok": 24,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
-    "join_wrong_accepted": 28,
-    "join_wrong_candidates": 31,
+    "join_wrong_accepted": 35,
+    "join_wrong_candidates": 38,
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 57,
+    "tp": 24,
     "truth_detected": 20,
     "truth_expected": 20
    },
@@ -4468,11 +5368,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9369,
+      0.862,
       1.0
      ],
-     "k": 57,
-     "n": 57,
+     "k": 24,
+     "n": 24,
      "rate": 1.0
     },
     "clip_recall": {
@@ -4486,57 +5386,57 @@
     },
     "decode_ok": {
      "ci95": [
-      0.9369,
+      0.862,
       1.0
      ],
-     "k": 57,
-     "n": 57,
+     "k": 24,
+     "n": 24,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9959,
+      0.9964,
       1.0
      ],
-     "k": 936,
-     "n": 936,
+     "k": 1055,
+     "n": 1055,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.809,
-      0.8527
+      0.9221,
+      0.9505
      ],
-     "k": 936,
+     "k": 1055,
      "n": 1125,
-     "rate": 0.832
+     "rate": 0.9378
     },
     "hash_integrity": {
      "ci95": [
-      0.9369,
+      0.862,
       1.0
      ],
-     "k": 57,
-     "n": 57,
+     "k": 24,
+     "n": 24,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0631
+      0.138
      ],
      "k": 0,
-     "n": 57,
+     "n": 24,
      "rate": 0.0
     },
     "reassembler_false_accept": {
      "ci95": [
-      0.751,
-      0.9665
+      0.792,
+      0.9728
      ],
-     "k": 28,
-     "n": 31,
-     "rate": 0.9032
+     "k": 35,
+     "n": 38,
+     "rate": 0.9211
     },
     "reassembler_true_accept": {
      "ci95": null,
@@ -4546,7 +5446,7 @@
     }
    },
    "scenario": "fragmented_zero_join_on@dhav",
-   "seconds": 7.87,
+   "seconds": 3.16,
    "title": "Fragmented, zero gaps, reassembly on (join_gap 100 KB) (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4558,11 +5458,11 @@
     "carved": 54,
     "carved_bytes": 3712937,
     "crosscheck": {
-     "frame_count_mismatch": 35,
-     "generic_includes_extra_bytes": 24,
-     "parser_clip_not_found_by_generic": 10
+     "frame_count_mismatch": 49,
+     "generic_includes_extra_bytes": 46,
+     "parser_clip_not_found_by_generic": 4
     },
-    "crosscheck_images": 10,
+    "crosscheck_images": 4,
     "decode_errors": 7,
     "decode_ok": 45,
     "exact": 0,
@@ -4587,9 +5487,9 @@
     "truth_expected": 20
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 35,
-    "generic_includes_extra_bytes": 24,
-    "parser_clip_not_found_by_generic": 10
+    "frame_count_mismatch": 49,
+    "generic_includes_extra_bytes": 46,
+    "parser_clip_not_found_by_generic": 4
    },
    "description": "Same images as above with the heuristic reassembler enabled. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -4628,12 +5528,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.2993,
-      0.7007
+      0.0807,
+      0.416
      ],
-     "k": 10,
+     "k": 4,
      "n": 20,
-     "rate": 0.5
+     "rate": 0.2
     },
     "decode_ok": {
      "ci95": [
@@ -4682,7 +5582,7 @@
     }
    },
    "scenario": "fragmented_zero_join_on@dhav",
-   "seconds": 7.26,
+   "seconds": 7.67,
    "title": "Fragmented, zero gaps, reassembly on (join_gap 100 KB) (DHAV per-paper layout)",
    "trials": 20
   },
@@ -4691,8 +5591,144 @@
     "join_gap": 100000
    },
    "counts": {
-    "carved": 1785,
-    "carved_bytes": 120595590,
+    "carved": 54,
+    "carved_bytes": 3712937,
+    "crosscheck": {
+     "frame_count_mismatch": 49,
+     "generic_includes_extra_bytes": 46,
+     "parser_clip_not_found_by_generic": 4
+    },
+    "crosscheck_images": 4,
+    "decode_errors": 7,
+    "decode_ok": 45,
+    "exact": 0,
+    "exact_eligible": 20,
+    "export_failed": 2,
+    "extra_bytes": 0,
+    "frames_covered_any": 908,
+    "frames_recoverable": 1125,
+    "frames_recovered": 908,
+    "hash_checked": 54,
+    "hash_ok": 54,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 54,
+    "truth_detected": 20,
+    "truth_expected": 20
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 49,
+    "generic_includes_extra_bytes": 46,
+    "parser_clip_not_found_by_generic": 4
+   },
+   "description": "Same images as above with the heuristic reassembler enabled. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "fragmented_zero_join_on@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9336,
+      1.0
+     ],
+     "k": 54,
+     "n": 54,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0807,
+      0.416
+     ],
+     "k": 4,
+     "n": 20,
+     "rate": 0.2
+    },
+    "decode_ok": {
+     "ci95": [
+      0.7126,
+      0.9098
+     ],
+     "k": 45,
+     "n": 54,
+     "rate": 0.8333
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9958,
+      1.0
+     ],
+     "k": 908,
+     "n": 908,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.783,
+      0.8291
+     ],
+     "k": 908,
+     "n": 1125,
+     "rate": 0.8071
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9336,
+      1.0
+     ],
+     "k": 54,
+     "n": 54,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0664
+     ],
+     "k": 0,
+     "n": 54,
+     "rate": 0.0
+    }
+   },
+   "scenario": "fragmented_zero_join_on@dhav",
+   "seconds": 8.21,
+   "title": "Fragmented, zero gaps, reassembly on (join_gap 100 KB) (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {
+    "join_gap": 100000
+   },
+   "counts": {
+    "carved": 861,
+    "carved_bytes": 136646072,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
@@ -4700,10 +5736,10 @@
     "exact": 0,
     "exact_eligible": 600,
     "export_failed": 0,
-    "extra_bytes": 856931,
-    "frames_covered_any": 27581,
+    "extra_bytes": 1023838,
+    "frames_covered_any": 31912,
     "frames_recoverable": 33650,
-    "frames_recovered": 27581,
+    "frames_recovered": 31912,
     "hash_checked": 0,
     "hash_ok": 0,
     "images": 300,
@@ -4711,10 +5747,10 @@
     "join_right_candidates": 0,
     "join_wrong_accepted": 21,
     "join_wrong_candidates": 281,
-    "mixed": 19,
+    "mixed": 16,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 1785,
+    "tp": 861,
     "truth_detected": 600,
     "truth_expected": 600
    },
@@ -4738,11 +5774,11 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9979,
+      0.9956,
       1.0
      ],
-     "k": 1785,
-     "n": 1785,
+     "k": 861,
+     "n": 861,
      "rate": 1.0
     },
     "clip_recall": {
@@ -4760,28 +5796,28 @@
       0.9999,
       1.0
      ],
-     "k": 27581,
-     "n": 27581,
+     "k": 31912,
+     "n": 31912,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.8155,
-      0.8237
+      0.9459,
+      0.9507
      ],
-     "k": 27581,
+     "k": 31912,
      "n": 33650,
-     "rate": 0.8196
+     "rate": 0.9484
     },
     "hash_integrity": null,
     "mixed_clips": {
      "ci95": [
-      0.0068,
-      0.0166
+      0.0115,
+      0.03
      ],
-     "k": 19,
-     "n": 1785,
-     "rate": 0.0106
+     "k": 16,
+     "n": 861,
+     "rate": 0.0186
     },
     "reassembler_false_accept": {
      "ci95": [
@@ -4800,7 +5836,7 @@
     }
    },
    "scenario": "fragmented_decoy_join_on@dhav",
-   "seconds": 2.29,
+   "seconds": 1.91,
    "title": "Fragments split by another recording, reassembly on (DHAV per-paper layout)",
    "trials": 300
   },
@@ -4812,10 +5848,11 @@
     "carved": 867,
     "carved_bytes": 136309693,
     "crosscheck": {
-     "frame_count_mismatch": 426,
-     "parser_clip_not_found_by_generic": 206
+     "frame_count_mismatch": 59,
+     "generic_includes_extra_bytes": 21,
+     "parser_clip_not_found_by_generic": 10
     },
-    "crosscheck_images": 185,
+    "crosscheck_images": 10,
     "decode_errors": 0,
     "decode_ok": 0,
     "exact": 300,
@@ -4840,8 +5877,9 @@
     "truth_expected": 600
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 426,
-    "parser_clip_not_found_by_generic": 206
+    "frame_count_mismatch": 59,
+    "generic_includes_extra_bytes": 21,
+    "parser_clip_not_found_by_generic": 10
    },
    "description": "Same images; every join candidate is a wrong one (false-accept study). Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -4880,12 +5918,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.5605,
-      0.6699
+      0.0182,
+      0.0603
      ],
-     "k": 185,
+     "k": 10,
      "n": 300,
-     "rate": 0.6167
+     "rate": 0.0333
     },
     "decode_ok": null,
     "frame_precision": {
@@ -4918,61 +5956,170 @@
     }
    },
    "scenario": "fragmented_decoy_join_on@dhav",
-   "seconds": 5.28,
+   "seconds": 5.06,
+   "title": "Fragments split by another recording, reassembly on (DHAV per-paper layout)",
+   "trials": 300
+  },
+  {
+   "carve_params": {
+    "join_gap": 100000
+   },
+   "counts": {
+    "carved": 867,
+    "carved_bytes": 136309693,
+    "crosscheck": {
+     "frame_count_mismatch": 59,
+     "generic_includes_extra_bytes": 21,
+     "parser_clip_not_found_by_generic": 10
+    },
+    "crosscheck_images": 10,
+    "decode_errors": 0,
+    "decode_ok": 0,
+    "exact": 300,
+    "exact_eligible": 600,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 32032,
+    "frames_recoverable": 33650,
+    "frames_recovered": 32032,
+    "hash_checked": 0,
+    "hash_ok": 0,
+    "images": 300,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 867,
+    "truth_detected": 600,
+    "truth_expected": 600
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 59,
+    "generic_includes_extra_bytes": 21,
+    "parser_clip_not_found_by_generic": 10
+   },
+   "description": "Same images; every join candidate is a wrong one (false-accept study). Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "fragmented_decoy_join_on@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.4601,
+      0.5399
+     ],
+     "k": 300,
+     "n": 600,
+     "rate": 0.5
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9956,
+      1.0
+     ],
+     "k": 867,
+     "n": 867,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9936,
+      1.0
+     ],
+     "k": 600,
+     "n": 600,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0182,
+      0.0603
+     ],
+     "k": 10,
+     "n": 300,
+     "rate": 0.0333
+    },
+    "decode_ok": null,
+    "frame_precision": {
+     "ci95": [
+      0.9999,
+      1.0
+     ],
+     "k": 32032,
+     "n": 32032,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9496,
+      0.9542
+     ],
+     "k": 32032,
+     "n": 33650,
+     "rate": 0.9519
+    },
+    "hash_integrity": null,
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0044
+     ],
+     "k": 0,
+     "n": 867,
+     "rate": 0.0
+    }
+   },
+   "scenario": "fragmented_decoy_join_on@dhav",
+   "seconds": 5.37,
    "title": "Fragments split by another recording, reassembly on (DHAV per-paper layout)",
    "trials": 300
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 121,
-    "carved_bytes": 11136960,
+    "carved": 20,
+    "carved_bytes": 11712174,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 121,
+    "decode_ok": 20,
     "exact": 0,
     "exact_eligible": 53,
     "export_failed": 0,
-    "extra_bytes": 95037,
-    "frames_covered_any": 2959,
+    "extra_bytes": 102420,
+    "frames_covered_any": 3125,
     "frames_recoverable": 3125,
-    "frames_recovered": 2959,
-    "hash_checked": 121,
-    "hash_ok": 121,
+    "frames_recovered": 3125,
+    "hash_checked": 20,
+    "hash_ok": 20,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
     "join_wrong_accepted": 0,
     "join_wrong_candidates": 0,
-    "mixed": 26,
+    "mixed": 20,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 105,
+    "tp": 7,
     "truth_detected": 53,
     "truth_expected": 53
    },
    "crosscheck_disagreements": {},
    "description": "2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "generic",
-   "failure_count": 16,
+   "failure_count": 13,
    "failures": [
     {
      "decode": "ok",
      "extents": [
       [
        1316,
-       304003
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_gop@dhav[generic]#2"
-    },
-    {
-     "decode": "ok",
-     "extents": [
-      [
-       344031,
        637696
       ]
      ],
@@ -4984,17 +6131,28 @@
      "extents": [
       [
        1316,
-       281653
+       655608
       ]
      ],
      "kind": "false_positive_clip",
-     "trial": "multi_channel_gop@dhav[generic]#6"
+     "trial": "multi_channel_gop@dhav[generic]#4"
     },
     {
      "decode": "ok",
      "extents": [
       [
-       317534,
+       1316,
+       655608
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_gop@dhav[generic]#5"
+    },
+    {
+     "decode": "ok",
+     "extents": [
+      [
+       1316,
        582089
       ]
      ],
@@ -5006,17 +6164,17 @@
      "extents": [
       [
        1316,
-       304003
+       655608
       ]
      ],
      "kind": "false_positive_clip",
-     "trial": "multi_channel_gop@dhav[generic]#10"
+     "trial": "multi_channel_gop@dhav[generic]#9"
     },
     {
      "decode": "ok",
      "extents": [
       [
-       344031,
+       1316,
        637696
       ]
      ],
@@ -5028,22 +6186,22 @@
      "extents": [
       [
        1316,
-       304003
+       655608
       ]
      ],
      "kind": "false_positive_clip",
-     "trial": "multi_channel_gop@dhav[generic]#13"
+     "trial": "multi_channel_gop@dhav[generic]#11"
     },
     {
      "decode": "ok",
      "extents": [
       [
-       344031,
-       637696
+       1316,
+       655608
       ]
      ],
      "kind": "false_positive_clip",
-     "trial": "multi_channel_gop@dhav[generic]#13"
+     "trial": "multi_channel_gop@dhav[generic]#12"
     }
    ],
    "id": "multi_channel_gop@dhav[generic]",
@@ -5061,12 +6219,12 @@
     },
     "clip_precision": {
      "ci95": [
-      0.796,
-      0.9169
+      0.1812,
+      0.5671
      ],
-     "k": 105,
-     "n": 121,
-     "rate": 0.8678
+     "k": 7,
+     "n": 20,
+     "rate": 0.35
     },
     "clip_recall": {
      "ci95": [
@@ -5079,52 +6237,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.9692,
+      0.8389,
       1.0
      ],
-     "k": 121,
-     "n": 121,
+     "k": 20,
+     "n": 20,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9987,
+      0.9988,
       1.0
      ],
-     "k": 2959,
-     "n": 2959,
+     "k": 3125,
+     "n": 3125,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.9385,
-      0.9542
+      0.9988,
+      1.0
      ],
-     "k": 2959,
+     "k": 3125,
      "n": 3125,
-     "rate": 0.9469
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9692,
+      0.8389,
       1.0
      ],
-     "k": 121,
-     "n": 121,
+     "k": 20,
+     "n": 20,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
-      0.1511,
-      0.2962
+      0.8389,
+      1.0
      ],
-     "k": 26,
-     "n": 121,
-     "rate": 0.2149
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
     }
    },
    "scenario": "multi_channel_gop@dhav",
-   "seconds": 16.14,
+   "seconds": 3.22,
    "title": "Multi-channel, GOP-interleaved, identical parameter sets (DHAV per-paper layout)",
    "trials": 20
   },
@@ -5134,11 +6292,10 @@
     "carved": 53,
     "carved_bytes": 11609754,
     "crosscheck": {
-     "frame_count_mismatch": 33,
-     "generic_includes_extra_bytes": 34,
-     "parser_clip_not_found_by_generic": 19
+     "frame_count_mismatch": 53,
+     "generic_includes_extra_bytes": 53
     },
-    "crosscheck_images": 7,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 53,
     "exact": 53,
@@ -5163,9 +6320,8 @@
     "truth_expected": 53
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 33,
-    "generic_includes_extra_bytes": 34,
-    "parser_clip_not_found_by_generic": 19
+    "frame_count_mismatch": 53,
+    "generic_includes_extra_bytes": 53
    },
    "description": "2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -5204,12 +6360,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.1812,
-      0.5671
+      0.0,
+      0.1611
      ],
-     "k": 7,
+     "k": 0,
      "n": 20,
-     "rate": 0.35
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -5258,61 +6414,182 @@
     }
    },
    "scenario": "multi_channel_gop@dhav",
-   "seconds": 7.72,
+   "seconds": 7.59,
    "title": "Multi-channel, GOP-interleaved, identical parameter sets (DHAV per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 82,
-    "carved_bytes": 9747693,
-    "crosscheck": {},
+    "carved": 53,
+    "carved_bytes": 11609754,
+    "crosscheck": {
+     "frame_count_mismatch": 53,
+     "generic_includes_extra_bytes": 53
+    },
     "crosscheck_images": 0,
-    "decode_errors": 8,
-    "decode_ok": 74,
-    "exact": 0,
-    "exact_eligible": 49,
+    "decode_errors": 0,
+    "decode_ok": 53,
+    "exact": 53,
+    "exact_eligible": 53,
     "export_failed": 0,
-    "extra_bytes": 74042,
-    "frames_covered_any": 2287,
-    "frames_recoverable": 2700,
-    "frames_recovered": 2287,
-    "hash_checked": 82,
-    "hash_ok": 82,
+    "extra_bytes": 0,
+    "frames_covered_any": 3125,
+    "frames_recoverable": 3125,
+    "frames_recovered": 3125,
+    "hash_checked": 53,
+    "hash_ok": 53,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
     "join_wrong_accepted": 0,
     "join_wrong_candidates": 0,
-    "mixed": 52,
+    "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 58,
+    "tp": 53,
+    "truth_detected": 53,
+    "truth_expected": 53
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 53,
+    "generic_includes_extra_bytes": 53
+   },
+   "description": "2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "multi_channel_gop@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9324,
+      1.0
+     ],
+     "k": 53,
+     "n": 53,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9324,
+      1.0
+     ],
+     "k": 53,
+     "n": 53,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9324,
+      1.0
+     ],
+     "k": 53,
+     "n": 53,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9324,
+      1.0
+     ],
+     "k": 53,
+     "n": 53,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3125,
+     "n": 3125,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3125,
+     "n": 3125,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9324,
+      1.0
+     ],
+     "k": 53,
+     "n": 53,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0676
+     ],
+     "k": 0,
+     "n": 53,
+     "rate": 0.0
+    }
+   },
+   "scenario": "multi_channel_gop@dhav",
+   "seconds": 7.6,
+   "title": "Multi-channel, GOP-interleaved, identical parameter sets (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 20,
+    "carved_bytes": 11213831,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 4,
+    "decode_ok": 16,
+    "exact": 0,
+    "exact_eligible": 49,
+    "export_failed": 0,
+    "extra_bytes": 88580,
+    "frames_covered_any": 2700,
+    "frames_recoverable": 2700,
+    "frames_recovered": 2700,
+    "hash_checked": 20,
+    "hash_ok": 20,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 20,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 11,
     "truth_detected": 49,
     "truth_expected": 49
    },
    "crosscheck_disagreements": {},
    "description": "2-3 cameras interleaved per frame. Expected to fail for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "generic",
-   "failure_count": 24,
+   "failure_count": 9,
    "failures": [
     {
      "decode": "decode_errors",
      "extents": [
       [
        1316,
-       323821
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_frame@dhav[generic]#2"
-    },
-    {
-     "decode": "decode_errors",
-     "extents": [
-      [
-       441295,
        637696
       ]
      ],
@@ -5323,51 +6600,7 @@
      "decode": "ok",
      "extents": [
       [
-       15541,
-       129018
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_frame@dhav[generic]#3"
-    },
-    {
-     "decode": "ok",
-     "extents": [
-      [
-       144631,
-       219865
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_frame@dhav[generic]#3"
-    },
-    {
-     "decode": "ok",
-     "extents": [
-      [
-       272499,
-       384330
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_frame@dhav[generic]#3"
-    },
-    {
-     "decode": "ok",
-     "extents": [
-      [
-       400317,
-       515969
-      ]
-     ],
-     "kind": "false_positive_clip",
-     "trial": "multi_channel_frame@dhav[generic]#3"
-    },
-    {
-     "decode": "ok",
-     "extents": [
-      [
-       532725,
+       1316,
        655608
       ]
      ],
@@ -5378,12 +6611,67 @@
      "decode": "ok",
      "extents": [
       [
-       15541,
-       129018
+       1316,
+       655608
       ]
      ],
      "kind": "false_positive_clip",
      "trial": "multi_channel_frame@dhav[generic]#4"
+    },
+    {
+     "decode": "ok",
+     "extents": [
+      [
+       1316,
+       582089
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_frame@dhav[generic]#8"
+    },
+    {
+     "decode": "decode_errors",
+     "extents": [
+      [
+       1316,
+       637696
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_frame@dhav[generic]#10"
+    },
+    {
+     "decode": "ok",
+     "extents": [
+      [
+       1316,
+       582089
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_frame@dhav[generic]#11"
+    },
+    {
+     "decode": "ok",
+     "extents": [
+      [
+       1316,
+       939275
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_frame@dhav[generic]#13"
+    },
+    {
+     "decode": "ok",
+     "extents": [
+      [
+       1316,
+       582089
+      ]
+     ],
+     "kind": "false_positive_clip",
+     "trial": "multi_channel_frame@dhav[generic]#15"
     }
    ],
    "id": "multi_channel_frame@dhav[generic]",
@@ -5401,12 +6689,12 @@
     },
     "clip_precision": {
      "ci95": [
-      0.6013,
-      0.7947
+      0.3421,
+      0.7418
      ],
-     "k": 58,
-     "n": 82,
-     "rate": 0.7073
+     "k": 11,
+     "n": 20,
+     "rate": 0.55
     },
     "clip_recall": {
      "ci95": [
@@ -5419,52 +6707,52 @@
     },
     "decode_ok": {
      "ci95": [
-      0.8191,
-      0.9497
+      0.584,
+      0.9193
      ],
-     "k": 74,
-     "n": 82,
-     "rate": 0.9024
+     "k": 16,
+     "n": 20,
+     "rate": 0.8
     },
     "frame_precision": {
      "ci95": [
-      0.9983,
+      0.9986,
       1.0
      ],
-     "k": 2287,
-     "n": 2287,
+     "k": 2700,
+     "n": 2700,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.833,
-      0.8601
+      0.9986,
+      1.0
      ],
-     "k": 2287,
+     "k": 2700,
      "n": 2700,
-     "rate": 0.847
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9552,
+      0.8389,
       1.0
      ],
-     "k": 82,
-     "n": 82,
+     "k": 20,
+     "n": 20,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
-      0.5261,
-      0.7302
+      0.8389,
+      1.0
      ],
-     "k": 52,
-     "n": 82,
-     "rate": 0.6341
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
     }
    },
    "scenario": "multi_channel_frame@dhav",
-   "seconds": 11.55,
+   "seconds": 2.9,
    "title": "Multi-channel, frame-interleaved, identical parameter sets (DHAV per-paper layout)",
    "trials": 20
   },
@@ -5474,11 +6762,10 @@
     "carved": 49,
     "carved_bytes": 11125251,
     "crosscheck": {
-     "frame_count_mismatch": 21,
-     "generic_includes_extra_bytes": 39,
-     "parser_clip_not_found_by_generic": 10
+     "frame_count_mismatch": 49,
+     "generic_includes_extra_bytes": 49
     },
-    "crosscheck_images": 4,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 49,
     "exact": 49,
@@ -5503,9 +6790,8 @@
     "truth_expected": 49
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 21,
-    "generic_includes_extra_bytes": 39,
-    "parser_clip_not_found_by_generic": 10
+    "frame_count_mismatch": 49,
+    "generic_includes_extra_bytes": 49
    },
    "description": "2-3 cameras interleaved per frame. Expected to fail for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
    "engine": "dahua",
@@ -5544,12 +6830,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.0807,
-      0.416
+      0.0,
+      0.1611
      ],
-     "k": 4,
+     "k": 0,
      "n": 20,
-     "rate": 0.2
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -5598,7 +6884,139 @@
     }
    },
    "scenario": "multi_channel_frame@dhav",
-   "seconds": 7.69,
+   "seconds": 7.09,
+   "title": "Multi-channel, frame-interleaved, identical parameter sets (DHAV per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 49,
+    "carved_bytes": 11125251,
+    "crosscheck": {
+     "frame_count_mismatch": 49,
+     "generic_includes_extra_bytes": 49
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 49,
+    "exact": 49,
+    "exact_eligible": 49,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 2700,
+    "frames_recoverable": 2700,
+    "frames_recovered": 2700,
+    "hash_checked": 49,
+    "hash_ok": 49,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 49,
+    "truth_detected": 49,
+    "truth_expected": 49
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 49,
+    "generic_includes_extra_bytes": 49
+   },
+   "description": "2-3 cameras interleaved per frame. Expected to fail for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.",
+   "engine": "dahua+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "multi_channel_frame@dhav[dahua+generic]",
+   "kind": "positive",
+   "layout": "dahua-dhav: per-paper layout (FFmpeg dhav.c DHAV frame format; DHFS not modelled), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9273,
+      1.0
+     ],
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9273,
+      1.0
+     ],
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9273,
+      1.0
+     ],
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9273,
+      1.0
+     ],
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9986,
+      1.0
+     ],
+     "k": 2700,
+     "n": 2700,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9986,
+      1.0
+     ],
+     "k": 2700,
+     "n": 2700,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9273,
+      1.0
+     ],
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0727
+     ],
+     "k": 0,
+     "n": 49,
+     "rate": 0.0
+    }
+   },
+   "scenario": "multi_channel_frame@dhav",
+   "seconds": 6.79,
    "title": "Multi-channel, frame-interleaved, identical parameter sets (DHAV per-paper layout)",
    "trials": 20
   },
@@ -5715,7 +7133,7 @@
     }
    },
    "scenario": "clean_live@hik",
-   "seconds": 8.69,
+   "seconds": 8.13,
    "title": "Clean live clips, back to back (hik per-paper layout)",
    "trials": 20
   },
@@ -5841,7 +7259,133 @@
     }
    },
    "scenario": "clean_live@hik",
-   "seconds": 8.63,
+   "seconds": 8.95,
+   "title": "Clean live clips, back to back (hik per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 14165908,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 3325,
+    "frames_recoverable": 3325,
+    "frames_recovered": 3325,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {},
+   "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.",
+   "engine": "hikvision+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "clean_live@hik[hikvision+generic]",
+   "kind": "positive",
+   "layout": "hikvision-fs: per-paper layout (Han 2015 + Dragonas 2023 via docs/parsers/hikvision-fields.md; Master Sector, HIKBTREE, RATS logs, data blocks), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "clean_live@hik",
+   "seconds": 9.97,
    "title": "Clean live clips, back to back (hik per-paper layout)",
    "trials": 20
   },
@@ -5958,7 +7502,7 @@
     }
    },
    "scenario": "deleted_intact_zero@hik",
-   "seconds": 8.18,
+   "seconds": 8.75,
    "title": "Deleted-then-intact, zero-padded (hik per-paper layout)",
    "trials": 20
   },
@@ -6145,7 +7689,137 @@
     }
    },
    "scenario": "deleted_intact_zero@hik",
-   "seconds": 2.9,
+   "seconds": 3.17,
+   "title": "Deleted-then-intact, zero-padded (hik per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 14311442,
+    "crosscheck": {
+     "generic_clip_not_explained_by_parser": 40
+    },
+    "crosscheck_images": 20,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 3475,
+    "frames_recoverable": 3475,
+    "frames_recovered": 3475,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {
+    "generic_clip_not_explained_by_parser": 40
+   },
+   "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.",
+   "engine": "hikvision+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "deleted_intact_zero@hik[hikvision+generic]",
+   "kind": "positive",
+   "layout": "hikvision-fs: per-paper layout (Han 2015 + Dragonas 2023 via docs/parsers/hikvision-fields.md; Master Sector, HIKBTREE, RATS logs, data blocks), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9989,
+      1.0
+     ],
+     "k": 3475,
+     "n": 3475,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9989,
+      1.0
+     ],
+     "k": 3475,
+     "n": 3475,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "deleted_intact_zero@hik",
+   "seconds": 9.07,
    "title": "Deleted-then-intact, zero-padded (hik per-paper layout)",
    "trials": 20
   },
@@ -6262,7 +7936,7 @@
     }
    },
    "scenario": "partial_overwrite_zero@hik",
-   "seconds": 5.21,
+   "seconds": 5.58,
    "title": "Partially overwritten by zeros (hik per-paper layout)",
    "trials": 20
   },
@@ -6388,7 +8062,133 @@
     }
    },
    "scenario": "partial_overwrite_zero@hik",
-   "seconds": 5.52,
+   "seconds": 5.91,
+   "title": "Partially overwritten by zeros (hik per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 40,
+    "carved_bytes": 6640349,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 40,
+    "exact": 20,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 1601,
+    "frames_recoverable": 1601,
+    "frames_recovered": 1601,
+    "hash_checked": 40,
+    "hash_ok": 40,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 40,
+    "truth_detected": 40,
+    "truth_expected": 40
+   },
+   "crosscheck_disagreements": {},
+   "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.",
+   "engine": "hikvision+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "partial_overwrite_zero@hik[hikvision+generic]",
+   "kind": "positive",
+   "layout": "hikvision-fs: per-paper layout (Han 2015 + Dragonas 2023 via docs/parsers/hikvision-fields.md; Master Sector, HIKBTREE, RATS logs, data blocks), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9976,
+      1.0
+     ],
+     "k": 1601,
+     "n": 1601,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9976,
+      1.0
+     ],
+     "k": 1601,
+     "n": 1601,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0876
+     ],
+     "k": 0,
+     "n": 40,
+     "rate": 0.0
+    }
+   },
+   "scenario": "partial_overwrite_zero@hik",
+   "seconds": 5.58,
    "title": "Partially overwritten by zeros (hik per-paper layout)",
    "trials": 20
   },
@@ -6505,7 +8305,7 @@
     }
    },
    "scenario": "multi_channel_gop@hik",
-   "seconds": 14.1,
+   "seconds": 18.96,
    "title": "Multi-channel, GOP-interleaved, identical parameter sets (hik per-paper layout)",
    "trials": 20
   },
@@ -6631,28 +8431,28 @@
     }
    },
    "scenario": "multi_channel_gop@hik",
-   "seconds": 14.98,
+   "seconds": 15.96,
    "title": "Multi-channel, GOP-interleaved, identical parameter sets (hik per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 120,
-    "carved_bytes": 11638538,
+    "carved": 100,
+    "carved_bytes": 23410080,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 120,
-    "exact": 0,
-    "exact_eligible": 60,
+    "decode_ok": 100,
+    "exact": 100,
+    "exact_eligible": 100,
     "export_failed": 0,
-    "extra_bytes": 44325,
-    "frames_covered_any": 2325,
-    "frames_recoverable": 3375,
-    "frames_recovered": 2325,
-    "hash_checked": 120,
-    "hash_ok": 120,
+    "extra_bytes": 0,
+    "frames_covered_any": 5625,
+    "frames_recoverable": 5625,
+    "frames_recovered": 5625,
+    "hash_checked": 100,
+    "hash_ok": 100,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -6661,72 +8461,141 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 120,
-    "truth_detected": 45,
+    "tp": 100,
+    "truth_detected": 100,
+    "truth_expected": 100
+   },
+   "crosscheck_disagreements": {},
+   "description": "2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Image built from documented fields only.",
+   "engine": "hikvision+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "multi_channel_gop@hik[hikvision+generic]",
+   "kind": "positive",
+   "layout": "hikvision-fs: per-paper layout (Han 2015 + Dragonas 2023 via docs/parsers/hikvision-fields.md; Master Sector, HIKBTREE, RATS logs, data blocks), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.963,
+      1.0
+     ],
+     "k": 100,
+     "n": 100,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.963,
+      1.0
+     ],
+     "k": 100,
+     "n": 100,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.963,
+      1.0
+     ],
+     "k": 100,
+     "n": 100,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.963,
+      1.0
+     ],
+     "k": 100,
+     "n": 100,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9993,
+      1.0
+     ],
+     "k": 5625,
+     "n": 5625,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9993,
+      1.0
+     ],
+     "k": 5625,
+     "n": 5625,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.963,
+      1.0
+     ],
+     "k": 100,
+     "n": 100,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.037
+     ],
+     "k": 0,
+     "n": 100,
+     "rate": 0.0
+    }
+   },
+   "scenario": "multi_channel_gop@hik",
+   "seconds": 15.12,
+   "title": "Multi-channel, GOP-interleaved, identical parameter sets (hik per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 14335718,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 0,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 66300,
+    "frames_covered_any": 3375,
+    "frames_recoverable": 3375,
+    "frames_recovered": 3375,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
     "truth_expected": 60
    },
    "crosscheck_disagreements": {},
    "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.",
    "engine": "generic",
-   "failure_count": 15,
-   "failures": [
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#0"
-    },
-    {
-     "clip": "c2",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#0"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#2"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#4"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#6"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#8"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#9"
-    },
-    {
-     "clip": "c2",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "clean_live@honeywell[generic]#9"
-    }
-   ],
+   "failure_count": 0,
+   "failures": [],
    "id": "clean_live@honeywell[generic]",
    "kind": "positive",
    "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
@@ -6742,70 +8611,70 @@
     },
     "clip_precision": {
      "ci95": [
-      0.969,
+      0.9398,
       1.0
      ],
-     "k": 120,
-     "n": 120,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "clip_recall": {
      "ci95": [
-      0.6277,
-      0.8422
+      0.9398,
+      1.0
      ],
-     "k": 45,
+     "k": 60,
      "n": 60,
-     "rate": 0.75
+     "rate": 1.0
     },
     "decode_ok": {
      "ci95": [
-      0.969,
+      0.9398,
       1.0
      ],
-     "k": 120,
-     "n": 120,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9984,
+      0.9989,
       1.0
      ],
-     "k": 2325,
-     "n": 2325,
+     "k": 3375,
+     "n": 3375,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.6731,
-      0.7043
+      0.9989,
+      1.0
      ],
-     "k": 2325,
+     "k": 3375,
      "n": 3375,
-     "rate": 0.6889
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.969,
+      0.9398,
       1.0
      ],
-     "k": 120,
-     "n": 120,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.031
+      0.0602
      ],
      "k": 0,
-     "n": 120,
+     "n": 60,
      "rate": 0.0
     }
    },
    "scenario": "clean_live@honeywell",
-   "seconds": 19.0,
+   "seconds": 9.72,
    "title": "Clean live clips, back to back (honeywell per-paper layout)",
    "trials": 20
   },
@@ -6814,10 +8683,8 @@
    "counts": {
     "carved": 60,
     "carved_bytes": 14269418,
-    "crosscheck": {
-     "parser_clip_not_found_by_generic": 15
-    },
-    "crosscheck_images": 12,
+    "crosscheck": {},
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -6841,9 +8708,7 @@
     "truth_detected": 60,
     "truth_expected": 60
    },
-   "crosscheck_disagreements": {
-    "parser_clip_not_found_by_generic": 15
-   },
+   "crosscheck_disagreements": {},
    "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.",
    "engine": "honeywell",
    "failure_count": 0,
@@ -6881,12 +8746,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.3866,
-      0.7812
+      0.0,
+      0.1611
      ],
-     "k": 12,
+     "k": 0,
      "n": 20,
-     "rate": 0.6
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -6935,28 +8800,28 @@
     }
    },
    "scenario": "clean_live@honeywell",
-   "seconds": 11.34,
+   "seconds": 10.0,
    "title": "Clean live clips, back to back (honeywell per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 112,
-    "carved_bytes": 11694826,
+    "carved": 60,
+    "carved_bytes": 14269418,
     "crosscheck": {},
     "crosscheck_images": 0,
     "decode_errors": 0,
-    "decode_ok": 112,
-    "exact": 0,
+    "decode_ok": 60,
+    "exact": 60,
     "exact_eligible": 60,
     "export_failed": 0,
-    "extra_bytes": 46255,
-    "frames_covered_any": 2415,
-    "frames_recoverable": 3325,
-    "frames_recovered": 2415,
-    "hash_checked": 112,
-    "hash_ok": 112,
+    "extra_bytes": 0,
+    "frames_covered_any": 3375,
+    "frames_recoverable": 3375,
+    "frames_recovered": 3375,
+    "hash_checked": 60,
+    "hash_ok": 60,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -6965,72 +8830,141 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 112,
-    "truth_detected": 47,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {},
+   "description": "Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.",
+   "engine": "honeywell+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "clean_live@honeywell[honeywell+generic]",
+   "kind": "positive",
+   "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9989,
+      1.0
+     ],
+     "k": 3375,
+     "n": 3375,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9989,
+      1.0
+     ],
+     "k": 3375,
+     "n": 3375,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "clean_live@honeywell",
+   "seconds": 9.84,
+   "title": "Clean live clips, back to back (honeywell per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 60,
+    "carved_bytes": 14032382,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 0,
+    "exact_eligible": 60,
+    "export_failed": 0,
+    "extra_bytes": 65300,
+    "frames_covered_any": 3325,
+    "frames_recoverable": 3325,
+    "frames_recovered": 3325,
+    "hash_checked": 60,
+    "hash_ok": 60,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 60,
+    "truth_detected": 60,
     "truth_expected": 60
    },
    "crosscheck_disagreements": {},
    "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.",
    "engine": "generic",
-   "failure_count": 13,
-   "failures": [
-    {
-     "clip": "c2",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#0"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#1"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#2"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#3"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#4"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#7"
-    },
-    {
-     "clip": "c2",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#8"
-    },
-    {
-     "clip": "c2",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "deleted_intact_zero@honeywell[generic]#9"
-    }
-   ],
+   "failure_count": 0,
+   "failures": [],
    "id": "deleted_intact_zero@honeywell[generic]",
    "kind": "positive",
    "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
@@ -7046,70 +8980,70 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9668,
+      0.9398,
       1.0
      ],
-     "k": 112,
-     "n": 112,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "clip_recall": {
      "ci95": [
-      0.6638,
-      0.8688
+      0.9398,
+      1.0
      ],
-     "k": 47,
+     "k": 60,
      "n": 60,
-     "rate": 0.7833
+     "rate": 1.0
     },
     "decode_ok": {
      "ci95": [
-      0.9668,
+      0.9398,
       1.0
      ],
-     "k": 112,
-     "n": 112,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "frame_precision": {
      "ci95": [
-      0.9984,
+      0.9988,
       1.0
      ],
-     "k": 2415,
-     "n": 2415,
+     "k": 3325,
+     "n": 3325,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.7109,
-      0.7412
+      0.9988,
+      1.0
      ],
-     "k": 2415,
+     "k": 3325,
      "n": 3325,
-     "rate": 0.7263
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9668,
+      0.9398,
       1.0
      ],
-     "k": 112,
-     "n": 112,
+     "k": 60,
+     "n": 60,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0332
+      0.0602
      ],
      "k": 0,
-     "n": 112,
+     "n": 60,
      "rate": 0.0
     }
    },
    "scenario": "deleted_intact_zero@honeywell",
-   "seconds": 20.08,
+   "seconds": 9.94,
    "title": "Deleted-then-intact, zero-padded (honeywell per-paper layout)",
    "trials": 20
   },
@@ -7118,10 +9052,8 @@
    "counts": {
     "carved": 60,
     "carved_bytes": 13967082,
-    "crosscheck": {
-     "parser_clip_not_found_by_generic": 13
-    },
-    "crosscheck_images": 12,
+    "crosscheck": {},
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 60,
     "exact": 60,
@@ -7145,9 +9077,7 @@
     "truth_detected": 60,
     "truth_expected": 60
    },
-   "crosscheck_disagreements": {
-    "parser_clip_not_found_by_generic": 13
-   },
+   "crosscheck_disagreements": {},
    "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.",
    "engine": "honeywell",
    "failure_count": 0,
@@ -7185,12 +9115,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.3866,
-      0.7812
+      0.0,
+      0.1611
      ],
-     "k": 12,
+     "k": 0,
      "n": 20,
-     "rate": 0.6
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -7239,28 +9169,28 @@
     }
    },
    "scenario": "deleted_intact_zero@honeywell",
-   "seconds": 10.51,
+   "seconds": 13.33,
    "title": "Deleted-then-intact, zero-padded (honeywell per-paper layout)",
    "trials": 20
   },
   {
    "carve_params": {},
    "counts": {
-    "carved": 76,
-    "carved_bytes": 6063884,
+    "carved": 60,
+    "carved_bytes": 13967082,
     "crosscheck": {},
     "crosscheck_images": 0,
-    "decode_errors": 14,
-    "decode_ok": 62,
-    "exact": 0,
-    "exact_eligible": 20,
+    "decode_errors": 0,
+    "decode_ok": 60,
+    "exact": 60,
+    "exact_eligible": 60,
     "export_failed": 0,
-    "extra_bytes": 23674,
-    "frames_covered_any": 1240,
-    "frames_recoverable": 1772,
-    "frames_recovered": 1240,
-    "hash_checked": 76,
-    "hash_ok": 76,
+    "extra_bytes": 0,
+    "frames_covered_any": 3325,
+    "frames_recoverable": 3325,
+    "frames_recovered": 3325,
+    "hash_checked": 60,
+    "hash_ok": 60,
     "images": 20,
     "join_right_accepted": 0,
     "join_right_candidates": 0,
@@ -7269,72 +9199,141 @@
     "mixed": 0,
     "neg_clips": 0,
     "neg_decode_ok": 0,
-    "tp": 76,
-    "truth_detected": 30,
+    "tp": 60,
+    "truth_detected": 60,
+    "truth_expected": 60
+   },
+   "crosscheck_disagreements": {},
+   "description": "One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.",
+   "engine": "honeywell+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "deleted_intact_zero@honeywell[honeywell+generic]",
+   "kind": "positive",
+   "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9988,
+      1.0
+     ],
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9398,
+      1.0
+     ],
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0602
+     ],
+     "k": 0,
+     "n": 60,
+     "rate": 0.0
+    }
+   },
+   "scenario": "deleted_intact_zero@honeywell",
+   "seconds": 10.25,
+   "title": "Deleted-then-intact, zero-padded (honeywell per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 45,
+    "carved_bytes": 7427458,
+    "crosscheck": {},
+    "crosscheck_images": 0,
+    "decode_errors": 14,
+    "decode_ok": 31,
+    "exact": 0,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 34820,
+    "frames_covered_any": 1772,
+    "frames_recoverable": 1772,
+    "frames_recovered": 1772,
+    "hash_checked": 45,
+    "hash_ok": 45,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 45,
+    "truth_detected": 40,
     "truth_expected": 40
    },
    "crosscheck_disagreements": {},
    "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.",
    "engine": "generic",
-   "failure_count": 10,
-   "failures": [
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 45,
-     "recovered": 3,
-     "trial": "partial_overwrite_zero@honeywell[generic]#2"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "partial_overwrite_zero@honeywell[generic]#4"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 60,
-     "recovered": 4,
-     "trial": "partial_overwrite_zero@honeywell[generic]#7"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "partial_overwrite_zero@honeywell[generic]#9"
-    },
-    {
-     "clip": "c1",
-     "kind": "missed_clip",
-     "recoverable": 30,
-     "recovered": 2,
-     "trial": "partial_overwrite_zero@honeywell[generic]#14"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "partial_overwrite_zero@honeywell[generic]#15"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "partial_overwrite_zero@honeywell[generic]#16"
-    },
-    {
-     "clip": "c0",
-     "kind": "missed_clip",
-     "recoverable": 75,
-     "recovered": 5,
-     "trial": "partial_overwrite_zero@honeywell[generic]#17"
-    }
-   ],
+   "failure_count": 0,
+   "failures": [],
    "id": "partial_overwrite_zero@honeywell[generic]",
    "kind": "positive",
    "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
@@ -7350,70 +9349,70 @@
     },
     "clip_precision": {
      "ci95": [
-      0.9519,
+      0.9213,
       1.0
      ],
-     "k": 76,
-     "n": 76,
+     "k": 45,
+     "n": 45,
      "rate": 1.0
     },
     "clip_recall": {
      "ci95": [
-      0.5981,
-      0.8581
+      0.9124,
+      1.0
      ],
-     "k": 30,
+     "k": 40,
      "n": 40,
-     "rate": 0.75
+     "rate": 1.0
     },
     "decode_ok": {
      "ci95": [
-      0.7142,
-      0.887
+      0.5433,
+      0.8047
      ],
-     "k": 62,
-     "n": 76,
-     "rate": 0.8158
+     "k": 31,
+     "n": 45,
+     "rate": 0.6889
     },
     "frame_precision": {
      "ci95": [
-      0.9969,
+      0.9978,
       1.0
      ],
-     "k": 1240,
-     "n": 1240,
+     "k": 1772,
+     "n": 1772,
      "rate": 1.0
     },
     "frame_recall": {
      "ci95": [
-      0.678,
-      0.7207
+      0.9978,
+      1.0
      ],
-     "k": 1240,
+     "k": 1772,
      "n": 1772,
-     "rate": 0.6998
+     "rate": 1.0
     },
     "hash_integrity": {
      "ci95": [
-      0.9519,
+      0.9213,
       1.0
      ],
-     "k": 76,
-     "n": 76,
+     "k": 45,
+     "n": 45,
      "rate": 1.0
     },
     "mixed_clips": {
      "ci95": [
       0.0,
-      0.0481
+      0.0787
      ],
      "k": 0,
-     "n": 76,
+     "n": 45,
      "rate": 0.0
     }
    },
    "scenario": "partial_overwrite_zero@honeywell",
-   "seconds": 10.54,
+   "seconds": 6.83,
    "title": "Partially overwritten by zeros (honeywell per-paper layout)",
    "trials": 20
   },
@@ -7423,12 +9422,10 @@
     "carved": 45,
     "carved_bytes": 7361333,
     "crosscheck": {
-     "frame_count_mismatch": 11,
-     "generic_clip_not_explained_by_parser": 3,
-     "generic_includes_extra_bytes": 2,
-     "parser_clip_not_found_by_generic": 10
+     "frame_count_mismatch": 14,
+     "generic_includes_extra_bytes": 5
     },
-    "crosscheck_images": 10,
+    "crosscheck_images": 0,
     "decode_errors": 0,
     "decode_ok": 45,
     "exact": 20,
@@ -7453,10 +9450,8 @@
     "truth_expected": 40
    },
    "crosscheck_disagreements": {
-    "frame_count_mismatch": 11,
-    "generic_clip_not_explained_by_parser": 3,
-    "generic_includes_extra_bytes": 2,
-    "parser_clip_not_found_by_generic": 10
+    "frame_count_mismatch": 14,
+    "generic_includes_extra_bytes": 5
    },
    "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.",
    "engine": "honeywell",
@@ -7495,12 +9490,12 @@
     },
     "crosscheck_disagreement_images": {
      "ci95": [
-      0.2993,
-      0.7007
+      0.0,
+      0.1611
      ],
-     "k": 10,
+     "k": 0,
      "n": 20,
-     "rate": 0.5
+     "rate": 0.0
     },
     "decode_ok": {
      "ci95": [
@@ -7549,7 +9544,139 @@
     }
    },
    "scenario": "partial_overwrite_zero@honeywell",
-   "seconds": 7.0,
+   "seconds": 7.28,
+   "title": "Partially overwritten by zeros (honeywell per-paper layout)",
+   "trials": 20
+  },
+  {
+   "carve_params": {},
+   "counts": {
+    "carved": 50,
+    "carved_bytes": 7372306,
+    "crosscheck": {
+     "frame_count_mismatch": 14,
+     "generic_includes_extra_bytes": 5
+    },
+    "crosscheck_images": 0,
+    "decode_errors": 5,
+    "decode_ok": 45,
+    "exact": 20,
+    "exact_eligible": 20,
+    "export_failed": 0,
+    "extra_bytes": 0,
+    "frames_covered_any": 1772,
+    "frames_recoverable": 1772,
+    "frames_recovered": 1772,
+    "hash_checked": 50,
+    "hash_ok": 50,
+    "images": 20,
+    "join_right_accepted": 0,
+    "join_right_candidates": 0,
+    "join_wrong_accepted": 0,
+    "join_wrong_candidates": 0,
+    "mixed": 0,
+    "neg_clips": 0,
+    "neg_decode_ok": 0,
+    "tp": 50,
+    "truth_detected": 40,
+    "truth_expected": 40
+   },
+   "crosscheck_disagreements": {
+    "frame_count_mismatch": 14,
+    "generic_includes_extra_bytes": 5
+   },
+   "description": "Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.",
+   "engine": "honeywell+generic",
+   "failure_count": 0,
+   "failures": [],
+   "id": "partial_overwrite_zero@honeywell[honeywell+generic]",
+   "kind": "positive",
+   "layout": "honeywell: per-paper layout (field doc docs/parsers/honeywell-fields.md, arXiv 2605.07430), not a real device image",
+   "metrics": {
+    "byte_exact": {
+     "ci95": [
+      0.8389,
+      1.0
+     ],
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_precision": {
+     "ci95": [
+      0.9286,
+      1.0
+     ],
+     "k": 50,
+     "n": 50,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "ci95": [
+      0.9124,
+      1.0
+     ],
+     "k": 40,
+     "n": 40,
+     "rate": 1.0
+    },
+    "crosscheck_disagreement_images": {
+     "ci95": [
+      0.0,
+      0.1611
+     ],
+     "k": 0,
+     "n": 20,
+     "rate": 0.0
+    },
+    "decode_ok": {
+     "ci95": [
+      0.7864,
+      0.9565
+     ],
+     "k": 45,
+     "n": 50,
+     "rate": 0.9
+    },
+    "frame_precision": {
+     "ci95": [
+      0.9978,
+      1.0
+     ],
+     "k": 1772,
+     "n": 1772,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "ci95": [
+      0.9978,
+      1.0
+     ],
+     "k": 1772,
+     "n": 1772,
+     "rate": 1.0
+    },
+    "hash_integrity": {
+     "ci95": [
+      0.9286,
+      1.0
+     ],
+     "k": 50,
+     "n": 50,
+     "rate": 1.0
+    },
+    "mixed_clips": {
+     "ci95": [
+      0.0,
+      0.0714
+     ],
+     "k": 0,
+     "n": 50,
+     "rate": 0.0
+    }
+   },
+   "scenario": "partial_overwrite_zero@honeywell",
+   "seconds": 7.95,
    "title": "Partially overwritten by zeros (honeywell per-paper layout)",
    "trials": 20
   }

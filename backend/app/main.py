@@ -4,16 +4,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import __version__, triggers  # noqa: F401  (registers DDL events before create_all)
-from app.db import Base, SessionLocal, engine
+from app import (  # noqa: F401  (triggers: DDL events before create_all)
+    __version__,
+    schema,
+    triggers,
+)
+from app.db import SessionLocal, engine
 from app.models import AuditEntry
 from app.routes import audit_case_id, router
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # Schema bootstrap for now; swap for migrations once the schema starts changing.
-    Base.metadata.create_all(engine)
+    # Refuses an outdated database (no migrations yet); creates + stamps a fresh one.
+    schema.check_and_init(engine)
     yield
 
 

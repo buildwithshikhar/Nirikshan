@@ -293,7 +293,7 @@ def test_pipeline_runs_parser_beside_generic_and_records_everything(
     assert p["options"]["frame_gap_tolerance"] == 5 and p["crosscheck"]["parser_clips"] == 2
     assert {f["name"]: f["status"] for f in p["fields"]}["checksum_byte"] == "unknown"
     engines = {c["engine"] for c in run["clips"]}
-    assert engines == {"generic", "Dahua"}
+    assert engines == {"Dahua"}  # fully parsed image: nothing left for generic carving
     parsed = [c for c in run["clips"] if c["engine"] == "Dahua" and c["kind"] == "clip"]
     assert sorted(c["channel"] for c in parsed) == [2, 5] and all(
         c["decode_status"] == "ok" for c in parsed

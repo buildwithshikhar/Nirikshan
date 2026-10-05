@@ -19,6 +19,7 @@ from app.carving import nal
 from app.carving.carve import CarveParams, Carver
 from app.carving.carve import Clip as CarvedClip
 from app.carving.export import export_clip, ffmpeg_version, tool
+from app.carving.ranges import carve_ranges, merge_spans, uncovered
 from app.clock import utc_now_iso
 from app.config import data_dir
 from app.evidence import open_verified
@@ -43,6 +44,7 @@ def analyze(
     examiner: str,
     params: CarveParams,
     parser_options: dict | None = None,
+    generic_scope: str = "uncovered",
 ) -> CarveRun:
     tool("ffmpeg")  # fail early (FfmpegMissing) before creating a run
     tool("ffprobe")
@@ -53,7 +55,12 @@ def analyze(
         status="running",
         examiner=examiner,
         params_json=json.dumps(
-            {**asdict(params), "parser_options": parser_options or {}}, sort_keys=True
+            {
+                **asdict(params),
+                "parser_options": parser_options or {},
+                "generic_scope": generic_scope,
+            },
+            sort_keys=True,
         ),
         tool_version=__version__,
         ffmpeg_version=ffv,
@@ -74,12 +81,30 @@ def analyze(
             run.ident_seconds = time.perf_counter() - t0
             run.vendor_json = json.dumps([_match_dict(m) for m in matches])
 
-            carver = Carver(read_at, params)
             out = clips_dir(ev.case_id, ev.id, run.id)
+            # 1) vendor parsers first (their clips are exported and stored)
+            t0 = time.perf_counter()
+            parse_results = []
+            for m in matches:
+                parser = registry.parser_for(m.vendor)
+                opts = (parser_options or {}).get(m.vendor)
+                res = parser.parse(f, ev.size_bytes, opts) if parser else None
+                if res is not None:
+                    parse_results.append(res)
+                    _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts)
+            parse_seconds = time.perf_counter() - t0
+            # 2) generic carving over the bytes no parser clip spans (never twice, never lost)
+            spans = [(c.start, c.end) for r in parse_results for c in r.clips]
+            covered = merge_spans(spans)
+            ranges = (
+                uncovered(covered, ev.size_bytes)
+                if generic_scope == "uncovered"
+                else [(0, ev.size_bytes)]
+            )
             t0 = time.perf_counter()
             generic: list[CarvedClip] = []
             orphan_seq = 0
-            for item in carver.run(nal.scan(f, ev.size_bytes)):
+            for item in carve_ranges(f, ranges, params):
                 if isinstance(item, CarvedClip):
                     generic.append(item)
                     _store_clip(
@@ -119,40 +144,45 @@ def analyze(
                         counts,
                     )
             run.carve_seconds = time.perf_counter() - t0
-
+            # 3) cross-check parser clips against an independent generic pass over the whole
+            # image (dry run: nothing exported or stored besides the disagreement list)
             parse_out = []
-            for m in matches:
-                parser = registry.parser_for(m.vendor)
-                res = (
-                    parser.parse(f, ev.size_bytes, (parser_options or {}).get(m.vendor))
-                    if parser
-                    else None
-                )
-                if res is None:
-                    continue
-                res.crosscheck = crosscheck(res.clips, generic)
-                _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts)
-                parse_out.append(res.to_dict())
-                custody.append_entry(
-                    db,
-                    ev.case_id,
-                    "parser_completed",
-                    examiner,
-                    {
-                        "run_id": run.id,
-                        "parser": res.parser,
-                        "tier": res.tier,
-                        "status": res.status,
-                        "options": res.options,
-                        "clips": len(res.clips),
-                        "orphans": len(res.orphans),
-                        "inconsistencies": res.inconsistencies[:10],
-                        "crosscheck_disagreements": len(res.crosscheck["disagreements"]),
-                    },
-                    ev.id,
-                )
+            if parse_results:
+                full = _dry_generic(f, ev.size_bytes, read_at, params)
+                for res in parse_results:
+                    res.crosscheck = crosscheck(res.clips, full)
+                    parse_out.append(res.to_dict())
+                    custody.append_entry(
+                        db,
+                        ev.case_id,
+                        "parser_completed",
+                        examiner,
+                        {
+                            "run_id": run.id,
+                            "parser": res.parser,
+                            "tier": res.tier,
+                            "status": res.status,
+                            "options": res.options,
+                            "clips": len(res.clips),
+                            "orphans": len(res.orphans),
+                            "inconsistencies": res.inconsistencies[:10],
+                            "crosscheck_disagreements": len(res.crosscheck["disagreements"]),
+                        },
+                        ev.id,
+                    )
+            covered_bytes = sum(e - s for s, e in covered)
+            pipeline = {
+                "mode": "parser_first",
+                "generic_scope": generic_scope,
+                "parser_covered_bytes": covered_bytes,
+                "generic_ranges": len(ranges),
+                "parse_seconds": round(parse_seconds, 3),
+            }
+            carver_stats: dict = {}
             run.parse_json = json.dumps(parse_out)
-            run.stats_json = json.dumps({**carver.stats, **counts, "bytes_scanned": ev.size_bytes})
+            run.stats_json = json.dumps(
+                {**carver_stats, **counts, **pipeline, "bytes_scanned": ev.size_bytes}
+            )
     except Exception as exc:  # recorded in the run and custody log, then re-raised
         run.status, run.error = "failed", f"{type(exc).__name__}: {exc}"
         run.finished_at = utc_now_iso()
@@ -184,6 +214,11 @@ def analyze(
         ev.id,
     )
     return run
+
+
+def _dry_generic(f, size, read_at, params) -> list[CarvedClip]:
+    carver = Carver(read_at, params)
+    return [c for c in carver.run(nal.scan(f, size)) if isinstance(c, CarvedClip)]
 
 
 def _store_orphan(db, run, ev, engine, codec, start, end, seq, nals, reason, channel, counts):

@@ -428,7 +428,137 @@
  },
  "clean_live@honeywell[generic]": {
   "frame_recall": {
-   "max": 0.9
+   "min": 0.95
+  }
+ },
+ "clean_live@dhav[dahua+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "multi_channel_gop@dhav[dahua+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "clean_live@hik[hikvision+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "multi_channel_gop@hik[hikvision+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "clean_live@honeywell[honeywell+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "deleted_intact_zero@honeywell[honeywell+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "deleted_intact_zero@hik[hikvision+generic]": {
+  "clip_recall": {
+   "min": 1.0
+  },
+  "clip_precision": {
+   "min": 1.0
+  },
+  "byte_exact": {
+   "min": 1.0
+  },
+  "frame_recall": {
+   "min": 1.0
+  },
+  "hash_integrity": {
+   "min": 1.0
+  }
+ },
+ "partial_overwrite_zero@hik[hikvision+generic]": {
+  "clip_recall": {
+   "min": 0.9
+  },
+  "clip_precision": {
+   "min": 0.9
+  },
+  "frame_recall": {
+   "min": 0.95
   }
  }
 }

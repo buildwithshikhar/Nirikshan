@@ -21,3 +21,4 @@ Mutating calls (`POST`) require an `X-Examiner: <name>` header (attestation, not
 | GET | `/api/audit?case_id=&limit=` | Audit trail |
 
 CLI: `python -m app.cli head <case_id> [--json]` verifies the chain and prints `head_hash`.
+CLI: `python -m app.cli reset-db --yes` (DEV ONLY) drops and recreates the schema; the app refuses to start on a database whose `schema_meta` version differs from the code's `SCHEMA_VERSION` (there are no migrations yet). `/api/system` reports `schema_version`.

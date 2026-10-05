@@ -72,6 +72,9 @@ class AnalyzeIn(BaseModel):
     join_gap: int = Field(default=0, ge=0, le=16 * 1024 * 1024)
     h264_continuity: bool = True
     validate_params: bool = True
+    generic_scope: Literal["uncovered", "all"] = (
+        "uncovered"  # generic carving over uncovered ranges only
+    )
     parser_options: dict[str, dict] = Field(default_factory=dict)  # vendor -> parser options
 
 

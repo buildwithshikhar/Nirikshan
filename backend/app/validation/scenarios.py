@@ -601,7 +601,7 @@ def _dhav_variants() -> list[Scenario]:
                     export=sc.export,
                     group=(sc.group or sc.id) + "@dhav",
                     layout="dhav",
-                    engines=("generic", "dahua"),
+                    engines=("generic", "dahua", "dahua+generic"),
                 )
             )
     return out
@@ -635,7 +635,7 @@ def _vendor_variants(module: str, suffix: str, engine: str) -> list[Scenario]:
                 group=f"{key}@{suffix}",
                 layout=suffix,
                 layout_label=mod.LAYOUT,
-                engines=("generic", engine),
+                engines=("generic", engine, f"{engine}+generic"),
             )
         )
     return out

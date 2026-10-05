@@ -197,5 +197,6 @@ test('Dahua parser: name, tier, parsed/inferred/unknown fields, raw timestamps, 
   await expect(dahuaRow).toHaveCount(1)
   await expect(dahuaRow.getByTestId('clip-engine')).toHaveText('Dahua')
   await expect(dahuaRow.getByTestId('decode-status')).toHaveText('ok')
-  await expect(page.getByTestId('clip-clip').filter({ hasText: 'generic' }).first()).toBeVisible()
+  // parser-first: the whole image is covered by the parser, so generic carving adds nothing
+  await expect(page.getByTestId('clip-clip').filter({ hasText: 'generic' })).toHaveCount(0)
 })
