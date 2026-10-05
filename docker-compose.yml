@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: nirikshan
       POSTGRES_DB: nirikshan
     ports:
-      - "5433:5432"
+      - "${NIRIKSHAN_DB_PORT:-5433}:5432"
     volumes:
       - nirikshan_pgdata:/var/lib/postgresql/data
     healthcheck:

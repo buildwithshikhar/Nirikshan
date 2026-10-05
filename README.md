@@ -26,6 +26,8 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements-dev
 # frontend
 cd frontend && npm ci && npm run lint && npm run build && npm run dev
 
-# optional Postgres (host port 5433)
+# optional Postgres (host port 5433; override if taken: NIRIKSHAN_DB_PORT=5434)
 docker compose up -d db
+# run the backend suite against it:
+# TEST_DATABASE_URL=postgresql://nirikshan:nirikshan@localhost:5433/nirikshan .venv/bin/pytest -q
 ```
