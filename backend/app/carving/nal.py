@@ -46,16 +46,19 @@ class Eof:
     size: int
 
 
-def scan(f: BinaryIO, size: int, chunk: int = CHUNK) -> Iterator[StartCode | ZeroRun | Eof]:
+def scan(
+    f: BinaryIO, size: int, chunk: int = CHUNK, start: int = 0
+) -> Iterator[StartCode | ZeroRun | Eof]:
     """Yield start codes / zero runs in file order. Memory is O(chunk), not O(image).
+    Scans [start, size); `size` is treated as the end of data.
 
     `chunk` is a parameter so tests can use tiny chunks to exercise boundary handling.
     """
-    pos = 0
-    carry, carry_base = b"", 0
+    pos = start
+    carry, carry_base = b"", start
     while True:
         f.seek(pos)
-        data = f.read(chunk)
+        data = f.read(min(chunk, size - pos))
         pos += len(data)
         eof = not data or pos >= size
         buf, base = carry + data, carry_base

@@ -391,3 +391,50 @@ def test_slice_with_unknown_pps_ends_the_clip(streams):
     clips, orphans, _ = carve(data + fake)
     assert clips[0].extents == [[0, len(data)]]
     assert clips[0].end_reason == "slice references a PPS not seen in the clip"
+
+
+# ---- stray invalid NAL headers (vendor header fields containing 00 00 01) --------------------
+
+
+def _inject_before_p_slice(data, junk, which=5):
+    s = [s for s, n in nal_units(data) if n[0] & 0x1F == 1][which]
+    return data[:s] + junk + data[s:], s
+
+
+def test_invalid_nal_header_close_behind_valid_data_does_not_end_the_clip(streams):
+    data = streams["h264_baseline"]
+    junk = (
+        b"\x00\x00\x01\xff" + b"\xaa" * 10
+    )  # 0xff has the forbidden bit set: invalid H.264 header
+    img, s = _inject_before_p_slice(data, junk)
+    clips, orphans, stats = carve(img)
+    assert len(clips) == 1 and orphans == [] and stats["tolerated_invalid_nal_units"] == 1
+    assert clips[0].extents == [[0, len(img)]] and clips[0].vcl_count == carve(data)[0][0].vcl_count
+
+
+def test_invalid_header_beyond_max_pad_still_ends_the_clip(streams):
+    data = streams["h264_baseline"]
+    junk = b"\x00\x00\x01\xff" + b"\xaa" * 200
+    img, s = _inject_before_p_slice(data, junk)
+    clips, orphans, stats = carve(img)
+    # the junk NAL starts inside the pad window, but the next valid NAL is 200+ bytes away
+    assert clips[0].end_reason.startswith("gap of") and orphans
+
+
+def test_invalid_header_without_an_active_clip_is_just_stray(streams):
+    junk = b"\x00\x00\x01\xff" + b"\xaa" * 10
+    clips, orphans, stats = carve(junk + b"\x00" * 100 + streams["h264_baseline"])
+    assert (
+        len(clips) == 1
+        and stats["stray_nal_units"] >= 1
+        and stats["tolerated_invalid_nal_units"] == 0
+    )
+
+
+def test_other_codec_parameter_sets_still_end_the_clip_when_streams_are_adjacent(streams):
+    img = streams["h264_baseline"] + streams["h265_main"]
+    clips, _, stats = carve(img)
+    assert [c.codec for c in clips] == ["h264", "h265"] and clips[1].start == len(
+        streams["h264_baseline"]
+    )
+    assert stats["tolerated_invalid_nal_units"] == 0

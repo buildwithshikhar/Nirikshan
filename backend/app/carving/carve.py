@@ -117,10 +117,12 @@ class Carver:
         self.pend: list[_Item] = []
         self.orphan: Orphan | None = None
         self.last_end = 0  # end of the last NAL seen (committed or pending)
+        self.last_valid_end = 0  # end of the last NAL with a valid header (stray junk excluded)
         self.stats = {
             "nal_units": 0,
             "stray_nal_units": 0,
             "oversize_nal_units": 0,
+            "tolerated_invalid_nal_units": 0,
             "join_candidates": 0,
             "join_accepted": 0,
         }
@@ -228,17 +230,30 @@ class Carver:
     # ---- state machine --------------------------------------------------------------------
     def _handle(self, n: _Nal) -> Iterator[Clip | Orphan]:
         self.stats["nal_units"] += 1
-        gap = n.start - self.last_end
-        self.last_end = n.end
         if n.end - n.start > self.p.max_nal:
             self.stats["oversize_nal_units"] += 1
+            self.last_end = self.last_valid_end = n.end
             yield from self._close_active("oversize NAL unit")
             self.pend = []
             return
+        if self.active is not None and self._stray_header(n):
+            # Vendor headers are not emulation-escaped: their fields can contain 00 00 01. An
+            # invalid NAL header close behind valid data is junk inside the gap, not a clip end.
+            self.stats["tolerated_invalid_nal_units"] += 1
+            self.last_end = n.end
+            return
+        gap = n.start - self.last_valid_end
+        self.last_end = self.last_valid_end = n.end
         if self.active is not None:
             yield from self._active(n, gap)
         else:
             yield from self._idle(n, gap)
+
+    def _stray_header(self, n: _Nal) -> bool:
+        kind, _ = self._kind(self.active.clip.codec, n.head)
+        if kind != "invalid" or n.start - self.last_valid_end > self.p.max_pad:
+            return False
+        return N.classify_param(n.head) is None  # another codec's parameter set starts a new clip
 
     def _break(self, n: _Nal, gap: int, reason: str) -> Iterator[Clip | Orphan]:
         yield from self._close_active(reason)
