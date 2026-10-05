@@ -2,7 +2,7 @@
 
 Phased plan: [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md). Current state: **P1 evidence core + P2 carving**.
 
-- **Backend** (`backend/app`): FastAPI + SQLAlchemy; SQLite by default, Postgres via `DATABASE_URL` (the P1 suite, including the append-only triggers, passed against Postgres 16 from the compose file).
+- **Backend** (`backend/app`): FastAPI + SQLAlchemy (schema is created with `create_all`; there are **no migrations yet**, so an existing development database must be recreated after schema changes, e.g. `carve_runs.parse_json`, `clips.engine`); SQLite by default, Postgres via `DATABASE_URL` (the P1 suite, including the append-only triggers, passed against Postgres 16 from the compose file).
 - **Frontend** (`frontend/src`): React 19 + Vite + Tailwind 4. Pages: cases, case/evidence, custody log, per-evidence analysis (vendor evidence, clip table with offsets/hashes/decode status, MP4 preview, orphans).
 - **ml** (`ml/nirikshan_ml`): analytics triage, added in Phase 6.
 
@@ -104,3 +104,6 @@ Interface: `VendorParser.parse(f, size, options) -> ParseResult | None` (`backen
 
 ### Dahua (DHAV frames only; `vendors/dahua_dhav.py`)
 Parses DHAV frames per FFmpeg `dhav.c` (header, extension TLVs 0x80/0x81/0x82, trailer `dhav` + u32 = length - 8), follows contiguous frame chains and rescans after breaks, demultiplexes by the channel byte, starts a clip at a key frame (0xfd) and continues while `frame_number` deltas stay within `frame_gap_tolerance` (option, default 3, an inferred heuristic) and codec/resolution do not change; payload extents are exported (headers/trailers excluded). **DHFS on-disk structures are not parsed** (undocumented in what we read). The header checksum byte is not verified (algorithm not documented). The date field is returned raw plus a plain wall-clock decode with no timezone. Non-H.264/H.265 codec ids (MPEG-4, MJPEG) are listed but not exported. On its own per-paper layout the parser demultiplexes channels exactly; that result is a circular check (see VALIDATION.md).
+
+### Analysis page (P4 additions)
+Per run the UI shows each matched parser's name, tier, status (`parsed`/`partial`/`fallback`), its options, every field with a `parsed`/`inferred`/`unknown` chip and its source, raw timestamps with "timezone: not assumed", inconsistencies/warnings, and the cross-check against the generic carver; the clip table has an engine column (`generic` or the vendor) and the channel where the parser read one. Parser options are entered as JSON by vendor.

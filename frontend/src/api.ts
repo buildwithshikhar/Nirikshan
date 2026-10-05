@@ -110,9 +110,46 @@ export interface ClipRow {
   packets: number | null
   duration_s: number | null
   has_video: boolean
+  engine: string
+  channel: number | null
+  parsed_json: string
+}
+
+export interface ParsedFieldInfo {
+  name: string
+  value: unknown
+  status: 'parsed' | 'inferred' | 'unknown'
+  source: string
+  note: string
+}
+
+export interface RawTimestampInfo {
+  field: string
+  offset: number
+  raw: unknown
+  format: string
+  wall_clock_as_stored: string
+  tz_basis: string
+  note: string
+}
+
+export interface ParserResultInfo {
+  parser: string
+  vendor: string
+  tier: string
+  status: 'parsed' | 'partial' | 'fallback'
+  options: Record<string, unknown>
+  fields: ParsedFieldInfo[]
+  timestamps: RawTimestampInfo[]
+  warnings: string[]
+  inconsistencies: string[]
+  stats: Record<string, number>
+  crosscheck: { parser_clips: number; generic_clips: number; disagreements: Record<string, unknown>[] }
+  clips: { channel: number | null; codec: string; frames: number }[]
 }
 
 export interface CarveRunInfo {
+  parsers: ParserResultInfo[]
   id: number
   evidence_id: number
   status: string
@@ -163,8 +200,11 @@ export const api = {
     post<{ ok: boolean; error: string }>(`/api/evidence/${id}/verify`),
   getEvidence: async (caseId: number, id: number) =>
     (await request<Evidence[]>(`/api/cases/${caseId}/evidence`)).find((e) => e.id === id),
-  analyze: (id: number, b: { join_gap: number }) =>
-    post<CarveRunInfo>(`/api/evidence/${id}/analyze`, { join_gap: b.join_gap }),
+  analyze: (id: number, b: { join_gap: number; parser_options: Record<string, unknown> }) =>
+    post<CarveRunInfo>(`/api/evidence/${id}/analyze`, {
+      join_gap: b.join_gap,
+      parser_options: b.parser_options,
+    }),
   runs: (id: number) => request<CarveRunInfo[]>(`/api/evidence/${id}/runs`),
   verifyClip: (id: number) => post<{ ok: boolean }>(`/api/clips/${id}/verify`),
   custody: (id: number) => request<CustodyEntry[]>(`/api/cases/${id}/custody`),

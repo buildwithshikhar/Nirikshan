@@ -1,6 +1,59 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { API_URL, type CarveRunInfo, type ClipRow, type Evidence, api } from '../api'
+import { API_URL, type CarveRunInfo, type ClipRow, type Evidence, type ParserResultInfo, api } from '../api'
+
+const FIELD_STYLE: Record<string, string> = {
+  parsed: 'bg-emerald-900 text-emerald-200',
+  inferred: 'bg-amber-900 text-amber-200',
+  unknown: 'bg-slate-700 text-slate-300',
+}
+
+function ParserPanel({ p }: { p: ParserResultInfo }) {
+  const statusColor = p.status === 'parsed' ? 'text-emerald-400' : p.status === 'partial' ? 'text-amber-400' : 'text-red-400'
+  const dis = p.crosscheck?.disagreements ?? []
+  return (
+    <section className="space-y-2 rounded-lg bg-navy-800 p-5 text-sm" data-testid="parser-panel">
+      <h2 className="font-medium">
+        Parser: <span data-testid="parser-name">{p.parser}</span> · Tier {p.tier} ·{' '}
+        <span className={statusColor} data-testid="parser-status">{p.status}</span>
+      </h2>
+      <p className="text-xs text-slate-400">
+        Options: <code>{JSON.stringify(p.options)}</code>. Tier is not changed by parsing. Timestamps are raw
+        values; no timezone is assumed (normalization is a later step).
+        {p.status === 'fallback' && ' Fallback: generic carving results stand.'}
+      </p>
+      <table className="w-full text-left text-xs">
+        <thead className="text-slate-400"><tr><th className="py-1">Field</th><th>Status</th><th>Value</th><th>Source / note</th></tr></thead>
+        <tbody>
+          {p.fields.map((f, i) => (
+            <tr key={i} className="border-t border-navy-700 align-top" data-testid={`field-${f.status}`}>
+              <td className="py-1 font-mono">{f.name}</td>
+              <td><span className={`rounded px-2 py-0.5 ${FIELD_STYLE[f.status]}`}>{f.status}</span></td>
+              <td className="break-all">{typeof f.value === 'string' ? f.value : JSON.stringify(f.value)}</td>
+              <td className="text-slate-400">{f.source}{f.note ? ` · ${f.note}` : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {p.timestamps.length > 0 && (
+        <ul className="text-xs text-slate-300" data-testid="raw-timestamps">
+          {p.timestamps.slice(0, 3).map((t, i) => (
+            <li key={i}>
+              {t.field} @ {t.offset}: raw <span className="font-mono">{String(t.raw)}</span> ({t.format}); as stored{' '}
+              {t.wall_clock_as_stored || 'n/a'}; timezone: <b>{t.tz_basis}</b>
+            </li>
+          ))}
+        </ul>
+      )}
+      {[...p.warnings, ...p.inconsistencies].map((w, i) => <div key={i} className="text-xs text-amber-300">{w}</div>)}
+      <div className="text-xs text-slate-300" data-testid="crosscheck">
+        Cross-check vs generic carver: {p.crosscheck?.parser_clips ?? 0} parser clips, {p.crosscheck?.generic_clips ?? 0} generic clips,{' '}
+        {dis.length} disagreement(s)
+        {dis.map((d, i) => <div key={i} className="text-amber-300">{String(d.kind)}: {JSON.stringify(d)}</div>)}
+      </div>
+    </section>
+  )
+}
 
 const STATUS_STYLE: Record<string, string> = {
   ok: 'text-emerald-400',
@@ -19,7 +72,9 @@ function ClipItem({ clip, onVerify }: { clip: ClipRow; onVerify: (id: number) =>
   return (
     <tr className="border-t border-navy-700 align-top" data-testid={`clip-${clip.kind}`}>
       <td className="py-2">{clip.seq}</td>
-      <td>{clip.codec}{clip.reassembled ? <div className="text-xs text-amber-400">reassembled (heuristic)</div> : null}</td>
+      <td>
+        <div data-testid="clip-engine">{clip.engine}</div>
+        {clip.codec}{clip.channel != null ? ` · ch ${clip.channel}` : ''}{clip.reassembled ? <div className="text-xs text-amber-400">reassembled (heuristic)</div> : null}</td>
       <td className="font-mono text-xs">
         {clip.start_offset.toLocaleString()} – {clip.end_offset.toLocaleString()}
         <div className="text-slate-500">{hex(clip.start_offset)} – {hex(clip.end_offset)}</div>
@@ -65,6 +120,7 @@ export default function Analysis() {
   const [ev, setEv] = useState<Evidence | undefined>()
   const [run, setRun] = useState<CarveRunInfo | null>(null)
   const [joinGap, setJoinGap] = useState(0)
+  const [parserOpts, setParserOpts] = useState('{}')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
@@ -79,7 +135,13 @@ export default function Analysis() {
     setError('')
     setBusy(true)
     try {
-      setRun(await api.analyze(evId, { join_gap: joinGap }))
+      let opts: Record<string, unknown> = {}
+      try {
+        opts = JSON.parse(parserOpts || '{}')
+      } catch {
+        throw new Error('Parser options must be valid JSON, e.g. {"Dahua": {"frame_gap_tolerance": 3}}')
+      }
+      setRun(await api.analyze(evId, { join_gap: joinGap, parser_options: opts }))
     } catch (e) {
       setError((e as Error).message)
       load()
@@ -117,6 +179,11 @@ export default function Analysis() {
             <input type="number" min={0} value={joinGap} onChange={(e) => setJoinGap(Number(e.target.value))}
               className="w-28 rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700" />
           </label>
+          <label className="text-xs text-slate-400">
+            Parser options (JSON by vendor){' '}
+            <input value={parserOpts} onChange={(e) => setParserOpts(e.target.value)} aria-label="Parser options"
+              className="w-72 rounded bg-navy-900 px-2 py-1 font-mono text-xs ring-1 ring-navy-700" />
+          </label>
         </div>
         <p className="text-xs text-slate-500">
           The image hash is re-verified first. Carving is vendor-agnostic H.264/H.265 recovery; results are leads
@@ -147,6 +214,7 @@ export default function Analysis() {
               ))
             )}
           </section>
+          {run.parsers.map((p) => <ParserPanel key={p.parser} p={p} />)}
           <section className="rounded-lg bg-navy-800 p-5 text-xs text-slate-400">
             Run #{run.id} {run.status} · tool {run.tool_version} · {run.ffmpeg_version} · identify {run.identify_seconds.toFixed(2)} s · carve {run.carve_seconds.toFixed(2)} s ·{' '}
             {clips.length} clips, {orphans.length} orphans, {run.stats.decode_errors ?? 0} with decode errors, {run.stats.export_failed ?? 0} export failures
@@ -159,7 +227,7 @@ export default function Analysis() {
             ) : (
               <table className="w-full text-left text-sm">
                 <thead className="text-slate-400">
-                  <tr><th className="py-1">#</th><th>Codec</th><th>Offsets</th><th>SHA-256</th><th>Stream</th><th>Decode test</th><th>Preview</th></tr>
+                  <tr><th className="py-1">#</th><th>Engine / codec</th><th>Offsets</th><th>SHA-256</th><th>Stream</th><th>Decode test</th><th>Preview</th></tr>
                 </thead>
                 <tbody>{clips.map((c) => <ClipItem key={c.id} clip={c} onVerify={verifyClip} />)}</tbody>
               </table>
