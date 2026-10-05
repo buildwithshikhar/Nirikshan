@@ -87,3 +87,7 @@ Code: `backend/app/vendors/`. A `VendorParser` declares `vendor`, `tier` (`B` or
 
 ### Measured scan throughput (not a guarantee)
 2 GiB synthetic image (35% H.264/H.265 clips, 30% random noise, 35% zero fill; 550 clips), Apple-silicon Mac, Python 3.10, page-cache warm, no export: **identify 224 MiB/s** (one pass, all vendors' signatures), **carve scan 569 MiB/s** (about 81,600 NAL units), peak RSS 80 MiB including the two source streams the generator keeps in memory. Export time (ffmpeg mux + decode test) is extra and scales with clip count. Cold-disk and real-device numbers are untested.
+
+## Validation harness (P3)
+
+`backend/app/validation/`: `streams.py` (ffmpeg testsrc2 variants, aux MJPEG/MPEG-4), `image.py` (builder + byte-comparison ground truth), `scenarios.py` (the matrix), `score.py` (metrics, Wilson intervals, join classification), `run.py` (runner, JSON/Markdown, digest), `thresholds.py/.json` (regression guard). Method, results and limits: [VALIDATION.md](VALIDATION.md). The carver gained `validate_params` (SPS/PPS/VPS syntax checks plus "slice must reference a PPS from the clip"), trailing-zero trimming at EOF, and a join-decision log (`Carver.join_log`) used to measure the reassembler's false-accept rate.

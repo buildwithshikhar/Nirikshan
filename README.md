@@ -26,6 +26,9 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements-dev
 # frontend
 cd frontend && npm ci && npm run lint && npm run build && npm run dev
 
+# validation on SYNTHETIC images (writes docs/validation/, checks regression thresholds)
+make validate
+
 # optional Postgres (host port 5433; override if taken: NIRIKSHAN_DB_PORT=5434)
 docker compose up -d db
 # run the backend suite against it:

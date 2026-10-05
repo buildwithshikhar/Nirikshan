@@ -386,7 +386,7 @@ def test_trailing_zero_bytes_at_eof_are_not_part_of_the_clip(streams, name):
 def test_slice_with_unknown_pps_ends_the_clip(streams):
     """A P slice whose pps_id was never sent in the clip is not accepted into it."""
     data = streams["h264_baseline"]
-    # nal_ref_idc=2 non-IDR slice; header bits: first_mb ue(0)='1', slice_type ue(0)='1', pps_id ue(1)='010'
+    # header bits: first_mb ue(0)="1", slice_type ue(0)="1", pps_id ue(1)="010"
     fake = b"\x00\x00\x01\x41\xd0" + b"\x88" * 20
     clips, orphans, _ = carve(data + fake)
     assert clips[0].extents == [[0, len(data)]]
