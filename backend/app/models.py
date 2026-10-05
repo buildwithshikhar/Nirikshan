@@ -87,6 +87,7 @@ class CarveRun(Base):
     params_json: Mapped[str] = mapped_column(Text, default="{}")
     vendor_json: Mapped[str] = mapped_column(Text, default="[]")
     stats_json: Mapped[str] = mapped_column(Text, default="{}")
+    parse_json: Mapped[str] = mapped_column(Text, default="[]")  # structured parser results
     tool_version: Mapped[str] = mapped_column(String(50), default="")
     ffmpeg_version: Mapped[str] = mapped_column(String(200), default="")
     started_at: Mapped[str] = mapped_column(String(40), default=_now)
@@ -128,3 +129,6 @@ class Clip(Base):
     fps: Mapped[str] = mapped_column(String(20), default="")
     packets: Mapped[int | None] = mapped_column(Integer, nullable=True)
     duration_s: Mapped[float | None] = mapped_column(Float, nullable=True)
+    engine: Mapped[str] = mapped_column(String(30), default="generic")  # generic | <vendor> parser
+    channel: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    parsed_json: Mapped[str] = mapped_column(Text, default="{}")  # parser fields/timestamps

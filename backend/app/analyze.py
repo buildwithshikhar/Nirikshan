@@ -1,7 +1,10 @@
 """Identify + carve one evidence item and persist clips with hashes and custody entries.
 
 The image is read only through evidence.open_verified (hash re-verified first; any mismatch
-aborts the run). One verification covers the whole run: identification, scanning and clip export.
+aborts the run). One verification covers the whole run: identification, the generic carve, any
+vendor parser matched by identification, the cross-check between them, and clip export.
+Generic carving always runs; vendor parser output is kept alongside it (`engine` column), never
+substituted silently, and every disagreement is listed.
 """
 
 import json
@@ -21,6 +24,7 @@ from app.config import data_dir
 from app.evidence import open_verified
 from app.models import CarveRun, Clip, Evidence
 from app.vendors import default_registry
+from app.vendors.parse import crosscheck
 
 
 def clips_dir(case_id: int, evidence_id: int, run_id: int) -> Path:
@@ -33,7 +37,13 @@ def _match_dict(m) -> dict:
     return d
 
 
-def analyze(db: Session, ev: Evidence, examiner: str, params: CarveParams) -> CarveRun:
+def analyze(
+    db: Session,
+    ev: Evidence,
+    examiner: str,
+    params: CarveParams,
+    parser_options: dict | None = None,
+) -> CarveRun:
     tool("ffmpeg")  # fail early (FfmpegMissing) before creating a run
     tool("ffprobe")
     ffv = ffmpeg_version()
@@ -42,7 +52,9 @@ def analyze(db: Session, ev: Evidence, examiner: str, params: CarveParams) -> Ca
         evidence_id=ev.id,
         status="running",
         examiner=examiner,
-        params_json=json.dumps(asdict(params), sort_keys=True),
+        params_json=json.dumps(
+            {**asdict(params), "parser_options": parser_options or {}}, sort_keys=True
+        ),
         tool_version=__version__,
         ffmpeg_version=ffv,
     )
@@ -56,40 +68,90 @@ def analyze(db: Session, ev: Evidence, examiner: str, params: CarveParams) -> Ca
                 f.seek(off)
                 return f.read(n)
 
+            registry = default_registry()
             t0 = time.perf_counter()
-            matches = default_registry().identify(f, ev.size_bytes)
+            matches = registry.identify(f, ev.size_bytes)
             run.ident_seconds = time.perf_counter() - t0
             run.vendor_json = json.dumps([_match_dict(m) for m in matches])
 
             carver = Carver(read_at, params)
             out = clips_dir(ev.case_id, ev.id, run.id)
             t0 = time.perf_counter()
-            clip_seq = orphan_seq = 0
+            generic: list[CarvedClip] = []
+            orphan_seq = 0
             for item in carver.run(nal.scan(f, ev.size_bytes)):
                 if isinstance(item, CarvedClip):
-                    clip_seq += 1
-                    _store_clip(db, run, ev, f, item, clip_seq, out, ffv, examiner, counts)
+                    generic.append(item)
+                    _store_clip(
+                        db,
+                        run,
+                        ev,
+                        f,
+                        "generic",
+                        item.codec,
+                        item.extents,
+                        len(generic),
+                        out,
+                        ffv,
+                        examiner,
+                        counts,
+                        nal_count=item.nal_count,
+                        irap=item.irap_count,
+                        vcl=item.vcl_count,
+                        reassembled=item.reassembled,
+                        reason=item.end_reason,
+                        notes=item.notes,
+                    )
                 else:
                     orphan_seq += 1
-                    counts["orphans"] += 1
-                    db.add(
-                        Clip(
-                            run_id=run.id,
-                            evidence_id=ev.id,
-                            case_id=ev.case_id,
-                            kind="orphan",
-                            seq=orphan_seq,
-                            codec=item.codec,
-                            start_offset=item.start,
-                            end_offset=item.end,
-                            size_bytes=item.end - item.start,
-                            extents_json=json.dumps([[item.start, item.end]]),
-                            nal_count=item.nal_count,
-                            reason=item.reason,
-                        )
+                    _store_orphan(
+                        db,
+                        run,
+                        ev,
+                        "generic",
+                        item.codec,
+                        item.start,
+                        item.end,
+                        orphan_seq,
+                        item.nal_count,
+                        item.reason,
+                        None,
+                        counts,
                     )
-                    db.commit()
             run.carve_seconds = time.perf_counter() - t0
+
+            parse_out = []
+            for m in matches:
+                parser = registry.parser_for(m.vendor)
+                res = (
+                    parser.parse(f, ev.size_bytes, (parser_options or {}).get(m.vendor))
+                    if parser
+                    else None
+                )
+                if res is None:
+                    continue
+                res.crosscheck = crosscheck(res.clips, generic)
+                _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts)
+                parse_out.append(res.to_dict())
+                custody.append_entry(
+                    db,
+                    ev.case_id,
+                    "parser_completed",
+                    examiner,
+                    {
+                        "run_id": run.id,
+                        "parser": res.parser,
+                        "tier": res.tier,
+                        "status": res.status,
+                        "options": res.options,
+                        "clips": len(res.clips),
+                        "orphans": len(res.orphans),
+                        "inconsistencies": res.inconsistencies[:10],
+                        "crosscheck_disagreements": len(res.crosscheck["disagreements"]),
+                    },
+                    ev.id,
+                )
+            run.parse_json = json.dumps(parse_out)
             run.stats_json = json.dumps({**carver.stats, **counts, "bytes_scanned": ev.size_bytes})
     except Exception as exc:  # recorded in the run and custody log, then re-raised
         run.status, run.error = "failed", f"{type(exc).__name__}: {exc}"
@@ -124,40 +186,148 @@ def analyze(db: Session, ev: Evidence, examiner: str, params: CarveParams) -> Ca
     return run
 
 
-def _store_clip(db, run, ev, f, c: CarvedClip, seq, out: Path, ffv, examiner, counts) -> None:
-    res = export_clip(f, c.extents, c.codec, out, f"clip_{seq:04d}")
+def _store_orphan(db, run, ev, engine, codec, start, end, seq, nals, reason, channel, counts):
+    counts["orphans"] += 1
+    db.add(
+        Clip(
+            run_id=run.id,
+            evidence_id=ev.id,
+            case_id=ev.case_id,
+            kind="orphan",
+            seq=seq,
+            codec=codec,
+            start_offset=start,
+            end_offset=end,
+            size_bytes=end - start,
+            extents_json=json.dumps([[start, end]]),
+            nal_count=nals,
+            reason=reason,
+            engine=engine,
+            channel=channel,
+        )
+    )
+    db.commit()
+
+
+def _store_parsed(db, run, ev, f, res, out: Path, ffv, examiner, counts) -> None:
+    engine = res.parser
+    for seq, c in enumerate(res.clips, start=1):
+        info = {
+            "fields": [asdict(x) for x in c.fields],
+            "timestamps": [asdict(t) for t in c.timestamps if t is not None],
+            "frame_count": c.frames,
+            "key_frames": c.key_frames,
+            "width": c.width,
+            "height": c.height,
+        }
+        _store_clip(
+            db,
+            run,
+            ev,
+            f,
+            engine,
+            c.codec,
+            c.extents,
+            seq,
+            out,
+            ffv,
+            examiner,
+            counts,
+            nal_count=c.frames,
+            irap=c.key_frames,
+            vcl=c.frames,
+            reassembled=False,
+            reason=c.end_reason,
+            notes=c.notes,
+            channel=c.channel,
+            parsed=info,
+            exportable=c.exportable,
+        )
+    for seq, o in enumerate(res.orphans, start=1):
+        _store_orphan(
+            db,
+            run,
+            ev,
+            engine,
+            "unknown",
+            o.start,
+            o.end,
+            seq,
+            o.frames,
+            o.reason,
+            o.channel,
+            counts,
+        )
+
+
+def _store_clip(
+    db,
+    run,
+    ev,
+    f,
+    engine,
+    codec,
+    extents,
+    seq,
+    out: Path,
+    ffv,
+    examiner,
+    counts,
+    *,
+    nal_count,
+    irap,
+    vcl,
+    reassembled,
+    reason,
+    notes,
+    channel=None,
+    parsed=None,
+    exportable=True,
+) -> None:
+    name = f"{engine.lower()}_{seq:04d}"
     counts["clips"] += 1
-    counts[res.decode_status] += 1
-    if res.mp4_path:
-        Path(res.mp4_path).chmod(0o444)
+    if exportable:
+        res = export_clip(f, extents, codec, out, name)
+        counts[res.decode_status] += 1
+        if res.mp4_path:
+            Path(res.mp4_path).chmod(0o444)
+        fields = dict(
+            bitstream_sha256=res.bitstream_sha256,
+            mp4_path=res.mp4_path,
+            mp4_sha256=res.mp4_sha256,
+            decode_status=res.decode_status,
+            decode_errors_json=json.dumps(res.decode_errors),
+            error=res.error,
+            width=res.width,
+            height=res.height,
+            fps=res.fps,
+            packets=res.packets,
+            duration_s=res.duration_s,
+        )
+    else:
+        fields = dict(decode_status="not_exported", error=f"codec {codec} is not exported")
+    size = sum(e - s for s, e in extents)
     row = Clip(
         run_id=run.id,
         evidence_id=ev.id,
         case_id=ev.case_id,
         kind="clip",
         seq=seq,
-        codec=c.codec,
-        start_offset=c.start,
-        end_offset=c.end,
-        size_bytes=c.size,
-        extents_json=json.dumps(c.extents),
-        nal_count=c.nal_count,
-        irap_count=c.irap_count,
-        vcl_count=c.vcl_count,
-        reassembled=int(c.reassembled),
-        reason=c.end_reason,
-        notes_json=json.dumps(c.notes),
-        bitstream_sha256=res.bitstream_sha256,
-        mp4_path=res.mp4_path,
-        mp4_sha256=res.mp4_sha256,
-        decode_status=res.decode_status,
-        decode_errors_json=json.dumps(res.decode_errors),
-        error=res.error,
-        width=res.width,
-        height=res.height,
-        fps=res.fps,
-        packets=res.packets,
-        duration_s=res.duration_s,
+        codec=codec,
+        start_offset=extents[0][0],
+        end_offset=extents[-1][1],
+        size_bytes=size,
+        extents_json=json.dumps(extents),
+        nal_count=nal_count,
+        irap_count=irap,
+        vcl_count=vcl,
+        reassembled=int(reassembled),
+        reason=reason,
+        notes_json=json.dumps(notes),
+        engine=engine,
+        channel=channel,
+        parsed_json=json.dumps(parsed or {}),
+        **fields,
     )
     db.add(row)
     db.commit()
@@ -169,13 +339,16 @@ def _store_clip(db, run, ev, f, c: CarvedClip, seq, out: Path, ffv, examiner, co
         {
             "run_id": run.id,
             "clip_id": row.id,
-            "codec": c.codec,
-            "extents": c.extents,
-            "bytes": c.size,
-            "reassembled": c.reassembled,
-            "bitstream_sha256": res.bitstream_sha256,
-            "mp4_sha256": res.mp4_sha256,
-            "decode_status": res.decode_status,
+            "engine": engine,
+            "codec": codec,
+            "channel": channel,
+            "extents": extents if len(extents) <= 50 else extents[:50] + [["...", len(extents)]],
+            "extent_count": len(extents),
+            "bytes": size,
+            "reassembled": reassembled,
+            "bitstream_sha256": row.bitstream_sha256,
+            "mp4_sha256": row.mp4_sha256,
+            "decode_status": row.decode_status,
             "ffmpeg_version": ffv,
         },
         ev.id,

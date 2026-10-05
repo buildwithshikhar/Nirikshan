@@ -162,6 +162,7 @@ def _run_detail(db: Session, run: CarveRun) -> dict:
         "examiner": run.examiner,
         "params": json.loads(run.params_json),
         "vendor_matches": json.loads(run.vendor_json),
+        "parsers": json.loads(run.parse_json),
         "stats": json.loads(run.stats_json),
         "tool_version": run.tool_version,
         "ffmpeg_version": run.ffmpeg_version,
@@ -188,7 +189,7 @@ def analyze_evidence(
         join_gap=p.join_gap,
     )
     try:
-        run = analyze.analyze(db, ev, examiner, params)
+        run = analyze.analyze(db, ev, examiner, params, p.parser_options)
     except FfmpegMissing as exc:
         raise HTTPException(503, str(exc)) from exc
     except evidence.IntegrityError as exc:

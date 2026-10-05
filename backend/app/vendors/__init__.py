@@ -1,5 +1,5 @@
 from app.vendors.base import ParserRegistry
-from app.vendors.dahua import DahuaParser
+from app.vendors.dahua_dhav import DhavParser
 from app.vendors.hikvision import HikvisionParser
 from app.vendors.honeywell import HoneywellParser
 
@@ -9,4 +9,4 @@ TIER_C_VENDORS = ("CP Plus", "Uniview", "TP-Link", "Godrej", "Matrix")
 
 
 def default_registry() -> ParserRegistry:
-    return ParserRegistry([HikvisionParser(), DahuaParser(), HoneywellParser()])
+    return ParserRegistry([HikvisionParser(), DhavParser(), HoneywellParser()])

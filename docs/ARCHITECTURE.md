@@ -91,3 +91,16 @@ Code: `backend/app/vendors/`. A `VendorParser` declares `vendor`, `tier` (`B` or
 ## Validation harness (P3)
 
 `backend/app/validation/`: `streams.py` (ffmpeg testsrc2 variants, aux MJPEG/MPEG-4), `image.py` (builder + byte-comparison ground truth), `scenarios.py` (the matrix), `score.py` (metrics, Wilson intervals, join classification), `run.py` (runner, JSON/Markdown, digest), `thresholds.py/.json` (regression guard). Method, results and limits: [VALIDATION.md](VALIDATION.md). The carver gained `validate_params` (SPS/PPS/VPS syntax checks plus "slice must reference a PPS from the clip"), trailing-zero trimming at EOF, and a join-decision log (`Carver.join_log`) used to measure the reassembler's false-accept rate.
+
+## Vendor parsers (P4)
+
+Interface: `VendorParser.parse(f, size, options) -> ParseResult | None` (`backend/app/vendors/parse.py`). Rules for every parser:
+- **Fallback, never crash.** Any inconsistency or exception yields `status` `partial`/`fallback` plus warnings; the generic carver always runs on the same image and its output is kept next to the parser's (`clips.engine` = `generic` or the vendor name), never silently replaced.
+- **Parsed vs inferred vs unknown.** Every field is tagged `parsed` (read from bytes the source documents), `inferred` (our reading or a heuristic) or `unknown` (present but undocumented/unverified, e.g. Dahua's checksum byte). A parser must not report a field it did not parse.
+- **Raw timestamps only.** `RawTimestamp(field, offset, raw, format, wall_clock_as_stored, tz_basis="not assumed")`. No timezone is assumed; P5 normalizes.
+- **Cross-check.** `crosscheck()` compares parser clips with generic clips on the same image and lists every disagreement (`parser_clip_not_found_by_generic`, `generic_clip_not_explained_by_parser`, `codec_mismatch`, `frame_count_mismatch`, `generic_includes_extra_bytes`; the last two are expected benign effects of vendor headers).
+- **Tiers do not change** with parsing: Dahua, Hikvision and Honeywell stay Tier B.
+- Parser options are passed per vendor in the analyze request (`parser_options: {"Dahua": {...}}`) and echoed in results and custody entries.
+
+### Dahua (DHAV frames only; `vendors/dahua_dhav.py`)
+Parses DHAV frames per FFmpeg `dhav.c` (header, extension TLVs 0x80/0x81/0x82, trailer `dhav` + u32 = length - 8), follows contiguous frame chains and rescans after breaks, demultiplexes by the channel byte, starts a clip at a key frame (0xfd) and continues while `frame_number` deltas stay within `frame_gap_tolerance` (option, default 3, an inferred heuristic) and codec/resolution do not change; payload extents are exported (headers/trailers excluded). **DHFS on-disk structures are not parsed** (undocumented in what we read). The header checksum byte is not verified (algorithm not documented). The date field is returned raw plus a plain wall-clock decode with no timezone. Non-H.264/H.265 codec ids (MPEG-4, MJPEG) are listed but not exported. On its own per-paper layout the parser demultiplexes channels exactly; that result is a circular check (see VALIDATION.md).

@@ -50,11 +50,16 @@ class Counts:
     join_right_candidates: int = 0
     join_right_accepted: int = 0
     failures: list = field(default_factory=list)
+    crosscheck: dict = field(default_factory=dict)  # disagreement kind -> count
+    crosscheck_images: int = 0  # images with at least one non-benign disagreement
 
     def add(self, o: "Counts") -> None:
         for k, v in o.__dict__.items():
             if k == "failures":
                 self.failures += v
+            elif k == "crosscheck":
+                for kk, vv in v.items():
+                    self.crosscheck[kk] = self.crosscheck.get(kk, 0) + vv
             else:
                 setattr(self, k, getattr(self, k) + v)
 

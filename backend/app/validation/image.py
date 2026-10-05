@@ -9,12 +9,14 @@ import hashlib
 import random
 from dataclasses import dataclass, field
 
+from app.validation.layouts import LAYOUT_DHAV, LAYOUT_RAW, wrap_stream
 from app.validation.streams import Stream
 
 BANNER = (
     b"NIRIKSHAN SYNTHETIC TEST IMAGE - NOT REAL DVR DATA - generated for pipeline validation. "
 ).ljust(256, b" ")
-LAYOUT_RAW = "raw: generic elementary-stream placement (no vendor structures)"
+
+CURRENT_LAYOUT = LAYOUT_RAW  # set by the harness per trial
 
 
 def noise(rng: random.Random, n: int) -> bytes:
@@ -41,12 +43,42 @@ class TruthClip:
 
 
 class Builder:
-    def __init__(self, rng: random.Random, layout: str = LAYOUT_RAW):
+    def __init__(self, rng: random.Random, layout: str | None = None):
+        layout = layout or CURRENT_LAYOUT
         self.rng = rng
+        self.frame_no: dict[str, int] = {}
         self.buf = bytearray(BANNER)
         self.clips: dict[str, TruthClip] = {}
         self.layout = layout
         self.notes: list[str] = []
+
+    @classmethod
+    def from_layout(
+        cls,
+        rng: random.Random,
+        layout: str,
+        image: bytes,
+        clips: dict[str, tuple[Stream, list[tuple[int, int, int]], dict]],
+        notes: list[str] | None = None,
+    ) -> "Builder":
+        """Wrap an image produced by a vendor-layout generator so ground truth is computed by byte
+        comparison like any other image. `clips[id] = (stream, [(img_start, img_end, stream_start)],
+        {"expected": "recover"|"none", "channel": int, "state": str})` where each tuple says that
+        image bytes [img_start, img_end) are stream bytes starting at stream_start (the video
+        payload only, never vendor headers)."""
+        b = cls(rng, layout)
+        b.buf = bytearray(image)
+        for cid, (stream, pieces, meta) in clips.items():
+            t = b.clip(
+                cid,
+                stream,
+                meta.get("expected", "recover"),
+                meta.get("channel", 0),
+                meta.get("state", "live"),
+            )
+            t.pieces = [Piece(s, e, ss, cid) for s, e, ss in pieces]
+        b.notes = notes or []
+        return b
 
     def pos(self) -> int:
         return len(self.buf)
@@ -69,10 +101,23 @@ class Builder:
         """Append stream bytes [a, b) of clip `cid`; returns the image range."""
         t = self.clips[cid]
         b = len(t.stream.data) if b is None else b
+        if self.layout == LAYOUT_DHAV:
+            return self._place_dhav(t, a, b)
         s = len(self.buf)
         self.buf += t.stream.data[a:b]
         t.pieces.append(Piece(s, len(self.buf), a, cid))
         return s, len(self.buf)
+
+    def _place_dhav(self, t: TruthClip, a: int, b: int) -> tuple[int, int]:
+        n0 = self.frame_no.get(t.id, 1000)
+        first = len(self.buf)
+        frames = wrap_stream(t.stream, a, b, t.channel, n0)
+        for fr, off, plen, sstart in frames:
+            p0 = len(self.buf) + off
+            self.buf += fr
+            t.pieces.append(Piece(p0, p0 + plen, sstart, t.id))
+        self.frame_no[t.id] = n0 + len(frames)
+        return first, len(self.buf)
 
     def overwrite(self, img_start: int, data: bytes) -> None:
         self.buf[img_start : img_start + len(data)] = data

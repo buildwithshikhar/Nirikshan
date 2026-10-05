@@ -22,6 +22,8 @@ class Scenario:
     trials: int | None = None  # override of the global trial count
     export: bool = True
     group: str = ""  # scenarios with the same group share seeds (identical images)
+    layout: str = "raw"
+    engines: tuple = ("generic",)
 
 
 def pick(rng: random.Random, pool: StreamPool, n: int, codec: str | None = None) -> list[Stream]:
@@ -585,3 +587,43 @@ SCENARIOS: list[Scenario] = [
         neg_mpeg4,
     ),
 ]
+
+
+DHAV_SET = (
+    "clean_live",
+    "deleted_intact_zero",
+    "zero_gaps",
+    "random_gaps_between",
+    "partial_overwrite_zero",
+    "partial_overwrite_foreign",
+    "fully_overwritten",
+    "fragmented_zero_join_on",
+    "fragmented_decoy_join_on",
+    "multi_channel_gop",
+    "multi_channel_frame",
+)
+
+
+def _dhav_variants() -> list[Scenario]:
+    out = []
+    for sc in SCENARIOS:
+        if sc.id in DHAV_SET:
+            out.append(
+                Scenario(
+                    f"{sc.id}@dhav",
+                    sc.title + " (DHAV per-paper layout)",
+                    sc.kind,
+                    sc.description + " Frames wrapped in DHAV headers/trailers per dhav.c.",
+                    sc.build,
+                    sc.carve,
+                    sc.trials,
+                    sc.export,
+                    sc.group + "@dhav" if sc.group else sc.id + "@dhav",
+                    "dhav",
+                    ("generic", "dahua"),
+                )
+            )
+    return out
+
+
+SCENARIOS += _dhav_variants()

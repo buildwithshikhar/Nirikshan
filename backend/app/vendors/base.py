@@ -88,6 +88,13 @@ class VendorParser:
         """Optional structured enumeration (P4). P2 parsers do not parse filesystems."""
         return []
 
+    # P4: structured parsing. `options_schema` documents every option (name -> default/doc);
+    # `parse` must never raise and returns None when the parser has no structured parse.
+    options_schema: dict = {}
+
+    def parse(self, f: BinaryIO, size: int, options: dict | None = None):
+        return None
+
     def carve_hints(self) -> CarveHints:
         return CarveHints()
 
@@ -148,6 +155,9 @@ def scan_image(f: BinaryIO, size: int, parsers: list[VendorParser], chunk: int =
 class ParserRegistry:
     def __init__(self, parsers: list[VendorParser]):
         self.parsers = list(parsers)
+
+    def parser_for(self, vendor: str) -> VendorParser | None:
+        return next((p for p in self.parsers if p.vendor == vendor), None)
 
     def identify(self, f: BinaryIO, size: int, chunk: int = CHUNK) -> list[Match]:
         """All parsers' matches with confidence > none, best first. Empty list = unknown vendor."""

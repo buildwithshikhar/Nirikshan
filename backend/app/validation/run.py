@@ -23,7 +23,9 @@ from app.carving import nal
 from app.carving.carve import CarveParams, Carver
 from app.carving.carve import Clip as CarvedClip
 from app.carving.export import export_clip
+from app.validation import image as image_mod
 from app.validation import thresholds
+from app.validation.layouts import LAYOUT_DHAV, LAYOUT_RAW
 from app.validation.scenarios import SCENARIOS, Scenario
 from app.validation.score import Carved, Counts, rate, score_image
 from app.validation.streams import VARIANTS, StreamPool
@@ -45,8 +47,14 @@ def trial_rng(seed: int, scenario: Scenario, trial: int) -> random.Random:
 
 
 def build_trial(sc: Scenario, pool: StreamPool, seed: int, trial: int):
-    b = sc.build(trial_rng(seed, sc, trial), pool, trial)
-    return b.build()
+    from app.validation.layouts import LAYOUT_DHAV, LAYOUT_RAW
+
+    image_mod.CURRENT_LAYOUT = LAYOUT_DHAV if sc.layout == "dhav" else LAYOUT_RAW
+    try:
+        b = sc.build(trial_rng(seed, sc, trial), pool, trial)
+        return b.build()
+    finally:
+        image_mod.CURRENT_LAYOUT = LAYOUT_RAW
 
 
 def run_generic(
@@ -73,7 +81,50 @@ def run_generic(
     return out, carver.stats, carver.join_log
 
 
-ENGINES = {"generic": run_generic}
+def run_parser(vendor: str):
+    """Engine factory: the vendor's structured parser, scored like carved clips, plus a
+    cross-check against the generic carver on the same image."""
+
+    def engine(img: bytes, params: CarveParams, export: bool, tmp: Path):
+        from app.vendors import default_registry
+        from app.vendors.parse import crosscheck
+
+        f = io.BytesIO(img)
+        res = default_registry().parser_for(vendor).parse(f, len(img), {})
+        generic = []
+        carver = Carver(lambda o, n: img[o : o + n], params)
+        for item in carver.run(nal.scan(io.BytesIO(img), len(img))):
+            if isinstance(item, CarvedClip):
+                generic.append(item)
+        res.crosscheck = crosscheck(res.clips, generic)
+        out: list[Carved] = []
+        for k, c in enumerate(res.clips):
+            if not c.exportable:
+                continue
+            cl = Carved(c.codec, [list(e) for e in c.extents])
+            if export:
+                ex = export_clip(f, c.extents, c.codec, tmp, f"p{k}")
+                cl.decode_status, cl.recorded_sha256 = ex.decode_status, ex.bitstream_sha256
+                if ex.mp4_path:
+                    digest_ = hashlib.sha256(Path(ex.mp4_path).read_bytes()).hexdigest()
+                    cl.mp4_ok = digest_ == ex.mp4_sha256
+            out.append(cl)
+        return out, {"parser_status": res.status}, [], res.crosscheck
+
+    return engine
+
+
+ENGINES = {
+    "generic": run_generic,
+    "dahua": run_parser("Dahua"),
+    "hikvision": run_parser("Hikvision"),
+    "honeywell": run_parser("Honeywell"),
+}
+BENIGN = {"generic_includes_extra_bytes", "frame_count_mismatch"}  # expected header absorption
+
+
+def result_key(sc: Scenario, engine: str) -> str:
+    return sc.id if (sc.layout == "raw" and engine == "generic") else f"{sc.id}[{engine}]"
 
 
 def run_scenario(
@@ -86,8 +137,16 @@ def run_scenario(
         img, truth = build_trial(sc, pool, seed, i)
         params = CarveParams(**sc.carve)
         with tempfile.TemporaryDirectory() as tmp:
-            carved, _stats, joins = ENGINES[engine](img, params, export and sc.export, Path(tmp))
-            total.add(score_image(truth, carved, img, f"{sc.id}#{i}", joins))
+            res = ENGINES[engine](img, params, export and sc.export, Path(tmp))
+            carved, _stats, joins = res[:3]
+            part = score_image(truth, carved, img, f"{sc.id}[{engine}]#{i}", joins)
+            if len(res) > 3:
+                kinds = {}
+                for d in res[3]["disagreements"]:
+                    kinds[d["kind"]] = kinds.get(d["kind"], 0) + 1
+                part.crosscheck = kinds
+                part.crosscheck_images = int(any(k not in BENIGN for k in kinds))
+            total.add(part)
     c = total
     if sc.kind == "positive":
         metrics = {
@@ -113,14 +172,19 @@ def run_scenario(
             "clips_decoded_ok": {"k": c.neg_decode_ok, "n": c.images},
             "emitted_but_flagged_failed": {"k": c.decode_errors + c.export_failed, "n": c.images},
         }
+    if engine != "generic":
+        metrics["crosscheck_disagreement_images"] = rate(c.crosscheck_images, c.images)
     return {
-        "id": sc.id,
+        "id": result_key(sc, engine),
+        "scenario": sc.id,
+        "engine": engine,
         "title": sc.title,
         "kind": sc.kind,
         "description": sc.description,
         "carve_params": sc.carve,
         "trials": n,
-        "layout": "raw: generic elementary-stream placement (no vendor structures)",
+        "layout": LAYOUT_DHAV if sc.layout == "dhav" else LAYOUT_RAW,
+        "crosscheck_disagreements": c.crosscheck,
         "counts": {k: v for k, v in asdict(c).items() if k != "failures"},
         "metrics": metrics,
         "failures": c.failures[:8],
@@ -129,9 +193,10 @@ def run_scenario(
     }
 
 
-def run_all(seed: int, trials: int, engine="generic", export=True, only=None) -> dict:
+def run_all(seed: int, trials: int, engine="all", export=True, only=None) -> dict:
     pool = StreamPool()
     scs = [s for s in SCENARIOS if not only or s.id in only]
+    jobs = [(s, e) for s in scs for e in s.engines if engine in ("all", e)]
     res = {
         "synthetic": True,
         "disclaimer": DISCLAIMER,
@@ -141,7 +206,7 @@ def run_all(seed: int, trials: int, engine="generic", export=True, only=None) ->
         "seed": seed,
         "trials": trials,
         "export_decode_test": export,
-        "scenarios": [run_scenario(s, pool, seed, trials, engine, export) for s in scs],
+        "scenarios": [run_scenario(s, pool, seed, trials, e, export) for s, e in jobs],
     }
     res["stream_pool"] = [
         {"name": s.variant.name, "sha256": hashlib.sha256(s.data).hexdigest(), "frames": s.frames}
@@ -253,7 +318,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="validate")
     ap.add_argument("--seed", type=int, default=20260101)
     ap.add_argument("--trials", type=int, default=20)
-    ap.add_argument("--engine", default="generic", choices=sorted(ENGINES))
+    ap.add_argument("--engine", default="all", choices=["all", *sorted(ENGINES)])
     ap.add_argument("--out", default="")
     ap.add_argument(
         "--no-export", action="store_true", help="skip ffmpeg export/decode test (faster)"

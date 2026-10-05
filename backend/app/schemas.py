@@ -72,6 +72,7 @@ class AnalyzeIn(BaseModel):
     join_gap: int = Field(default=0, ge=0, le=16 * 1024 * 1024)
     h264_continuity: bool = True
     validate_params: bool = True
+    parser_options: dict[str, dict] = Field(default_factory=dict)  # vendor -> parser options
 
 
 class ClipOut(BaseModel):
@@ -103,3 +104,6 @@ class ClipOut(BaseModel):
     packets: int | None
     duration_s: float | None
     has_video: bool = False
+    engine: str = "generic"
+    channel: int | None = None
+    parsed_json: str = "{}"
