@@ -3,7 +3,7 @@
 Phased plan: [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md). Current state: **P1 evidence core + P2 carving**.
 
 - **Backend** (`backend/app`): FastAPI + SQLAlchemy; SQLite by default, Postgres via `DATABASE_URL` (the P1 suite, including the append-only triggers, passed against Postgres 16 from the compose file).
-- **Frontend** (`frontend/src`): React 19 + Vite + Tailwind 4.
+- **Frontend** (`frontend/src`): React 19 + Vite + Tailwind 4. Pages: cases, case/evidence, custody log, per-evidence analysis (vendor evidence, clip table with offsets/hashes/decode status, MP4 preview, orphans).
 - **ml** (`ml/nirikshan_ml`): analytics triage, added in Phase 6.
 
 ## Evidence core (P1)

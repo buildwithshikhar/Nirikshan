@@ -100,9 +100,14 @@ export default function CaseDetail() {
                   <td>{ev.write_blocker}</td>
                   <td>{ev.status}<div className="text-xs">{verifyLabel(ev)}</div></td>
                   <td>
-                    <button className="rounded bg-navy-700 px-3 py-1 text-xs hover:bg-navy-900" onClick={() => verify(ev.id)}>
-                      Verify
-                    </button>
+                    <div className="flex gap-2">
+                      <button className="rounded bg-navy-700 px-3 py-1 text-xs hover:bg-navy-900" onClick={() => verify(ev.id)}>
+                        Verify
+                      </button>
+                      <Link className="rounded bg-accent px-3 py-1 text-xs text-white hover:bg-accent-hover" to={`/evidence/${id}/${ev.id}`}>
+                        Analyze
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

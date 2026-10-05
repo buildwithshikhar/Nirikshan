@@ -67,6 +67,68 @@ export interface ChainResult {
   failures: { seq: number; reason: string }[]
 }
 
+export interface VendorHit {
+  signature: string
+  offset: number
+  detail: string
+}
+
+export interface VendorMatch {
+  vendor: string
+  tier: string
+  confidence: string
+  evidence: VendorHit[]
+  signature_counts: Record<string, number>
+  basis: string[]
+  notes: string[]
+}
+
+export interface ClipRow {
+  id: number
+  run_id: number
+  kind: 'clip' | 'orphan'
+  seq: number
+  codec: string
+  start_offset: number
+  end_offset: number
+  size_bytes: number
+  extents_json: string
+  nal_count: number
+  irap_count: number
+  vcl_count: number
+  reassembled: number
+  reason: string
+  notes_json: string
+  bitstream_sha256: string
+  mp4_sha256: string
+  decode_status: string
+  decode_errors_json: string
+  error: string
+  width: number | null
+  height: number | null
+  fps: string
+  packets: number | null
+  duration_s: number | null
+  has_video: boolean
+}
+
+export interface CarveRunInfo {
+  id: number
+  evidence_id: number
+  status: string
+  params: { max_pad: number; join_gap: number; h264_continuity: boolean }
+  vendor_matches: VendorMatch[]
+  stats: Record<string, number>
+  tool_version: string
+  ffmpeg_version: string
+  started_at: string
+  finished_at: string
+  identify_seconds: number
+  carve_seconds: number
+  error: string
+  clips: ClipRow[]
+}
+
 export interface SystemInfo {
   tool_version: string
   ffmpeg: { available: boolean; version: string | null }
@@ -99,6 +161,12 @@ export const api = {
     post<Evidence>(`/api/cases/${id}/evidence`, b),
   verifyEvidence: (id: number) =>
     post<{ ok: boolean; error: string }>(`/api/evidence/${id}/verify`),
+  getEvidence: async (caseId: number, id: number) =>
+    (await request<Evidence[]>(`/api/cases/${caseId}/evidence`)).find((e) => e.id === id),
+  analyze: (id: number, b: { join_gap: number }) =>
+    post<CarveRunInfo>(`/api/evidence/${id}/analyze`, { join_gap: b.join_gap }),
+  runs: (id: number) => request<CarveRunInfo[]>(`/api/evidence/${id}/runs`),
+  verifyClip: (id: number) => post<{ ok: boolean }>(`/api/clips/${id}/verify`),
   custody: (id: number) => request<CustodyEntry[]>(`/api/cases/${id}/custody`),
   verifyChain: (id: number) => request<ChainResult>(`/api/cases/${id}/custody/verify`),
 }
