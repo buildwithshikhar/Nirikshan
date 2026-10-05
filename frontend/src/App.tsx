@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import CaseDetail from './pages/CaseDetail'
 import Analysis from './pages/Analysis'
 import Analytics from './pages/Analytics'
+import Timeline from './pages/Timeline'
 import Cases from './pages/Cases'
 import CustodyLog from './pages/CustodyLog'
 import Dashboard from './pages/Dashboard'
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="cases/:id" element={<CaseDetail />} />
           <Route path="evidence/:caseId/:id" element={<Analysis />} />
           <Route path="clips/:clipId/analytics" element={<Analytics />} />
+          <Route path="cases/:id/timeline" element={<Timeline />} />
           <Route path="cases/:id/custody" element={<CustodyLog />} />
         </Route>
       </Routes>

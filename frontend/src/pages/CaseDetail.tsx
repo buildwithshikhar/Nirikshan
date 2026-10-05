@@ -58,7 +58,10 @@ export default function CaseDetail() {
     <div className="space-y-6">
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold">{kase ? `${kase.case_number}: ${kase.title}` : 'Case'}</h1>
-        <Link className="text-sm text-accent hover:underline" to={`/cases/${id}/custody`}>Custody log →</Link>
+        <div className="flex gap-4 text-sm">
+          <Link className="text-accent hover:underline" to={`/cases/${id}/timeline`}>Timeline →</Link>
+          <Link className="text-accent hover:underline" to={`/cases/${id}/custody`}>Custody log →</Link>
+        </div>
       </div>
       <form onSubmit={acquire} className="grid gap-3 rounded-lg bg-navy-800 p-5 md:grid-cols-4">
         <input className={`${input} md:col-span-2`} placeholder="Source image path (server-side)" required

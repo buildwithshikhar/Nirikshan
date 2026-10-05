@@ -7,3 +7,4 @@ cryptography>=42,<47
 numpy==2.2.6  # analytics (P6)
 onnxruntime==1.23.2  # analytics, CPU only (MIT)
 Pillow==12.3.0  # analytics frames
+rapidocr-onnxruntime==1.4.4  # OSD time-overlay OCR (Apache-2.0); pulls opencv-python, Shapely, pyclipper

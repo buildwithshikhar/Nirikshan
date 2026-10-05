@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   type DriftModel,
   type TimeAssumption,
@@ -56,6 +56,7 @@ export default function TimeSettings({
   const [notes, setNotes] = useState('')
   const [refs, setRefs] = useState<TimeReference[]>([])
   const [model, setModel] = useState<DriftModel | null>(null)
+  const touched = useRef({ tz: false, basis: false, kind: false, notes: false })
   const [error, setError] = useState('')
   const [msg, setMsg] = useState('')
   const [r, setR] = useState({
@@ -70,10 +71,12 @@ export default function TimeSettings({
   const load = useCallback(() => {
     apiTimeline.getAssumption(evidenceId).then((x) => {
       setA(x)
-      setTz(x.timezone ?? '')
-      setBasis(x.epoch_basis ?? '')
-      setKind(x.evidence_kind ?? 'examiner_entered')
-      setNotes(x.notes)
+      // Loaded values fill fields only until the examiner has typed in them (a slow response
+      // must never overwrite what is being entered).
+      setTz((cur) => (touched.current.tz ? cur : (x.timezone ?? '')))
+      setBasis((cur) => (touched.current.basis ? cur : (x.epoch_basis ?? '')))
+      setKind((cur) => (touched.current.kind ? cur : (x.evidence_kind ?? 'examiner_entered')))
+      setNotes((cur) => (touched.current.notes ? cur : x.notes))
     }).catch((e) => setError(e.message))
     apiTimeline.listRefs(evidenceId).then(setRefs).catch((e) => setError(e.message))
     apiTimeline.getModel(evidenceId).then(setModel).catch(() => undefined)
@@ -113,7 +116,7 @@ export default function TimeSettings({
       <div className="grid gap-3 md:grid-cols-2">
         <label className="text-xs text-slate-400">
           Device timezone (IANA)
-          <select aria-label="Device timezone" value={tz} onChange={(e) => setTz(e.target.value)}
+          <select aria-label="Device timezone" value={tz} onChange={(e) => { touched.current.tz = true; setTz(e.target.value) }}
             className="mt-1 block w-full rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700">
             <option value="">(unknown)</option>
             {zones.map((z) => <option key={z} value={z}>{z}</option>)}
@@ -121,7 +124,7 @@ export default function TimeSettings({
         </label>
         <label className="text-xs text-slate-400">
           Epoch basis (for unix-second/microsecond fields)
-          <select aria-label="Epoch basis" value={basis} onChange={(e) => setBasis(e.target.value)}
+          <select aria-label="Epoch basis" value={basis} onChange={(e) => { touched.current.basis = true; setBasis(e.target.value) }}
             className="mt-1 block w-full rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700">
             <option value="">(not stated)</option>
             <option value="utc">true UTC (Han: Hikvision init/HIKBTREE)</option>
@@ -130,7 +133,7 @@ export default function TimeSettings({
         </label>
         <label className="text-xs text-slate-400">
           Evidence kind
-          <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Evidence kind"
+          <select value={kind} onChange={(e) => { touched.current.kind = true; setKind(e.target.value) }} aria-label="Evidence kind"
             className="mt-1 block w-full rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700">
             <option value="examiner_entered">examiner entered</option>
             <option value="device_setting_note">device setting note</option>
@@ -138,7 +141,7 @@ export default function TimeSettings({
         </label>
         <label className="text-xs text-slate-400">
           Notes: how do you know? (required)
-          <input aria-label="Timezone notes" value={notes} onChange={(e) => setNotes(e.target.value)}
+          <input aria-label="Timezone notes" value={notes} onChange={(e) => { touched.current.notes = true; setNotes(e.target.value) }}
             placeholder="e.g. DVR menu photo IMG_0042 shows GMT+05:30"
             className="mt-1 block w-full rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700" />
         </label>

@@ -14,6 +14,8 @@ from app.analytics.routes import router as analytics_router
 from app.db import SessionLocal, engine
 from app.models import AuditEntry
 from app.routes import audit_case_id, router
+from app.timeline import models as _timeline_models  # noqa: F401
+from app.timeline.routes import router as timeline_router
 
 
 @asynccontextmanager
@@ -41,6 +43,7 @@ def health() -> dict[str, str]:
 
 app.include_router(router)
 app.include_router(analytics_router)
+app.include_router(timeline_router)
 
 
 @app.middleware("http")
