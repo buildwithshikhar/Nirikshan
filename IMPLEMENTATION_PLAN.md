@@ -47,21 +47,24 @@ Research confirms the requested order with two adjustments: (1) vendor-agnostic 
 **Carver hardening driven by the harness:** SPS/PPS/VPS syntax validation, PPS-reference rule, trailing-zero trimming at EOF, join-decision log.
 **Done when (met):** `make validate` prints the tables with seeds; same seed gives the same SHA-256; results state SYNTHETIC.
 **Tests:** generator determinism (SHA-256 per scenario), banner/manifest marking, ground-truth byte-comparison tests, scorer unit tests (perfect/empty/partial/false positive/ties/zero-tolerant extents/hash mismatch/negatives), Wilson interval, threshold checker, digest reproducibility, fresh 3-trial regression run, integrity and thresholds of the committed baseline.
+**P4 extension:** vendor-layout scenarios (`@dhav`, `@hik`, `@honeywell`) run generic + parser engines with cross-check; thresholds fail on missing scenarios in full runs.
 **Honesty notes:** see "Limits of this validation" in docs/VALIDATION.md (single encoder family, scenarios co-developed with the carver, NAL coverage is not decoded pictures, clean decode does not prove byte-faithfulness). Measured reassembler false-accept rate: 11.8% (35/297), 95% CI 9-16%.
 
 ## P4: Vendor parsers (documentation-ordered)
-Each parser: structured parsing behind the plugin interface, falls back to generic carving on any inconsistency, reports which fields were parsed vs. inferred.
+**Status: implemented for Dahua (DHAV frames only), Hikvision and Honeywell; all three remain Tier B. Nothing here has touched a real device image.**
+Shared design (docs/ARCHITECTURE.md "Vendor parsers (P4)"): `VendorParser.parse()` returns a `ParseResult` whose fields are tagged `parsed` / `inferred` / `unknown`, with raw timestamps (`tz_basis` "not assumed"; P5 normalizes), inconsistencies and a cross-check against the generic carver on the same image. Any inconsistency or exception falls back to generic carving, which always runs; parser clips are stored next to generic ones (`engine` column), never substituted. Open source conflicts are exposed as options/flags, not resolved. Corruption tests (truncation, wrong magic, bad offsets/lengths, circular pointers, fuzz) assert no crash and no claim of unparsed fields; where a source documents no checksum (all three), tests prove none is claimed.
 
-| Order | Vendor | Source basis | Work | Starts at → target |
+| Order | Vendor | Source basis | Built | Open points exposed (not resolved) |
 |---|---|---|---|---|
-| 1 | Dahua | ffmpeg `dhav.c` (fully read), Dragonas thesis ch.4-5 | DHAV frame parser (header/footer, frame types, bit-packed date, sub-second); DHFS internals are **not** documented in what we read: parse only DHAV frames, not DHFS metadata; log SQLite (`{serial}_log.db`) reader if XFS partition present | B → B (A after real image) |
-| 2 | Hikvision | Han 2015, Dragonas | Master Sector, HIKBTREE, IDR table `OFNI`, `RATS` log records; resolve Han's block-size contradiction (0x400000 vs "1 GB") on a real image before trusting either | B → B |
-| 3 | Honeywell | arXiv 2605.07430 (single model HN35080200) | Machine Data string, 20-byte header, per-NAL microsecond timestamps; re-implement, no repo code | B → B |
-| 4 | CP Plus | none found (only a Dahua distribution relationship) | Identify only if a real image shows DHFS/DHAV; otherwise generic carving | C → C |
-| 5-8 | Uniview, TP-Link, Godrej, Matrix | marketing only | Collect-and-document step: if you obtain a device, a research note first, parser later | C |
+| 1 | Dahua | FFmpeg `dhav.c` | DHAV frame parser: header, extension TLVs, trailer check, channel demultiplexing, key-frame clip starts, `frame_gap_tolerance` option; **DHFS internals unparsed** | header checksum byte unverified (algorithm undocumented); date has no timezone field; codecs other than H.264/H.265 listed, not exported |
+| 2 | Hikvision | Han 2015, Dragonas (field table in docs/parsers/hikvision-fields.md) | Master Sector, RATS records, HIKBTREE entries, `OFNI` counts; generic NAL scan inside located blocks | block size 0x400000 vs 1 GB (`block_size_mode`), UTC vs local (`time_basis_label`), Master Sector base 0x200 vs 0x210 (`master_sector_offset`); HIKBTREE entry location chosen by plausibility; cleared entries hide intact video from the parser |
+| 3 | Honeywell | arXiv 2605.07430 as recorded in docs/parsers/honeywell-fields.md (unlicensed repo not used) | Machine Data, block index structures, 20-byte custom headers, delimiter; channel only if a Channel Index entry survives | length-field semantic and endianness partly inferred; 20-zero-byte delimiter ambiguity; one model, H.264 only |
+| 4 | CP Plus | none found | not built; generic carving only | needs a real image |
+| 5-8 | Uniview, TP-Link, Godrej, Matrix | marketing only | not built | need real images |
 
-**Done when (per vendor):** parser passes synthetic harness for its documented layout; refuses to claim fields it did not parse; tier recorded in code and UI.
-**Tests:** parser unit tests with byte fixtures built from documented fields; mismatch/corruption tests (fall back to generic carving, never crash); cross-check parser output vs generic carver on the same synthetic image.
+**Done when (met on synthetic per-paper layouts):** each parser passes its harness scenarios (`@dhav`, `@hik`, `@honeywell`), refuses to claim fields it did not parse, and its tier is recorded in code and UI. **This is a circular check** (layouts and parsers come from the same documents) and is labeled so in every result.
+**Tests:** `tests/test_dahua_parser.py`, `test_hikvision_parser.py`, `test_honeywell_parser.py` (parse correctness, tagging, options, corruption, fuzz, exception to fallback, cross-check, pipeline integration), harness scenarios with parser engines and thresholds (strict mode fails on missing scenarios), Playwright flow for the Dahua parser panel.
+**Unverified:** every parser on real images; the Hikvision page-entry layout and block offset base; the Honeywell header length semantic; Dahua frame-number tolerance on real streams.
 
 ### Promoting a vendor between tiers
 

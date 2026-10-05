@@ -4,8 +4,8 @@
 > **Parsers built from a paper's layout and tested on images generated from the same layout are a circular check, not independent validation. Layout variants are labeled 'per-paper layout, not a real device image'.**
 
 - No vendor is Tier A (validated on real images with ground truth we created).
-- Seed 20260101, 20 trials per scenario, engine `generic`, tool 0.1.0, ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers.
-- Results digest `0894685902331ce914152952342a8c218f54f56ac209711cc12ab7e85141c419` (excludes timings).
+- Seed 20260101, 20 trials per scenario, engine `all`, tool 0.1.0, ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers.
+- Results digest `12b26364c75b18873e52e24c1f9ffb1b51faa0f5cb31e6d597afd136779a929c` (excludes timings).
 
 Rates are k/n with a Wilson 95% interval in brackets. 'Frame' means a VCL NAL unit lying inside carved extents (not a decoder output). 'Recoverable' frames are those whose own bytes and their GOP's prefix and parameter sets survived.
 
@@ -30,6 +30,42 @@ Rates are k/n with a Wilson 95% interval in brackets. 'Frame' means a VCL NAL un
 | `adversarial_noise_with_clips` | 20 | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] | 100.0% (2100/2100) [100-100] | 100.0% (2100/2100) [100-100] | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] |
 | `multi_channel_gop` | 20 | 100.0% (52/52) [93-100] | 40.0% (8/20) [22-61] | 0.0% (0/52) [0-7] | 100.0% (2950/2950) [100-100] | 100.0% (2950/2950) [100-100] | 100.0% (20/20) [84-100] | 100.0% (20/20) [84-100] |
 | `multi_channel_frame` | 20 | 100.0% (54/54) [93-100] | 30.0% (6/20) [15-52] | 0.0% (0/54) [0-7] | 100.0% (3050/3050) [100-100] | 100.0% (3050/3050) [100-100] | 85.0% (17/20) [64-95] | 100.0% (20/20) [84-100] |
+| `clean_live@dhav[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (158/158) [98-100] | 0.0% (0/60) [0-6] | 85.0% (2764/3250) [84-86] | 100.0% (2764/2764) [100-100] | 100.0% (158/158) [98-100] | 100.0% (158/158) [98-100] |
+| `clean_live@dhav[dahua]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3250/3250) [100-100] | 100.0% (3250/3250) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `deleted_intact_zero@dhav[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (165/165) [98-100] | 0.0% (0/60) [0-6] | 85.6% (2826/3300) [84-87] | 100.0% (2826/2826) [100-100] | 100.0% (165/165) [98-100] | 100.0% (165/165) [98-100] |
+| `deleted_intact_zero@dhav[dahua]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3300/3300) [100-100] | 100.0% (3300/3300) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `zero_gaps@dhav[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (166/166) [98-100] | 0.0% (0/60) [0-6] | 86.0% (2838/3300) [85-87] | 100.0% (2838/2838) [100-100] | 100.0% (166/166) [98-100] | 100.0% (166/166) [98-100] |
+| `zero_gaps@dhav[dahua]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3300/3300) [100-100] | 100.0% (3300/3300) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `random_gaps_between@dhav[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (169/169) [98-100] | 0.0% (0/60) [0-6] | 86.0% (2838/3300) [85-87] | 100.0% (2838/2838) [100-100] | 100.0% (169/169) [98-100] | 100.0% (169/169) [98-100] |
+| `random_gaps_between@dhav[dahua]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3300/3300) [100-100] | 100.0% (3300/3300) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `partial_overwrite_zero@dhav[generic]` | 20 | 100.0% (40/40) [91-100] | 100.0% (86/86) [96-100] | 0.0% (0/20) [0-16] | 85.2% (1347/1582) [83-87] | 100.0% (1347/1347) [100-100] | 93.0% (80/86) [86-97] | 100.0% (86/86) [96-100] |
+| `partial_overwrite_zero@dhav[dahua]` | 20 | 100.0% (40/40) [91-100] | 100.0% (45/45) [92-100] | 100.0% (20/20) [84-100] | 100.0% (1582/1582) [100-100] | 100.0% (1582/1582) [100-100] | 100.0% (45/45) [92-100] | 100.0% (45/45) [92-100] |
+| `partial_overwrite_foreign@dhav[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (100/100) [96-100] | 0.0% (0/20) [0-16] | 87.0% (1648/1894) [85-88] | 80.6% (1648/2045) [79-82] | 94.0% (94/100) [88-97] | 100.0% (100/100) [96-100] |
+| `partial_overwrite_foreign@dhav[dahua]` | 20 | 100.0% (60/60) [94-100] | 100.0% (65/65) [94-100] | 100.0% (20/20) [84-100] | 100.0% (1894/1894) [100-100] | 93.4% (1894/2027) [92-94] | 100.0% (65/65) [94-100] | 100.0% (65/65) [94-100] |
+| `fully_overwritten@dhav[generic]` | 20 | 100.0% (26/26) [87-100] | 100.0% (66/66) [94-100] | 0.0% (0/20) [0-16] | 88.8% (1194/1344) [87-90] | 80.4% (1194/1485) [78-82] | 100.0% (66/66) [94-100] | 100.0% (66/66) [94-100] |
+| `fully_overwritten@dhav[dahua]` | 20 | 100.0% (26/26) [87-100] | 100.0% (26/26) [87-100] | 100.0% (20/20) [84-100] | 100.0% (1344/1344) [100-100] | 92.7% (1344/1450) [91-94] | 100.0% (26/26) [87-100] | 100.0% (26/26) [87-100] |
+| `fragmented_zero_join_on@dhav[generic]` | 20 | 100.0% (20/20) [84-100] | 100.0% (57/57) [94-100] | 0.0% (0/20) [0-16] | 83.2% (936/1125) [81-85] | 100.0% (936/936) [100-100] | 100.0% (57/57) [94-100] | 100.0% (57/57) [94-100] |
+| `fragmented_zero_join_on@dhav[dahua]` | 20 | 100.0% (20/20) [84-100] | 100.0% (54/54) [93-100] | 0.0% (0/20) [0-16] | 80.7% (908/1125) [78-83] | 100.0% (908/908) [100-100] | 83.3% (45/54) [71-91] | 100.0% (54/54) [93-100] |
+| `fragmented_decoy_join_on@dhav[generic]` | 300 | 100.0% (600/600) [99-100] | 100.0% (1785/1785) [100-100] | 0.0% (0/600) [0-1] | 82.0% (27581/33650) [82-82] | 100.0% (27581/27581) [100-100] | n/a | n/a |
+| `fragmented_decoy_join_on@dhav[dahua]` | 300 | 100.0% (600/600) [99-100] | 100.0% (867/867) [100-100] | 50.0% (300/600) [46-54] | 95.2% (32032/33650) [95-95] | 100.0% (32032/32032) [100-100] | n/a | n/a |
+| `multi_channel_gop@dhav[generic]` | 20 | 100.0% (53/53) [93-100] | 86.8% (105/121) [80-92] | 0.0% (0/53) [0-7] | 94.7% (2959/3125) [94-95] | 100.0% (2959/2959) [100-100] | 100.0% (121/121) [97-100] | 100.0% (121/121) [97-100] |
+| `multi_channel_gop@dhav[dahua]` | 20 | 100.0% (53/53) [93-100] | 100.0% (53/53) [93-100] | 100.0% (53/53) [93-100] | 100.0% (3125/3125) [100-100] | 100.0% (3125/3125) [100-100] | 100.0% (53/53) [93-100] | 100.0% (53/53) [93-100] |
+| `multi_channel_frame@dhav[generic]` | 20 | 100.0% (49/49) [93-100] | 70.7% (58/82) [60-79] | 0.0% (0/49) [0-7] | 84.7% (2287/2700) [83-86] | 100.0% (2287/2287) [100-100] | 90.2% (74/82) [82-95] | 100.0% (82/82) [96-100] |
+| `multi_channel_frame@dhav[dahua]` | 20 | 100.0% (49/49) [93-100] | 100.0% (49/49) [93-100] | 100.0% (49/49) [93-100] | 100.0% (2700/2700) [100-100] | 100.0% (2700/2700) [100-100] | 100.0% (49/49) [93-100] | 100.0% (49/49) [93-100] |
+| `clean_live@hik[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3325/3325) [100-100] | 100.0% (3325/3325) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `clean_live@hik[hikvision]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3325/3325) [100-100] | 100.0% (3325/3325) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `deleted_intact_zero@hik[generic]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3475/3475) [100-100] | 100.0% (3475/3475) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `deleted_intact_zero@hik[hikvision]` | 20 | 33.3% (20/60) [23-46] | 100.0% (20/20) [84-100] | 33.3% (20/60) [23-46] | 33.1% (1150/3475) [32-35] | 100.0% (1150/1150) [100-100] | 100.0% (20/20) [84-100] | 100.0% (20/20) [84-100] |
+| `partial_overwrite_zero@hik[generic]` | 20 | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] | 100.0% (20/20) [84-100] | 100.0% (1601/1601) [100-100] | 100.0% (1601/1601) [100-100] | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] |
+| `partial_overwrite_zero@hik[hikvision]` | 20 | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] | 100.0% (20/20) [84-100] | 100.0% (1601/1601) [100-100] | 100.0% (1601/1601) [100-100] | 100.0% (40/40) [91-100] | 100.0% (40/40) [91-100] |
+| `multi_channel_gop@hik[generic]` | 20 | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] | 100.0% (5625/5625) [100-100] | 100.0% (5625/5625) [100-100] | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] |
+| `multi_channel_gop@hik[hikvision]` | 20 | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] | 100.0% (5625/5625) [100-100] | 100.0% (5625/5625) [100-100] | 100.0% (100/100) [96-100] | 100.0% (100/100) [96-100] |
+| `clean_live@honeywell[generic]` | 20 | 75.0% (45/60) [63-84] | 100.0% (120/120) [97-100] | 0.0% (0/60) [0-6] | 68.9% (2325/3375) [67-70] | 100.0% (2325/2325) [100-100] | 100.0% (120/120) [97-100] | 100.0% (120/120) [97-100] |
+| `clean_live@honeywell[honeywell]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3375/3375) [100-100] | 100.0% (3375/3375) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `deleted_intact_zero@honeywell[generic]` | 20 | 78.3% (47/60) [66-87] | 100.0% (112/112) [97-100] | 0.0% (0/60) [0-6] | 72.6% (2415/3325) [71-74] | 100.0% (2415/2415) [100-100] | 100.0% (112/112) [97-100] | 100.0% (112/112) [97-100] |
+| `deleted_intact_zero@honeywell[honeywell]` | 20 | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] | 100.0% (3325/3325) [100-100] | 100.0% (3325/3325) [100-100] | 100.0% (60/60) [94-100] | 100.0% (60/60) [94-100] |
+| `partial_overwrite_zero@honeywell[generic]` | 20 | 75.0% (30/40) [60-86] | 100.0% (76/76) [95-100] | 0.0% (0/20) [0-16] | 70.0% (1240/1772) [68-72] | 100.0% (1240/1240) [100-100] | 81.6% (62/76) [71-89] | 100.0% (76/76) [95-100] |
+| `partial_overwrite_zero@honeywell[honeywell]` | 20 | 100.0% (40/40) [91-100] | 100.0% (45/45) [92-100] | 100.0% (20/20) [84-100] | 100.0% (1772/1772) [100-100] | 100.0% (1772/1772) [100-100] | 100.0% (45/45) [92-100] | 100.0% (45/45) [92-100] |
 
 ## Fragment reassembler (H.264 only)
 
@@ -37,6 +73,8 @@ Rates are k/n with a Wilson 95% interval in brackets. 'Frame' means a VCL NAL un
 |---|---|---|
 | `fragmented_zero_join_on` | 0.0% (0/3) [0-56] | 100.0% (38/38) [91-100] |
 | `fragmented_decoy_join_on` | 11.8% (35/297) [9-16] | n/a |
+| `fragmented_zero_join_on@dhav[generic]` | 90.3% (28/31) [75-97] | n/a |
+| `fragmented_decoy_join_on@dhav[generic]` | 7.5% (21/281) [5-11] | n/a |
 
 ## Negative scenarios (no decodable clip may be produced)
 
@@ -74,13 +112,55 @@ Rates are k/n with a Wilson 95% interval in brackets. 'Frame' means a VCL NAL un
 - `neg_encrypted_all_payloads`: Start codes and NAL headers clear.
 - `neg_mjpeg`: Not NAL-based; must yield nothing.
 - `neg_mpeg4`: Different start-code scheme; must yield nothing.
+- `clean_live@dhav[generic]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `clean_live@dhav[dahua]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `deleted_intact_zero@dhav[generic]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `deleted_intact_zero@dhav[dahua]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `zero_gaps@dhav[generic]`: Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `zero_gaps@dhav[dahua]`: Gaps of 1 B to 64 KiB of zeros between clips. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `random_gaps_between@dhav[generic]`: 100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `random_gaps_between@dhav[dahua]`: 100-5000 bytes of random data (no zero runs) after each clip; absorbed into the last NAL. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `partial_overwrite_zero@dhav[generic]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `partial_overwrite_zero@dhav[dahua]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `partial_overwrite_foreign@dhav[generic]`: Region replaced by the start of another clip (itself a truth clip). Frames wrapped in DHAV headers/trailers per dhav.c.
+- `partial_overwrite_foreign@dhav[dahua]`: Region replaced by the start of another clip (itself a truth clip). Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fully_overwritten@dhav[generic]`: One intact survivor plus a clip fully overwritten (zeros, noise or another clip); the destroyed clip must not appear. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fully_overwritten@dhav[dahua]`: One intact survivor plus a clip fully overwritten (zeros, noise or another clip); the destroyed clip must not appear. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fragmented_zero_join_on@dhav[generic]`: Same images as above with the heuristic reassembler enabled. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fragmented_zero_join_on@dhav[dahua]`: Same images as above with the heuristic reassembler enabled. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fragmented_decoy_join_on@dhav[generic]`: Same images; every join candidate is a wrong one (false-accept study). Frames wrapped in DHAV headers/trailers per dhav.c.
+- `fragmented_decoy_join_on@dhav[dahua]`: Same images; every join candidate is a wrong one (false-accept study). Frames wrapped in DHAV headers/trailers per dhav.c.
+- `multi_channel_gop@dhav[generic]`: 2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `multi_channel_gop@dhav[dahua]`: 2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `multi_channel_frame@dhav[generic]`: 2-3 cameras interleaved per frame. Expected to fail for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `multi_channel_frame@dhav[dahua]`: 2-3 cameras interleaved per frame. Expected to fail for the generic carver. Frames wrapped in DHAV headers/trailers per dhav.c.
+- `clean_live@hik[generic]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.
+- `clean_live@hik[hikvision]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.
+- `deleted_intact_zero@hik[generic]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.
+- `deleted_intact_zero@hik[hikvision]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.
+- `partial_overwrite_zero@hik[generic]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.
+- `partial_overwrite_zero@hik[hikvision]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.
+- `multi_channel_gop@hik[generic]`: 2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Image built from documented fields only.
+- `multi_channel_gop@hik[hikvision]`: 2-3 cameras, whole GOPs alternate. No channel metadata: demultiplexing is out of scope for the generic carver. Image built from documented fields only.
+- `clean_live@honeywell[generic]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.
+- `clean_live@honeywell[honeywell]`: Three adjacent recordings with distinct parameter sets, zero padding at both ends. Image built from documented fields only.
+- `deleted_intact_zero@honeywell[generic]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.
+- `deleted_intact_zero@honeywell[honeywell]`: One live and two deleted-but-intact clips, 4 KiB-aligned zero padding, noise outside. Image built from documented fields only.
+- `partial_overwrite_zero@honeywell[generic]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.
+- `partial_overwrite_zero@honeywell[honeywell]`: Head/middle/tail 20-60% of a deleted clip zeroed; survivors scored on recoverable frames. Image built from documented fields only.
 
 ## Failure examples (first per scenario)
 
-- `zero_pad_inside_wide` (40 total): `{"trial": "zero_pad_inside_wide#0", "kind": "missed_clip", "clip": "c0", "recovered": 0, "recoverable": 50}`
-- `multi_channel_gop` (12 total): `{"trial": "multi_channel_gop#0", "kind": "false_positive_clip", "extents": [[1280, 632718]], "decode": "ok"}`
-- `multi_channel_frame` (14 total): `{"trial": "multi_channel_frame#0", "kind": "false_positive_clip", "extents": [[1280, 632718]], "decode": "decode_errors"}`
-- `neg_encrypted_slices_params_clear` (18 total): `{"trial": "neg_encrypted_slices_params_clear#0", "kind": "false_positive_clip", "extents": [[30226, 39723]], "decode": "decode_errors"}`
+- `zero_pad_inside_wide` (40 total): `{"trial": "zero_pad_inside_wide[generic]#0", "kind": "missed_clip", "clip": "c0", "recovered": 0, "recoverable": 50}`
+- `multi_channel_gop` (12 total): `{"trial": "multi_channel_gop[generic]#0", "kind": "false_positive_clip", "extents": [[1280, 632718]], "decode": "ok"}`
+- `multi_channel_frame` (14 total): `{"trial": "multi_channel_frame[generic]#0", "kind": "false_positive_clip", "extents": [[1280, 632718]], "decode": "decode_errors"}`
+- `neg_encrypted_slices_params_clear` (18 total): `{"trial": "neg_encrypted_slices_params_clear[generic]#0", "kind": "false_positive_clip", "extents": [[30226, 39723]], "decode": "decode_errors"}`
+- `multi_channel_gop@dhav[generic]` (16 total): `{"trial": "multi_channel_gop@dhav[generic]#2", "kind": "false_positive_clip", "extents": [[1316, 304003]], "decode": "ok"}`
+- `multi_channel_frame@dhav[generic]` (24 total): `{"trial": "multi_channel_frame@dhav[generic]#2", "kind": "false_positive_clip", "extents": [[1316, 323821]], "decode": "decode_errors"}`
+- `deleted_intact_zero@hik[hikvision]` (40 total): `{"trial": "deleted_intact_zero@hik[hikvision]#0", "kind": "missed_clip", "clip": "c1", "recovered": 0, "recoverable": 50}`
+- `clean_live@honeywell[generic]` (15 total): `{"trial": "clean_live@honeywell[generic]#0", "kind": "missed_clip", "clip": "c0", "recovered": 5, "recoverable": 75}`
+- `deleted_intact_zero@honeywell[generic]` (13 total): `{"trial": "deleted_intact_zero@honeywell[generic]#0", "kind": "missed_clip", "clip": "c2", "recovered": 5, "recoverable": 75}`
+- `partial_overwrite_zero@honeywell[generic]` (10 total): `{"trial": "partial_overwrite_zero@honeywell[generic]#2", "kind": "missed_clip", "clip": "c1", "recovered": 3, "recoverable": 45}`
 
 ## Stream pool (SYNTHETIC testsrc2 encodes)
 
