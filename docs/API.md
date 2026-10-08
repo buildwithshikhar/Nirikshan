@@ -26,3 +26,6 @@ CLI: `python -m app.cli reset-db --yes` (DEV ONLY) drops and recreates the schem
 Analytics (triage only): `GET /api/analytics/models`; `POST /api/clips/{id}/analytics` (motion/objects/faces with parameters; 503 with the fetch command if a model is missing, 409 if the clip's MP4 no longer matches its recorded hash); `GET /api/clips/{id}/analytics`; `GET /api/analytics/{run_id}`. Every result carries the label `triage, not identification`, model hash and error rates.
 
 Timestamps and timeline: `GET/PUT /api/evidence/{id}/time-assumption`, `GET/POST /api/evidence/{id}/time-references`, `POST /api/evidence/{id}/time-model/fit`, `GET /api/cases/{id}/timeline`, `GET /api/cases/{id}/timeline/export?format=csv|json`, `POST /api/clips/{id}/osd-check`. Mutations need `X-Examiner` and are written to the custody log.
+
+Not in this tree (do not call): report generation/download and JSON-LD export endpoints `[[PENDING-MERGE: A]]`; job submission/status/cancel endpoints `[[PENDING-MERGE: B]]`. Only the endpoints listed above exist. `GET` endpoints need no `X-Examiner` header and no authentication (docs/SECURITY_REVIEW.md 2.1).
+

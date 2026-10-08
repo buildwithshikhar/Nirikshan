@@ -1,7 +1,7 @@
 # Nirikshan Implementation Plan
 
 Scope: SIH PS 26150, multi-vendor DVR/NVR forensics. Basis: [docs/RESEARCH.md](docs/RESEARCH.md) (every vendor claim below cites it; do not add format details that are not there).
-Status: scaffold done. No forensic code exists. Phases stop for approval ("go") at each end.
+Status: P1-P6 implemented on synthetic data; P7 reporting and P8 jobs/demo/accessibility are built on separate branches and pending merge; packaging, security review, licence report and final report are in this tree. No real-device validation. Phases stop for approval ("go") at each end.
 
 ## Ground rules
 
@@ -19,7 +19,7 @@ Status: scaffold done. No forensic code exists. Phases stop for approval ("go") 
 | B | Public byte-level signature identified + generic NAL/GOP carving | "Identified; generic carving available; no filesystem parsing validated" |
 | C | Planned only | "Not supported; generic carving may run opportunistically, vendor not attributed" |
 
-Today: **Hikvision B, Dahua B, Honeywell B; CP Plus, Uniview, TP-Link, Godrej, Matrix C. No Tier A.**
+Today: **Hikvision B, Dahua B, Honeywell B; CP Plus, Uniview, TP-Link, Godrej, Matrix C. No Tier A.** (Checked against code and docs/OEM_COMPARISON.md by `scripts/build_final_report.py`.)
 
 ## Order and rationale
 
@@ -85,11 +85,13 @@ Likely purchase: Hikvision or Dahua (strongest documentation, validates P4 order
 **Tests:** known-answer motion clips, determinism (same machine/library versions only), CPU budget, no-network, labelling, no identity fields, API tests, Playwright flow. **Unverified:** accuracy on real DVR footage; other object classes beyond person; determinism across machines.
 
 ## P7: Reporting, SOPs, manual
+**Status: SOP drafts, user manual and validation report draft exist in this tree. The court-style PDF, BSA 63(4) draft certificate, JSON-LD export and SOP-06 are built on another branch `[[PENDING-MERGE: A]]`; report-integrity custody entry and the tests below apply to that work.**
 **Scope:** court-style PDF (case ID, examiner, tool/parser versions, evidence hashes MD5+SHA-256, acquisition log, custody chain verification result, audit trail, per-vendor tier and limitations, recovery results with offsets, timestamp assumptions, analytics error rates); report integrity (SHA-256 of the PDF recorded in custody log); drafts of SOPs (acquisition, hashing, recovery, timestamp handling, reporting), user manual, validation report (from P3 numbers; real-image section stays empty until P4 data exist).
 **Done when:** a full synthetic-case demo produces a PDF whose hashes and chain verification match the database; the validation report cites the committed baseline run.
 **Tests:** PDF content tests (required sections/hashes present, parsed back from PDF), report-regeneration determinism, tampered custody → report states chain failure.
 
 ## P8: Polish, UI, demo flow, final docs
+**Status: final report (docs/FINAL_REPORT.md, generated), demo runbook, offline packaging (docker-compose.offline.yml), security review and licence report are in this tree. Background jobs, `make demo`, accessibility pass and screenshots are built on another branch `[[PENDING-MERGE: B]]`. "Performance on large images" and a full e2e run are not done.**
 UI polish and accessibility pass, guided demo (synthetic case, labelled), OEM comparison deliverable from RESEARCH §4, architecture docs, final report, performance on large images, packaging (docker-compose for app, no deploy), full e2e run.
 **Done when:** the demo runs end to end from clean state in one command; all docs consistent with the code and with the tier table.
 
