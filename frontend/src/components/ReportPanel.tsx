@@ -37,12 +37,12 @@ export default function ReportPanel({ caseId, evidence }: ReportPanelProps) {
         <button
           onClick={generate}
           disabled={busy}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy-900 hover:bg-accent-hover disabled:opacity-50"
         >
           {busy ? 'Generating…' : 'Generate report'}
         </button>
       </div>
-      <p className="mb-3 text-xs text-slate-500">
+      <p className="mb-3 text-xs text-slate-400">
         Generating a report re-verifies the custody chain, stores a read-only PDF and writes a
         report_generated custody entry with the PDF SHA-256. Validation behind it is on synthetic
         images only.
@@ -59,7 +59,7 @@ export default function ReportPanel({ caseId, evidence }: ReportPanelProps) {
             {rows.map((r) => (
               <tr key={r.id} className="border-t border-navy-700 align-top">
                 <td className="py-2">{r.id}</td>
-                <td>{r.generated_at.slice(0, 19)}Z<div className="text-xs text-slate-500">{r.examiner}, {r.pages} pages</div></td>
+                <td>{r.generated_at.slice(0, 19)}Z<div className="text-xs text-slate-400">{r.examiner}, {r.pages} pages</div></td>
                 <td className={r.chain_ok ? 'text-emerald-400' : 'text-red-400'}>{r.chain_ok ? 'VALID' : 'FAILED'}</td>
                 <td className="font-mono text-[11px] break-all">{r.sha256}</td>
                 <td>
@@ -98,7 +98,7 @@ export default function ReportPanel({ caseId, evidence }: ReportPanelProps) {
         <a className="text-accent hover:underline" href={reportApi.jsonldUrl(caseId)} download>
           Export case JSON-LD
         </a>
-        <span className="ml-2 text-xs text-slate-500">
+        <span className="ml-2 text-xs text-slate-400">
           plain JSON-LD, NOT CASE-conformant (only hash terms are borrowed from UCO)
         </span>
       </div>

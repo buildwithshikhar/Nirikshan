@@ -15,7 +15,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from app import custody
+from app import custody, synthetic
 from app.clock import utc_now_iso
 from app.config import allow_block_devices, data_dir, evidence_roots
 from app.hashing import CHUNK, Digests, hash_file, hash_stream
@@ -129,6 +129,7 @@ def acquire(
     ev.size_bytes, ev.md5, ev.sha256 = src_digests.size, src_digests.md5, src_digests.sha256
     ev.acquired_at = utc_now_iso()
     ev.last_verified_at, ev.last_verify_ok = utc_now_iso(), 1
+    ev.synthetic = synthetic.is_synthetic_image(dest)
     db.commit()
     custody.append_entry(
         db,
@@ -145,6 +146,7 @@ def acquire(
             "md5": ev.md5,
             "sha256": ev.sha256,
             "post_copy_verify": "pass",
+            "synthetic_banner": ev.synthetic,
         },
         ev.id,
     )

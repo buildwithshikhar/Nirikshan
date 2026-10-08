@@ -39,6 +39,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg  # carving tests need ffmpeg + ffprobe (libx264/libx265)
       - run: pip install -r requirements-dev.txt
       - run: python ../scripts/fetch_models.py  # analytics ONNX models (checksum-verified; not committed)
+      - run: python ../scripts/build_final_report.py --check  # traceability paths, tier consistency, report freshness
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest -q

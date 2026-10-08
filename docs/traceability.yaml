@@ -91,11 +91,10 @@ requirements:
   - id: R10
     requirement: Reporting
     status: Partial
-    code: [backend/app/timeline/routes.py]
-    tests: [backend/tests/test_timeline_api.py]
-    docs: [docs/sop/SOP-05-reporting.md, docs/USER_MANUAL.md]
-    pending: ["[[PENDING-MERGE: A]] court-style PDF report, BSA 63(4) draft certificate, CASE JSON-LD export, SOP-06 intake checklist (docs/report.md, docs/legal/, docs/sop/SOP-06-*)"]
-    note: In this tree only the timeline CSV/JSON export and the reporting SOP exist; the PDF report is built on another branch and is not counted here.
+    code: [backend/app/report/build.py, backend/app/report/pdf.py, backend/app/report/routes.py, backend/app/report/certificate.py, backend/app/report/jsonld.py, backend/app/timeline/routes.py]
+    tests: [backend/tests/test_report.py, backend/tests/test_report_exports.py, backend/tests/test_timeline_api.py, frontend/e2e/report.spec.ts]
+    docs: [docs/report.md, docs/legal/BSA-63-4-notes.md, docs/sop/SOP-05-reporting.md, docs/sop/SOP-06-evidence-intake-checklist.md, docs/USER_MANUAL.md]
+    note: Reproducible PDF with custody entry, tamper shown as FAILED, draft s.63(4) certificate (not legal advice; official text unconfirmed), JSON-LD (not CASE-conformant). The PDF was checked through text extraction, not visually; Partial until reviewed.
 
   - id: R11
     requirement: AI analytics (face, object, motion) as triage
@@ -148,11 +147,10 @@ requirements:
   - id: R17
     requirement: Working prototype (API and UI)
     status: Built
-    code: [backend/app/main.py, frontend/src/App.tsx, frontend/src/pages/Analysis.tsx, frontend/src/pages/CustodyLog.tsx]
-    tests: [backend/tests/test_health.py, frontend/e2e/smoke.spec.ts]
-    docs: [README.md, docs/API.md, docs/USER_MANUAL.md]
-    note: Runs end to end on synthetic data; synchronous analysis; no authentication.
-    pending: ["[[PENDING-MERGE: B]] background jobs, `make demo`, accessibility pass, screenshots (docs/jobs.md, docs/accessibility.md, docs/demo.md)"]
+    code: [backend/app/main.py, backend/app/jobs/manager.py, frontend/src/App.tsx, frontend/src/pages/Analysis.tsx, frontend/src/pages/CustodyLog.tsx, scripts/demo.py]
+    tests: [backend/tests/test_health.py, backend/tests/test_jobs.py, backend/tests/test_demo.py, frontend/e2e/smoke.spec.ts, frontend/e2e/a11y.spec.ts, frontend/e2e/jobs.spec.ts]
+    docs: [README.md, docs/API.md, docs/USER_MANUAL.md, docs/jobs.md, docs/demo.md, docs/accessibility.md]
+    note: Runs end to end on synthetic data with background jobs and an axe gate (0 serious/critical); no manual screen-reader test; no authentication.
 
   - id: R18
     requirement: Offline packaging
@@ -191,8 +189,7 @@ requirements:
     status: Partial
     code: []
     tests: []
-    docs: [docs/sop/SOP-01-acquisition.md, docs/sop/SOP-02-hashing-and-integrity.md, docs/sop/SOP-03-recovery.md, docs/sop/SOP-04-timestamp-handling.md, docs/sop/SOP-05-reporting.md]
-    pending: ["[[PENDING-MERGE: A]] SOP-06 intake checklist"]
+    docs: [docs/sop/SOP-01-acquisition.md, docs/sop/SOP-02-hashing-and-integrity.md, docs/sop/SOP-03-recovery.md, docs/sop/SOP-04-timestamp-handling.md, docs/sop/SOP-05-reporting.md, docs/sop/SOP-06-evidence-intake-checklist.md]
     note: Drafts written from the tool's behaviour, not reviewed by a forensic laboratory or accredited by any body.
 
   - id: R23

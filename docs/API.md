@@ -27,5 +27,6 @@ Analytics (triage only): `GET /api/analytics/models`; `POST /api/clips/{id}/anal
 
 Timestamps and timeline: `GET/PUT /api/evidence/{id}/time-assumption`, `GET/POST /api/evidence/{id}/time-references`, `POST /api/evidence/{id}/time-model/fit`, `GET /api/cases/{id}/timeline`, `GET /api/cases/{id}/timeline/export?format=csv|json`, `POST /api/clips/{id}/osd-check`. Mutations need `X-Examiner` and are written to the custody log.
 
-Not in this tree (do not call): report generation/download and JSON-LD export endpoints `[[PENDING-MERGE: A]]`; job submission/status/cancel endpoints `[[PENDING-MERGE: B]]`. Only the endpoints listed above exist. `GET` endpoints need no `X-Examiner` header and no authentication (docs/SECURITY_REVIEW.md 2.1).
+Reports and exports (P7): `POST /api/cases/{id}/report` (X-Examiner; stores the PDF, custody entry), `GET /api/cases/{id}/reports`, `GET /api/reports/{id}/download` (re-hashes; 409 on mismatch), `GET /api/cases/{id}/certificate-draft?evidence_id=` (DRAFT s.63(4) certificate PDF), `GET /api/cases/{id}/export.jsonld`.
+Jobs (P8): `POST /api/evidence/{id}/jobs/analyze` (202; same request while active returns the existing job), `GET /api/jobs/{id}` (status, stage, progress), `GET /api/cases/{id}/jobs`, `POST /api/jobs/{id}/cancel` (202). `Evidence` responses include `synthetic`. `GET` endpoints need no `X-Examiner` header and no authentication (docs/SECURITY_REVIEW.md 2.1).
 

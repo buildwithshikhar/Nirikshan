@@ -4,7 +4,7 @@
 
 *SIH PS 26150, multi-vendor DVR/NVR forensic analysis. Audience: NTRO technical reviewers.*
 
-> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so. Pending items from unmerged work are marked `[[PENDING-MERGE: A]]` or `[[PENDING-MERGE: B]]`.
+> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
 
 ## 1. What Nirikshan is
 
@@ -24,7 +24,7 @@ Full detail: [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md).
 | Analytics | Motion (numpy), YOLOX-Nano objects, YuNet face detection; labelled "triage, not identification"; no recognition |
 | Frontend | React + Vite, one page per stage |
 | Packaging | Offline Docker images and hardened compose file ([OFFLINE_DEPLOYMENT.md](OFFLINE_DEPLOYMENT.md)) |
-| Reporting, jobs, demo | `[[PENDING-MERGE: A]]` PDF report, BSA 63(4) draft certificate, JSON-LD export; `[[PENDING-MERGE: B]]` background jobs, `make demo`, accessibility pass |
+| Reporting, jobs, demo PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
 
 ## 3. Requirement traceability (PS 26150)
 
@@ -62,9 +62,9 @@ These come from public still-image datasets and synthetic clips. They do not des
 - **Chain of custody:** examiner identity is an attestation (no authentication); tail truncation is detectable only against an externally recorded `head_hash`; the holder of the signing key can forge entries; no key rotation.
 - **Analytics are triage.** Face detection is not recognition; error rates do not transfer to DVR footage.
 - **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); one dependency (`cryptography` 46.0.7) has open advisories judged unreachable in our usage but not fixed; the offline stack was tested once on one host and its frontend container is not egress-blocked there.
-- **Legal:** the BSA 63(4) draft certificate `[[PENDING-MERGE: A]]` is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
+- **Legal:** the BSA 63(4) draft certificate is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
 - **Licences:** the image's ffmpeg is a GPL build; two datasets have no licence grant ([THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
-- **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis is synchronous until the job work `[[PENDING-MERGE: B]]` merges.
+- **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis can run as a background job (single process, no quotas).
 
 ## 8. What we need from NTRO or from a real device
 
@@ -72,7 +72,7 @@ These come from public still-image datasets and synthetic clips. They do not des
 2. **Firmware and model variety** per OEM; one claim per model, never per brand.
 3. **Resolution of the open source conflicts** by inspection of real images (Hikvision block size, time basis, Master Sector offset; Honeywell header length; Dahua checksum and DHFS structure).
 4. **Access to vendor documentation** or SDKs under a licence that permits implementation, especially for Dahua DHFS, CP Plus, Uniview, TP-Link, Godrej and Matrix.
-5. **Legal review** of the BSA 63(4) draft certificate `[[PENDING-MERGE: A]]` and of how the tool's outputs would be presented.
+5. **Legal review** of the BSA 63(4) draft certificate and of how the tool's outputs would be presented.
 6. **An authentication and authorisation decision** (identity provider, roles, binding examiner identity to the signed custody entries).
 7. **Accredited-laboratory validation** and an agreed acceptance protocol (error-rate reporting, test corpus, review of the SOPs).
 8. **Policy on the ffmpeg build and dataset licences** for any redistribution of the packaged images.

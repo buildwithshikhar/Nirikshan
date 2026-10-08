@@ -4,7 +4,7 @@
 
 *SIH PS 26150, multi-vendor DVR/NVR forensic analysis. Audience: NTRO technical reviewers.*
 
-> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so. Pending items from unmerged work are marked `[[PENDING-MERGE: A]]` or `[[PENDING-MERGE: B]]`.
+> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
 
 ## 1. What Nirikshan is
 
@@ -24,7 +24,7 @@ Full detail: [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md).
 | Analytics | Motion (numpy), YOLOX-Nano objects, YuNet face detection; labelled "triage, not identification"; no recognition |
 | Frontend | React + Vite, one page per stage |
 | Packaging | Offline Docker images and hardened compose file ([OFFLINE_DEPLOYMENT.md](OFFLINE_DEPLOYMENT.md)) |
-| Reporting, jobs, demo | `[[PENDING-MERGE: A]]` PDF report, BSA 63(4) draft certificate, JSON-LD export; `[[PENDING-MERGE: B]]` background jobs, `make demo`, accessibility pass |
+| Reporting, jobs, demo PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
 
 ## 3. Requirement traceability (PS 26150)
 
@@ -43,19 +43,19 @@ Counts (computed): Built 8, Partial 14, Planned 2 of 24. Built means implemented
 | R07 | MD5 and SHA-256 hashing with integrity verification | **Built** | `backend/app/hashing.py`<br>`backend/app/evidence.py` | `backend/tests/test_hashing_clock.py`<br>`backend/tests/test_evidence.py` | `docs/sop/SOP-02-hashing-and-integrity.md` | Single-pass MD5+SHA-256, re-hash on every read, clip MP4 hashes recorded and re-checked; known-answer tests against hashlib. |
 | R08 | Cross-camera event correlation | **Partial** | `backend/app/timeline/timeline.py`<br>`backend/app/timeline/routes.py`<br>`frontend/src/pages/Timeline.tsx` | `backend/tests/test_timeline_build.py`<br>`backend/tests/test_timeline_api.py`<br>`frontend/e2e/timeline.spec.ts` | `docs/timeline.md` | Interval timeline with gaps/overlaps and CSV/JSON export; clips without parsed timestamps (all generic-carved clips) are unplaceable, and event-level correlation (objects/faces across cameras) is not built. |
 | R09 | Chain of custody | **Built** | `backend/app/custody.py`<br>`backend/app/signing.py`<br>`backend/app/triggers.py`<br>`backend/app/cli.py` | `backend/tests/test_custody.py`<br>`backend/tests/test_signing.py`<br>`backend/tests/test_triggers.py`<br>`backend/tests/test_cli.py` | `docs/ARCHITECTURE.md`<br>`docs/SECURITY_REVIEW.md` | Hash-chained, Ed25519-signed, tamper-tested; examiner identity is an attestation (no authentication), tail truncation needs an external head_hash, and the key holder can forge entries. |
-| R10 | Reporting | **Partial** | `backend/app/timeline/routes.py` | `backend/tests/test_timeline_api.py` | `docs/sop/SOP-05-reporting.md`<br>`docs/USER_MANUAL.md` | In this tree only the timeline CSV/JSON export and the reporting SOP exist; the PDF report is built on another branch and is not counted here. [[PENDING-MERGE: A]] court-style PDF report, BSA 63(4) draft certificate, CASE JSON-LD export, SOP-06 intake checklist (docs/report.md, docs/legal/, docs/sop/SOP-06-*) |
+| R10 | Reporting | **Partial** | `backend/app/report/build.py`<br>`backend/app/report/pdf.py`<br>`backend/app/report/routes.py`<br>`backend/app/report/certificate.py`<br>`backend/app/report/jsonld.py`<br>`backend/app/timeline/routes.py` | `backend/tests/test_report.py`<br>`backend/tests/test_report_exports.py`<br>`backend/tests/test_timeline_api.py`<br>`frontend/e2e/report.spec.ts` | `docs/report.md`<br>`docs/legal/BSA-63-4-notes.md`<br>`docs/sop/SOP-05-reporting.md`<br>`docs/sop/SOP-06-evidence-intake-checklist.md`<br>`docs/USER_MANUAL.md` | Reproducible PDF with custody entry, tamper shown as FAILED, draft s.63(4) certificate (not legal advice; official text unconfirmed), JSON-LD (not CASE-conformant). The PDF was checked through text extraction, not visually; Partial until reviewed. |
 | R11 | AI analytics (face, object, motion) as triage | **Partial** | `backend/app/analytics/runner.py`<br>`backend/app/analytics/detect.py`<br>`backend/app/analytics/motion.py`<br>`backend/app/analytics/registry.py` | `backend/tests/test_analytics.py`<br>`frontend/e2e/analytics.spec.ts` | `docs/analytics/README.md`<br>`docs/analytics/error_rates.json` | Motion, object detection and face detection (no recognition) labelled triage; error rates are from public still-image datasets and synthetic clips, not DVR footage. |
 | R12 | Hikvision support | **Partial** | `backend/app/vendors/hikvision.py`<br>`backend/app/vendors/hikvision_fs.py` | `backend/tests/test_hikvision_parser.py`<br>`backend/tests/test_vendors.py` | `docs/parsers/hikvision.md`<br>`docs/parsers/hikvision-fields.md`<br>`docs/OEM_COMPARISON.md` | Tier B - public signatures plus a parser validated only against a synthetic layout built from the same paper (circular). |
 | R13 | Dahua support | **Partial** | `backend/app/vendors/dahua.py`<br>`backend/app/vendors/dahua_dhav.py` | `backend/tests/test_dahua_parser.py`<br>`backend/tests/test_vendors.py` | `docs/OEM_COMPARISON.md` | Tier B - DHAV frames only (from FFmpeg dhav.c); DHFS filesystem unparsed; synthetic validation only. |
 | R14 | Honeywell support | **Partial** | `backend/app/vendors/honeywell.py`<br>`backend/app/vendors/honeywell_fs.py` | `backend/tests/test_honeywell_parser.py`<br>`backend/tests/test_vendors.py` | `docs/parsers/honeywell.md`<br>`docs/parsers/honeywell-fields.md`<br>`docs/OEM_COMPARISON.md` | Tier B - written from one 2026 paper about one model; header length semantic partly inferred; synthetic validation only. |
 | R15 | CP Plus, Uniview, TP-Link, Godrej, Matrix support | **Planned** | `backend/app/carving/carve.py` | `backend/tests/test_carving.py` | `docs/OEM_COMPARISON.md`<br>`docs/RESEARCH.md` | Tier C - no public format data found; generic carving may run but no vendor is attributed and no parser exists. |
 | R16 | Validation on real DVR/NVR devices | **Planned** | `backend/app/validation/run.py` | `backend/tests/test_validation.py` | `docs/REAL_IMAGE_PLAYBOOK.md`<br>`docs/HARDWARE_SHOPPING.md`<br>`docs/VALIDATION_REPORT.md` | No real image has been processed. The harness and playbook exist; the work needs hardware and ground truth. |
-| R17 | Working prototype (API and UI) | **Built** | `backend/app/main.py`<br>`frontend/src/App.tsx`<br>`frontend/src/pages/Analysis.tsx`<br>`frontend/src/pages/CustodyLog.tsx` | `backend/tests/test_health.py`<br>`frontend/e2e/smoke.spec.ts` | `README.md`<br>`docs/API.md`<br>`docs/USER_MANUAL.md` | Runs end to end on synthetic data; synchronous analysis; no authentication. [[PENDING-MERGE: B]] background jobs, `make demo`, accessibility pass, screenshots (docs/jobs.md, docs/accessibility.md, docs/demo.md) |
+| R17 | Working prototype (API and UI) | **Built** | `backend/app/main.py`<br>`backend/app/jobs/manager.py`<br>`frontend/src/App.tsx`<br>`frontend/src/pages/Analysis.tsx`<br>`frontend/src/pages/CustodyLog.tsx`<br>`scripts/demo.py` | `backend/tests/test_health.py`<br>`backend/tests/test_jobs.py`<br>`backend/tests/test_demo.py`<br>`frontend/e2e/smoke.spec.ts`<br>`frontend/e2e/a11y.spec.ts`<br>`frontend/e2e/jobs.spec.ts` | `README.md`<br>`docs/API.md`<br>`docs/USER_MANUAL.md`<br>`docs/jobs.md`<br>`docs/demo.md`<br>`docs/accessibility.md` | Runs end to end on synthetic data with background jobs and an axe gate (0 serious/critical); no manual screen-reader test; no authentication. |
 | R18 | Offline packaging | **Built** | `backend/Dockerfile`<br>`frontend/Dockerfile`<br>`docker-compose.offline.yml`<br>`deploy/nginx.conf`<br>`scripts/model_manifest.py` | - | `docs/OFFLINE_DEPLOYMENT.md` | Built and smoke-tested once on one host (arm64, Docker Desktop); the frontend container is not egress-blocked there; no automated test, no amd64 or native Linux run. |
 | R19 | Security review | **Partial** | `backend/app/config.py`<br>`backend/app/signing.py` | `backend/tests/test_evidence_roots.py`<br>`backend/tests/test_signing.py` | `docs/SECURITY_REVIEW.md`<br>`docs/security/audit-pip.txt`<br>`docs/security/audit-npm.txt` | Self-review and dependency audit only; not an independent penetration test. |
 | R20 | Deliverable - OEM comparison | **Built** | `backend/app/vendors/base.py` | `backend/tests/test_vendors.py` | `docs/OEM_COMPARISON.md`<br>`docs/RESEARCH.md` | Documentation-level comparison with confidence tags; its facts are as good as the public sources we could read. |
 | R21 | Deliverable - architecture docs | **Built** | `backend/app/main.py` | - | `docs/ARCHITECTURE.md`<br>`docs/API.md` | Kept in step with the code by hand; the traceability check covers paths, not prose. |
-| R22 | Deliverable - SOPs | **Partial** | - | - | `docs/sop/SOP-01-acquisition.md`<br>`docs/sop/SOP-02-hashing-and-integrity.md`<br>`docs/sop/SOP-03-recovery.md`<br>`docs/sop/SOP-04-timestamp-handling.md`<br>`docs/sop/SOP-05-reporting.md` | Drafts written from the tool's behaviour, not reviewed by a forensic laboratory or accredited by any body. [[PENDING-MERGE: A]] SOP-06 intake checklist |
+| R22 | Deliverable - SOPs | **Partial** | - | - | `docs/sop/SOP-01-acquisition.md`<br>`docs/sop/SOP-02-hashing-and-integrity.md`<br>`docs/sop/SOP-03-recovery.md`<br>`docs/sop/SOP-04-timestamp-handling.md`<br>`docs/sop/SOP-05-reporting.md`<br>`docs/sop/SOP-06-evidence-intake-checklist.md` | Drafts written from the tool's behaviour, not reviewed by a forensic laboratory or accredited by any body. |
 | R23 | Deliverable - validation report | **Partial** | `backend/app/validation/run.py` | `backend/tests/test_validation.py` | `docs/VALIDATION.md`<br>`docs/VALIDATION_REPORT.md`<br>`docs/validation/results.json` | Synthetic only; the real-image section is empty by design. |
 | R24 | Deliverable - user manual | **Built** | - | - | `docs/USER_MANUAL.md` | Describes the existing UI; the report and job features are not covered until merged. |
 
@@ -154,9 +154,9 @@ On 100 rendered synthetic overlays: 91 exactly correct, 9 unreadable, 0 confiden
 - **Chain of custody:** examiner identity is an attestation (no authentication); tail truncation is detectable only against an externally recorded `head_hash`; the holder of the signing key can forge entries; no key rotation.
 - **Analytics are triage.** Face detection is not recognition; error rates do not transfer to DVR footage.
 - **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); one dependency (`cryptography` 46.0.7) has open advisories judged unreachable in our usage but not fixed; the offline stack was tested once on one host and its frontend container is not egress-blocked there.
-- **Legal:** the BSA 63(4) draft certificate `[[PENDING-MERGE: A]]` is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
+- **Legal:** the BSA 63(4) draft certificate is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
 - **Licences:** the image's ffmpeg is a GPL build; two datasets have no licence grant ([THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
-- **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis is synchronous until the job work `[[PENDING-MERGE: B]]` merges.
+- **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis can run as a background job (single process, no quotas).
 
 ## 8. What we need from NTRO or from a real device
 
@@ -164,16 +164,14 @@ On 100 rendered synthetic overlays: 91 exactly correct, 9 unreadable, 0 confiden
 2. **Firmware and model variety** per OEM; one claim per model, never per brand.
 3. **Resolution of the open source conflicts** by inspection of real images (Hikvision block size, time basis, Master Sector offset; Honeywell header length; Dahua checksum and DHFS structure).
 4. **Access to vendor documentation** or SDKs under a licence that permits implementation, especially for Dahua DHFS, CP Plus, Uniview, TP-Link, Godrej and Matrix.
-5. **Legal review** of the BSA 63(4) draft certificate `[[PENDING-MERGE: A]]` and of how the tool's outputs would be presented.
+5. **Legal review** of the BSA 63(4) draft certificate and of how the tool's outputs would be presented.
 6. **An authentication and authorisation decision** (identity provider, roles, binding examiner identity to the signed custody entries).
 7. **Accredited-laboratory validation** and an agreed acceptance protocol (error-rate reporting, test corpus, review of the SOPs).
 8. **Policy on the ffmpeg build and dataset licences** for any redistribution of the packaged images.
 
 ## 9. Pending merges at the time of generation
 
-- R10: [[PENDING-MERGE: A]] court-style PDF report, BSA 63(4) draft certificate, CASE JSON-LD export, SOP-06 intake checklist (docs/report.md, docs/legal/, docs/sop/SOP-06-*)
-- R17: [[PENDING-MERGE: B]] background jobs, `make demo`, accessibility pass, screenshots (docs/jobs.md, docs/accessibility.md, docs/demo.md)
-- R22: [[PENDING-MERGE: A]] SOP-06 intake checklist
+None.
 
 ## 10. Document index
 

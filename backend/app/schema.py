@@ -6,7 +6,8 @@ History: 1 = P1 evidence core; 2 = P2 carving tables; 3 = P4 (clips.engine/chann
 carve_runs.parse_json); 4 = schema_meta introduced; 5 = P6 analytics tables
 (analytics_runs, detections, motion_intervals);
 6 = P5 tables (time_assumptions, time_references, time_models, osd_checks);
-7 = P7 reports table.
+7 = P7 reports table;
+8 = P8 jobs table and evidence.synthetic.
 """
 
 from sqlalchemy import Engine, inspect, select
@@ -15,7 +16,7 @@ from sqlalchemy.orm import Session
 from app.db import Base
 from app.models import SchemaMeta
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 
 class SchemaError(RuntimeError):

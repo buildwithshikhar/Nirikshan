@@ -12,6 +12,9 @@ from app import (  # noqa: F401  (triggers: DDL events before create_all)
 from app.analytics import models as _analytics_models  # noqa: F401  (tables before create_all)
 from app.analytics.routes import router as analytics_router
 from app.db import SessionLocal, engine
+from app.jobs import models as _jobs_models  # noqa: F401
+from app.jobs.manager import manager as job_manager
+from app.jobs.routes import router as jobs_router
 from app.models import AuditEntry
 from app.report import models as _report_models  # noqa: F401
 from app.report.routes import router as report_router
@@ -24,7 +27,10 @@ from app.timeline.routes import router as timeline_router
 async def lifespan(_: FastAPI):
     # Refuses an outdated database (no migrations yet); creates + stamps a fresh one.
     schema.check_and_init(engine)
+    with SessionLocal() as db:  # jobs/runs left running by a previous process cannot be running
+        job_manager.recover(db)
     yield
+    job_manager.shutdown()
 
 
 app = FastAPI(title="Nirikshan API", version=__version__, lifespan=lifespan)
@@ -47,6 +53,7 @@ app.include_router(router)
 app.include_router(analytics_router)
 app.include_router(timeline_router)
 app.include_router(report_router)
+app.include_router(jobs_router)
 
 
 @app.middleware("http")

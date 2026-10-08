@@ -38,6 +38,7 @@ class EvidenceOut(BaseModel):
     acquired_at: str
     last_verified_at: str
     last_verify_ok: int
+    synthetic: bool = False
 
 
 class CustodyOut(BaseModel):

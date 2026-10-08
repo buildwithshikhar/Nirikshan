@@ -56,7 +56,7 @@ test('analytics: triage label, model hash, parameters and error rates beside eve
   // motion (frame differencing; a testsrc2 pattern scrolls, so intervals are expected)
   await page.getByRole('button', { name: 'Run motion' }).click()
   const motion = page.getByTestId('run-motion')
-  await expect(motion.getByTestId('run-status')).toHaveText('completed')
+  await expect(motion.getByTestId('run-status').first()).toHaveText('completed')
   await expect(motion.getByTestId('triage-label')).toHaveText('triage, not identification')
   await expect(motion).toContainText('NOMINAL')
   await expect(motion.getByTestId('error-rates')).toContainText('synthetic, not representative of DVR footage')
@@ -65,7 +65,7 @@ test('analytics: triage label, model hash, parameters and error rates beside eve
   // objects and faces: model name, licence, short hash, parameters, error rates with dataset labels
   await page.getByRole('button', { name: 'Run objects' }).click()
   const objects = page.getByTestId('run-objects')
-  await expect(objects.getByTestId('run-status')).toHaveText('completed')
+  await expect(objects.getByTestId('run-status').first()).toHaveText('completed')
   await expect(objects.getByTestId('model-info')).toContainText('YOLOX-Nano')
   await expect(objects.getByTestId('model-info')).toContainText('Apache-2.0')
   await expect(objects.getByTestId('model-hash')).toHaveText('c789161ed43c')
@@ -75,7 +75,7 @@ test('analytics: triage label, model hash, parameters and error rates beside eve
 
   await page.getByRole('button', { name: 'Run faces' }).click()
   const faces = page.getByTestId('run-faces')
-  await expect(faces.getByTestId('run-status')).toHaveText('completed')
+  await expect(faces.getByTestId('run-status').first()).toHaveText('completed')
   await expect(faces.getByTestId('model-info')).toContainText('YuNet')
   await expect(faces.getByTestId('model-info')).toContainText('MIT')
   await expect(faces.getByTestId('model-hash')).toHaveText('8f2383e4dd3c')

@@ -22,7 +22,7 @@ test('timeline: unknown timezone is prominent, assumption + reference + fit, exp
   await page.getByPlaceholder('Label').fill('Synthetic HDD')
   await page.getByLabel('Write blocker used').selectOption('yes')
   await page.getByRole('button', { name: 'Acquire (read-only)' }).click()
-  await expect(page.getByText('Synthetic HDD')).toBeVisible()
+  await expect(page.getByText('Synthetic HDD').first()).toBeVisible()
 
   const caseId = page.url().split('/cases/')[1].split(/[/?#]/)[0]
   await page.goto(`/cases/${caseId}/timeline`)

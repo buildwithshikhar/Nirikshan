@@ -1,6 +1,15 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -47,6 +56,8 @@ class Evidence(Base):
     acquired_at: Mapped[str] = mapped_column(String(40), default=_now)
     last_verified_at: Mapped[str] = mapped_column(String(40), default="")
     last_verify_ok: Mapped[int] = mapped_column(Integer, default=-1)  # -1 never, 0 fail, 1 pass
+    # True when the stored image starts with the 256-byte NIRIKSHAN SYNTHETIC banner (app.synthetic)
+    synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class CustodyEntry(Base):
