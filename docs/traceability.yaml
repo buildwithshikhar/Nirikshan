@@ -1,0 +1,212 @@
+# Requirement-to-feature traceability for SIH PS 26150.
+# Rendered into docs/FINAL_REPORT.md by scripts/build_final_report.py, which FAILS if any path in
+# code/tests/docs does not exist. `pending` lists deliverables of unmerged work: they are NOT
+# checked, are rendered with their marker, and never count towards the status.
+# Statuses: Built | Partial | Planned. Be conservative: "Built" means implemented and tested on
+# synthetic data in this repository; it never means validated on a real device.
+# Vendor tiers as claimed by this project; the report builder checks them against the
+# `tier` attributes in backend/app/vendors/*.py and the summary table of docs/OEM_COMPARISON.md.
+tiers:
+  Hikvision: B
+  Dahua: B
+  Honeywell: B
+  CP Plus: C
+  Uniview: C
+  TP-Link VIGI: C
+  Godrej: C
+  Matrix Comsec: C
+requirements:
+  - id: R01
+    requirement: Standardized evidence acquisition
+    status: Built
+    code: [backend/app/evidence.py, backend/app/routes.py, backend/app/config.py]
+    tests: [backend/tests/test_evidence.py, backend/tests/test_evidence_roots.py, backend/tests/test_api.py]
+    docs: [docs/sop/SOP-01-acquisition.md, docs/ARCHITECTURE.md]
+    note: Raw/dd image files from allow-listed folders, read-only open; block devices are gated and tested only with file-backed fixtures, never a real disk.
+
+  - id: R02
+    requirement: Forensic imaging
+    status: Partial
+    code: [backend/app/evidence.py, backend/app/hashing.py]
+    tests: [backend/tests/test_evidence.py, backend/tests/test_hashing_clock.py]
+    docs: [docs/sop/SOP-01-acquisition.md, docs/REAL_IMAGE_PLAYBOOK.md]
+    note: Bit-for-bit copy of an existing image with re-hash; no E01/AFF, no hardware write blocker (attested only), no physical-disk imaging tested.
+
+  - id: R03
+    requirement: Proprietary filesystem parsing
+    status: Partial
+    code: [backend/app/vendors/hikvision_fs.py, backend/app/vendors/honeywell_fs.py, backend/app/vendors/dahua_dhav.py]
+    tests: [backend/tests/test_hikvision_parser.py, backend/tests/test_honeywell_parser.py, backend/tests/test_dahua_parser.py]
+    docs: [docs/parsers/hikvision.md, docs/parsers/honeywell.md, docs/OEM_COMPARISON.md]
+    note: Hikvision (Master Sector, RATS, HIKBTREE) and Honeywell (one documented model) partly parsed from papers; Dahua DHFS is not parsed at all (only DHAV frames); no real image tested; open source conflicts exposed, not resolved.
+
+  - id: R04
+    requirement: Video format parsing and carving
+    status: Partial
+    code: [backend/app/carving/nal.py, backend/app/carving/carve.py, backend/app/carving/export.py, backend/app/vendors/dahua_dhav.py]
+    tests: [backend/tests/test_carving.py, backend/tests/test_export.py, backend/tests/test_dahua_parser.py]
+    docs: [docs/ARCHITECTURE.md, docs/VALIDATION.md]
+    note: H.264/H.265 Annex-B carving and DHAV framing; MJPEG, MPEG-4 and encrypted payloads are not recovered; vendor headers inside streams only handled for the three Tier B vendors.
+
+  - id: R05
+    requirement: Deleted-footage recovery
+    status: Partial
+    code: [backend/app/analyze.py, backend/app/carving/carve.py, backend/app/validation/scenarios.py]
+    tests: [backend/tests/test_analyze.py, backend/tests/test_validation.py, backend/tests/test_pipeline_parser_first.py]
+    docs: [docs/VALIDATION.md, docs/VALIDATION_REPORT.md, docs/validation/results.md, docs/sop/SOP-03-recovery.md]
+    note: Measured on SYNTHETIC images only (see the results section); some scenarios score 0 (for example wide zero padding inside clips); nothing is known about real devices.
+
+  - id: R06
+    requirement: Timestamp normalization
+    status: Partial
+    code: [backend/app/timeline/timestamps.py, backend/app/timeline/drift.py, backend/app/timeline/osd.py]
+    tests: [backend/tests/test_timeline_timestamps.py, backend/tests/test_timeline_drift.py, backend/tests/test_timeline_osd.py]
+    docs: [docs/timeline.md, docs/sop/SOP-04-timestamp-handling.md]
+    note: Explicit assumptions, uncertainty intervals, drift fit and OSD OCR cross-check implemented and unit-tested; vendor time-basis conflicts remain open and nothing is validated on a real device.
+
+  - id: R07
+    requirement: MD5 and SHA-256 hashing with integrity verification
+    status: Built
+    code: [backend/app/hashing.py, backend/app/evidence.py]
+    tests: [backend/tests/test_hashing_clock.py, backend/tests/test_evidence.py]
+    docs: [docs/sop/SOP-02-hashing-and-integrity.md]
+    note: Single-pass MD5+SHA-256, re-hash on every read, clip MP4 hashes recorded and re-checked; known-answer tests against hashlib.
+
+  - id: R08
+    requirement: Cross-camera event correlation
+    status: Partial
+    code: [backend/app/timeline/timeline.py, backend/app/timeline/routes.py, frontend/src/pages/Timeline.tsx]
+    tests: [backend/tests/test_timeline_build.py, backend/tests/test_timeline_api.py, frontend/e2e/timeline.spec.ts]
+    docs: [docs/timeline.md]
+    note: Interval timeline with gaps/overlaps and CSV/JSON export; clips without parsed timestamps (all generic-carved clips) are unplaceable, and event-level correlation (objects/faces across cameras) is not built.
+
+  - id: R09
+    requirement: Chain of custody
+    status: Built
+    code: [backend/app/custody.py, backend/app/signing.py, backend/app/triggers.py, backend/app/cli.py]
+    tests: [backend/tests/test_custody.py, backend/tests/test_signing.py, backend/tests/test_triggers.py, backend/tests/test_cli.py]
+    docs: [docs/ARCHITECTURE.md, docs/SECURITY_REVIEW.md]
+    note: Hash-chained, Ed25519-signed, tamper-tested; examiner identity is an attestation (no authentication), tail truncation needs an external head_hash, and the key holder can forge entries.
+
+  - id: R10
+    requirement: Reporting
+    status: Partial
+    code: [backend/app/timeline/routes.py]
+    tests: [backend/tests/test_timeline_api.py]
+    docs: [docs/sop/SOP-05-reporting.md, docs/USER_MANUAL.md]
+    pending: ["[[PENDING-MERGE: A]] court-style PDF report, BSA 63(4) draft certificate, CASE JSON-LD export, SOP-06 intake checklist (docs/report.md, docs/legal/, docs/sop/SOP-06-*)"]
+    note: In this tree only the timeline CSV/JSON export and the reporting SOP exist; the PDF report is built on another branch and is not counted here.
+
+  - id: R11
+    requirement: AI analytics (face, object, motion) as triage
+    status: Partial
+    code: [backend/app/analytics/runner.py, backend/app/analytics/detect.py, backend/app/analytics/motion.py, backend/app/analytics/registry.py]
+    tests: [backend/tests/test_analytics.py, frontend/e2e/analytics.spec.ts]
+    docs: [docs/analytics/README.md, docs/analytics/error_rates.json]
+    note: Motion, object detection and face detection (no recognition) labelled triage; error rates are from public still-image datasets and synthetic clips, not DVR footage.
+
+  - id: R12
+    requirement: Hikvision support
+    status: Partial
+    code: [backend/app/vendors/hikvision.py, backend/app/vendors/hikvision_fs.py]
+    tests: [backend/tests/test_hikvision_parser.py, backend/tests/test_vendors.py]
+    docs: [docs/parsers/hikvision.md, docs/parsers/hikvision-fields.md, docs/OEM_COMPARISON.md]
+    note: Tier B - public signatures plus a parser validated only against a synthetic layout built from the same paper (circular).
+
+  - id: R13
+    requirement: Dahua support
+    status: Partial
+    code: [backend/app/vendors/dahua.py, backend/app/vendors/dahua_dhav.py]
+    tests: [backend/tests/test_dahua_parser.py, backend/tests/test_vendors.py]
+    docs: [docs/OEM_COMPARISON.md]
+    note: Tier B - DHAV frames only (from FFmpeg dhav.c); DHFS filesystem unparsed; synthetic validation only.
+
+  - id: R14
+    requirement: Honeywell support
+    status: Partial
+    code: [backend/app/vendors/honeywell.py, backend/app/vendors/honeywell_fs.py]
+    tests: [backend/tests/test_honeywell_parser.py, backend/tests/test_vendors.py]
+    docs: [docs/parsers/honeywell.md, docs/parsers/honeywell-fields.md, docs/OEM_COMPARISON.md]
+    note: Tier B - written from one 2026 paper about one model; header length semantic partly inferred; synthetic validation only.
+
+  - id: R15
+    requirement: CP Plus, Uniview, TP-Link, Godrej, Matrix support
+    status: Planned
+    code: [backend/app/carving/carve.py]
+    tests: [backend/tests/test_carving.py]
+    docs: [docs/OEM_COMPARISON.md, docs/RESEARCH.md]
+    note: Tier C - no public format data found; generic carving may run but no vendor is attributed and no parser exists.
+
+  - id: R16
+    requirement: Validation on real DVR/NVR devices
+    status: Planned
+    code: [backend/app/validation/run.py]
+    tests: [backend/tests/test_validation.py]
+    docs: [docs/REAL_IMAGE_PLAYBOOK.md, docs/HARDWARE_SHOPPING.md, docs/VALIDATION_REPORT.md]
+    note: No real image has been processed. The harness and playbook exist; the work needs hardware and ground truth.
+
+  - id: R17
+    requirement: Working prototype (API and UI)
+    status: Built
+    code: [backend/app/main.py, frontend/src/App.tsx, frontend/src/pages/Analysis.tsx, frontend/src/pages/CustodyLog.tsx]
+    tests: [backend/tests/test_health.py, frontend/e2e/smoke.spec.ts]
+    docs: [README.md, docs/API.md, docs/USER_MANUAL.md]
+    note: Runs end to end on synthetic data; synchronous analysis; no authentication.
+    pending: ["[[PENDING-MERGE: B]] background jobs, `make demo`, accessibility pass, screenshots (docs/jobs.md, docs/accessibility.md, docs/demo.md)"]
+
+  - id: R18
+    requirement: Offline packaging
+    status: Built
+    code: [backend/Dockerfile, frontend/Dockerfile, docker-compose.offline.yml, deploy/nginx.conf, scripts/model_manifest.py]
+    tests: []
+    docs: [docs/OFFLINE_DEPLOYMENT.md]
+    note: Built and smoke-tested once on one host (arm64, Docker Desktop); the frontend container is not egress-blocked there; no automated test, no amd64 or native Linux run.
+
+  - id: R19
+    requirement: Security review
+    status: Partial
+    code: [backend/app/config.py, backend/app/signing.py]
+    tests: [backend/tests/test_evidence_roots.py, backend/tests/test_signing.py]
+    docs: [docs/SECURITY_REVIEW.md, docs/security/audit-pip.txt, docs/security/audit-npm.txt]
+    note: Self-review and dependency audit only; not an independent penetration test.
+
+  - id: R20
+    requirement: Deliverable - OEM comparison
+    status: Built
+    code: [backend/app/vendors/base.py]
+    tests: [backend/tests/test_vendors.py]
+    docs: [docs/OEM_COMPARISON.md, docs/RESEARCH.md]
+    note: Documentation-level comparison with confidence tags; its facts are as good as the public sources we could read.
+
+  - id: R21
+    requirement: Deliverable - architecture docs
+    status: Built
+    code: [backend/app/main.py]
+    tests: []
+    docs: [docs/ARCHITECTURE.md, docs/API.md]
+    note: Kept in step with the code by hand; the traceability check covers paths, not prose.
+
+  - id: R22
+    requirement: Deliverable - SOPs
+    status: Partial
+    code: []
+    tests: []
+    docs: [docs/sop/SOP-01-acquisition.md, docs/sop/SOP-02-hashing-and-integrity.md, docs/sop/SOP-03-recovery.md, docs/sop/SOP-04-timestamp-handling.md, docs/sop/SOP-05-reporting.md]
+    pending: ["[[PENDING-MERGE: A]] SOP-06 intake checklist"]
+    note: Drafts written from the tool's behaviour, not reviewed by a forensic laboratory or accredited by any body.
+
+  - id: R23
+    requirement: Deliverable - validation report
+    status: Partial
+    code: [backend/app/validation/run.py]
+    tests: [backend/tests/test_validation.py]
+    docs: [docs/VALIDATION.md, docs/VALIDATION_REPORT.md, docs/validation/results.json]
+    note: Synthetic only; the real-image section is empty by design.
+
+  - id: R24
+    requirement: Deliverable - user manual
+    status: Built
+    code: []
+    tests: []
+    docs: [docs/USER_MANUAL.md]
+    note: Describes the existing UI; the report and job features are not covered until merged.
