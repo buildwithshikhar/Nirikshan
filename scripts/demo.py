@@ -85,29 +85,15 @@ def print_urls(api_url: str, web_url: str | None, summary: dict) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawTextHelpFormatter
-    )
-    ap.add_argument(
-        "--data-dir", default=str(ROOT / "demo-data"), help="demo data directory"
-    )
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    ap.add_argument("--data-dir", default=str(ROOT / "demo-data"), help="demo data directory")
     ap.add_argument("--api-port", type=int, default=8100)
     ap.add_argument("--web-port", type=int, default=5273)
-    ap.add_argument(
-        "--keep", action="store_true", help="keep an existing demo data dir"
-    )
-    ap.add_argument(
-        "--no-web", action="store_true", help="API only (no frontend dev server)"
-    )
-    ap.add_argument(
-        "--exit-after-seed", action="store_true", help="stop after building the data"
-    )
-    ap.add_argument(
-        "--data-only", action="store_true", help="only build data against --api-url"
-    )
-    ap.add_argument(
-        "--api-url", default="http://localhost:8000", help="with --data-only"
-    )
+    ap.add_argument("--keep", action="store_true", help="keep an existing demo data dir")
+    ap.add_argument("--no-web", action="store_true", help="API only (no frontend dev server)")
+    ap.add_argument("--exit-after-seed", action="store_true", help="stop after building the data")
+    ap.add_argument("--data-only", action="store_true", help="only build data against --api-url")
+    ap.add_argument("--api-url", default="http://localhost:8000", help="with --data-only")
     ap.add_argument(
         "--evidence-dir",
         default=None,
@@ -128,9 +114,7 @@ def main() -> int:
     data = Path(args.data_dir).resolve()
     if data.exists() and not args.keep:
         shutil.rmtree(data)
-    evdir = (
-        Path(args.evidence_dir).resolve() if args.evidence_dir else data / "evidence"
-    )
+    evdir = Path(args.evidence_dir).resolve() if args.evidence_dir else data / "evidence"
     for sub in ("data", "keys", "evidence"):
         (data / sub).mkdir(parents=True, exist_ok=True)
     api_port = free_port(args.api_port)
@@ -149,10 +133,7 @@ def main() -> int:
     files = contextlib.ExitStack()
     try:
         print(f"Data dir {data} (demo-only database, workspaces and signing key)")
-        logs = [
-            files.enter_context((data / n).open("w"))
-            for n in ("backend.log", "frontend.log")
-        ]
+        logs = [files.enter_context((data / n).open("w")) for n in ("backend.log", "frontend.log")]
         print(f"Server logs: {data / 'backend.log'}, {data / 'frontend.log'}")
         backend = subprocess.Popen(
             [sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(api_port)],
@@ -167,9 +148,7 @@ def main() -> int:
         web = None
         if not args.no_web:
             if not (ROOT / "frontend" / "node_modules").is_dir():
-                raise SystemExit(
-                    "frontend/node_modules missing: run `npm ci` in frontend/ first"
-                )
+                raise SystemExit("frontend/node_modules missing: run `npm ci` in frontend/ first")
             web = subprocess.Popen(
                 ["npx", "vite", "--port", str(web_port), "--strictPort"],
                 cwd=ROOT / "frontend",
