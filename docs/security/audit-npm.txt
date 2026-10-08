@@ -1,0 +1,15 @@
+Nirikshan dependency audit: npm
+Date: 2026-10-09 (advisory data fetched live from the npm registry at run time)
+Tool: npm 11.6.1, node v24.11.0; lockfile frontend/package-lock.json (115 packages: 6 prod, 108 dev, per npm metadata)
+Commands (run in frontend/):
+  npm audit --omit=dev --json > ../docs/security/audit-npm-prod.json   (exit 0)
+  npm audit --json > ../docs/security/audit-npm-all.json               (exit 1)
+Nothing was upgraded.
+Installed version of the one flagged package, from package-lock.json: source-map-js 1.2.1
+(dev only; reached through postcss 8.5.28 and @tailwindcss/node 4.3.3; npm reports a fix
+available through `npm audit fix`, not applied).
+
+== prod: {'info': 0, 'low': 0, 'moderate': 0, 'high': 0, 'critical': 0, 'total': 0}
+
+== all: {'info': 0, 'low': 0, 'moderate': 0, 'high': 1, 'critical': 0, 'total': 1}
+  source-map-js (installed per lockfile: see SECURITY_REVIEW) high range >=1.0.0 <1.2.2  source-map-js allows event-loop denial of service through indexed source-map section offsets  https://github.com/advisories/GHSA-68fv-2mgg-jv7q  CVSS 7.5  fixAvailable=True
