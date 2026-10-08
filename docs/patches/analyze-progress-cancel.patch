@@ -1,0 +1,256 @@
+diff --git a/backend/app/analyze.py b/backend/app/analyze.py
+index ca364cf..25223b4 100644
+--- a/backend/app/analyze.py
++++ b/backend/app/analyze.py
+@@ -9,9 +9,11 @@ substituted silently, and every disagreement is listed.
+ 
+ import json
+ import time
+-from dataclasses import asdict
++from collections.abc import Callable
++from dataclasses import asdict, dataclass
+ from pathlib import Path
+ 
++from sqlalchemy import func, select
+ from sqlalchemy.orm import Session
+ 
+ from app import __version__, custody
+@@ -28,6 +30,30 @@ from app.vendors import default_registry
+ from app.vendors.parse import crosscheck
+ 
+ 
++class AnalysisCancelled(Exception):
++    """Raised at a checkpoint when should_cancel() returns True; handled inside analyze()."""
++
++
++ProgressFn = Callable[[str, float], None]
++
++
++@dataclass
++class _Hooks:
++    """Optional progress / cancel callbacks. With both None (the synchronous API) every call is
++    a no-op, so the pipeline behaves exactly as before."""
++
++    progress: ProgressFn | None = None
++    should_cancel: Callable[[], bool] | None = None
++
++    def report(self, stage: str, fraction: float) -> None:
++        if self.progress is not None:
++            self.progress(stage, max(0.0, min(1.0, fraction)))
++
++    def check(self) -> None:
++        if self.should_cancel is not None and self.should_cancel():
++            raise AnalysisCancelled
++
++
+ def clips_dir(case_id: int, evidence_id: int, run_id: int) -> Path:
+     return data_dir() / "cases" / str(case_id) / "clips" / str(evidence_id) / f"run{run_id}"
+ 
+@@ -45,7 +71,15 @@ def analyze(
+     params: CarveParams,
+     parser_options: dict | None = None,
+     generic_scope: str = "uncovered",
++    *,
++    progress: ProgressFn | None = None,
++    should_cancel: Callable[[], bool] | None = None,
++    on_run: Callable[[CarveRun], None] | None = None,
+ ) -> CarveRun:
++    """Run the pipeline. `progress(stage, fraction)` and `should_cancel()` are optional; they are
++    checked between stages, clips and exports (never inside one ffmpeg call or the initial image
++    hash). A cancelled run is returned with status "cancelled" (see _finish_cancelled)."""
++    hooks = _Hooks(progress, should_cancel)
+     tool("ffmpeg")  # fail early (FfmpegMissing) before creating a run
+     tool("ffprobe")
+     ffv = ffmpeg_version()
+@@ -67,9 +101,17 @@ def analyze(
+     )
+     db.add(run)
+     db.commit()
++    if on_run is not None:
++        on_run(run)
++    out = clips_dir(ev.case_id, ev.id, run.id)
+     counts = {"clips": 0, "orphans": 0, "ok": 0, "decode_errors": 0, "export_failed": 0}
++    matches: list = []
+     try:
++        hooks.report("Verifying image hash", 0.02)
++        hooks.check()
+         with open_verified(db, ev, examiner) as f:
++            hooks.report("Identifying vendor", 0.10)
++            hooks.check()
+ 
+             def read_at(off: int, n: int) -> bytes:
+                 f.seek(off)
+@@ -81,17 +123,18 @@ def analyze(
+             run.ident_seconds = time.perf_counter() - t0
+             run.vendor_json = json.dumps([_match_dict(m) for m in matches])
+ 
+-            out = clips_dir(ev.case_id, ev.id, run.id)
+             # 1) vendor parsers first (their clips are exported and stored)
+             t0 = time.perf_counter()
+             parse_results = []
++            hooks.report("Running vendor parsers", 0.15)
+             for m in matches:
++                hooks.check()
+                 parser = registry.parser_for(m.vendor)
+                 opts = (parser_options or {}).get(m.vendor)
+                 res = parser.parse(f, ev.size_bytes, opts) if parser else None
+                 if res is not None:
+                     parse_results.append(res)
+-                    _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts)
++                    _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts, hooks)
+             parse_seconds = time.perf_counter() - t0
+             # 2) generic carving over the bytes no parser clip spans (never twice, never lost)
+             spans = [(c.start, c.end) for r in parse_results for c in r.clips]
+@@ -105,6 +148,11 @@ def analyze(
+             generic: list[CarvedClip] = []
+             orphan_seq = 0
+             for item in carve_ranges(f, ranges, params):
++                hooks.check()
++                hooks.report(
++                    "Generic carving and exporting clips",
++                    0.50 + 0.35 * min(1.0, item.end / max(1, ev.size_bytes)),
++                )
+                 if isinstance(item, CarvedClip):
+                     generic.append(item)
+                     _store_clip(
+@@ -126,6 +174,7 @@ def analyze(
+                         reassembled=item.reassembled,
+                         reason=item.end_reason,
+                         notes=item.notes,
++                        hooks=hooks,
+                     )
+                 else:
+                     orphan_seq += 1
+@@ -147,7 +196,9 @@ def analyze(
+             # 3) cross-check parser clips against an independent generic pass over the whole
+             # image (dry run: nothing exported or stored besides the disagreement list)
+             parse_out = []
++            hooks.check()
+             if parse_results:
++                hooks.report("Cross-checking parser output against generic carving", 0.90)
+                 full = _dry_generic(f, ev.size_bytes, read_at, params)
+                 for res in parse_results:
+                     res.crosscheck = crosscheck(res.clips, full)
+@@ -170,6 +221,8 @@ def analyze(
+                         },
+                         ev.id,
+                     )
++            hooks.report("Finalizing run", 0.98)
++            hooks.check()
+             covered_bytes = sum(e - s for s, e in covered)
+             pipeline = {
+                 "mode": "parser_first",
+@@ -183,10 +236,13 @@ def analyze(
+             run.stats_json = json.dumps(
+                 {**carver_stats, **counts, **pipeline, "bytes_scanned": ev.size_bytes}
+             )
++    except AnalysisCancelled:
++        return _finish_cancelled(db, run, ev, examiner, counts, out, hooks)
+     except Exception as exc:  # recorded in the run and custody log, then re-raised
+         run.status, run.error = "failed", f"{type(exc).__name__}: {exc}"
+         run.finished_at = utc_now_iso()
+         db.commit()
++        sweep_unrecorded(db, run, out)
+         custody.append_entry(
+             db, ev.case_id, "carve_failed", examiner, {"run_id": run.id, "error": run.error}, ev.id
+         )
+@@ -216,6 +272,65 @@ def analyze(
+     return run
+ 
+ 
++def sweep_unrecorded(db: Session, run: CarveRun, out: Path) -> list[str]:
++    """Delete every file in the run's clip directory that no Clip row of this run records (a
++    half-written bitstream/MP4); recorded MP4s are kept. Never raises. Returns removed names."""
++    removed: list[str] = []
++    try:
++        if not out.is_dir():
++            return removed
++        keep = {
++            str(Path(p).resolve())
++            for p in db.scalars(
++                select(Clip.mp4_path).where(Clip.run_id == run.id, Clip.mp4_path != "")
++            )
++        }
++        for p in sorted(out.iterdir()):
++            if p.is_file() and str(p.resolve()) not in keep:
++                p.chmod(0o600)
++                p.unlink(missing_ok=True)
++                removed.append(p.name)
++        if not any(out.iterdir()):
++            out.rmdir()
++    except OSError:
++        pass
++    return removed
++
++
++def _finish_cancelled(db, run, ev, examiner, counts, out, hooks) -> CarveRun:
++    """Cancelled between checkpoints: nothing half-written stays on disk, clips that were fully
++    recorded stay recorded (and are listed in the custody entry), the run is marked cancelled."""
++    removed = sweep_unrecorded(db, run, out)
++    recorded = db.scalars(
++        select(Clip).where(Clip.run_id == run.id, Clip.kind == "clip").order_by(Clip.id)
++    ).all()
++    orphans = db.scalar(
++        select(func.count()).select_from(Clip).where(Clip.run_id == run.id, Clip.kind == "orphan")
++    )
++    run.status, run.finished_at = "cancelled", utc_now_iso()
++    run.error = "cancelled by examiner request; results of this run are partial"
++    run.stats_json = json.dumps({**counts, "partial": True, "bytes_scanned": ev.size_bytes})
++    db.commit()
++    custody.append_entry(
++        db,
++        ev.case_id,
++        "analysis_cancelled",
++        examiner,
++        {
++            "run_id": run.id,
++            "partial": True,
++            "completed_clip_ids": [c.id for c in recorded],
++            "completed_clips": len(recorded),
++            "orphans_recorded": orphans,
++            "unrecorded_files_removed": removed,
++            "note": "clips listed were fully exported and recorded before the cancel; "
++            "everything else of this run was discarded",
++        },
++        ev.id,
++    )
++    return run
++
++
+ def _dry_generic(f, size, read_at, params) -> list[CarvedClip]:
+     carver = Carver(read_at, params)
+     return [c for c in carver.run(nal.scan(f, size)) if isinstance(c, CarvedClip)]
+@@ -244,9 +359,13 @@ def _store_orphan(db, run, ev, engine, codec, start, end, seq, nals, reason, cha
+     db.commit()
+ 
+ 
+-def _store_parsed(db, run, ev, f, res, out: Path, ffv, examiner, counts) -> None:
++def _store_parsed(
++    db, run, ev, f, res, out: Path, ffv, examiner, counts, hooks: _Hooks | None = None
++) -> None:
++    hooks = hooks or _Hooks()
+     engine = res.parser
+     for seq, c in enumerate(res.clips, start=1):
++        hooks.report("Exporting parser clips", 0.15 + 0.35 * (seq - 1) / max(1, len(res.clips)))
+         info = {
+             "fields": [asdict(x) for x in c.fields],
+             "timestamps": [asdict(t) for t in c.timestamps if t is not None],
+@@ -277,6 +396,7 @@ def _store_parsed(db, run, ev, f, res, out: Path, ffv, examiner, counts) -> None
+             channel=c.channel,
+             parsed=info,
+             exportable=c.exportable,
++            hooks=hooks,
+         )
+     for seq, o in enumerate(res.orphans, start=1):
+         _store_orphan(
+@@ -318,7 +438,10 @@ def _store_clip(
+     channel=None,
+     parsed=None,
+     exportable=True,
++    hooks: _Hooks | None = None,
+ ) -> None:
++    if hooks is not None:
++        hooks.check()  # checkpoint before any file is written for this clip
+     name = f"{engine.lower()}_{seq:04d}"
+     counts["clips"] += 1
+     if exportable:

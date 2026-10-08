@@ -1,0 +1,71 @@
+diff --git a/backend/app/evidence.py b/backend/app/evidence.py
+index bbbca2f..4a668c5 100644
+--- a/backend/app/evidence.py
++++ b/backend/app/evidence.py
+@@ -15,7 +15,7 @@ from pathlib import Path
+ 
+ from sqlalchemy.orm import Session
+ 
+-from app import custody
++from app import custody, synthetic
+ from app.clock import utc_now_iso
+ from app.config import allow_block_devices, data_dir, evidence_roots
+ from app.hashing import CHUNK, Digests, hash_file, hash_stream
+@@ -129,6 +129,7 @@ def acquire(
+     ev.size_bytes, ev.md5, ev.sha256 = src_digests.size, src_digests.md5, src_digests.sha256
+     ev.acquired_at = utc_now_iso()
+     ev.last_verified_at, ev.last_verify_ok = utc_now_iso(), 1
++    ev.synthetic = synthetic.is_synthetic_image(dest)
+     db.commit()
+     custody.append_entry(
+         db,
+@@ -145,6 +146,7 @@ def acquire(
+             "md5": ev.md5,
+             "sha256": ev.sha256,
+             "post_copy_verify": "pass",
++            "synthetic_banner": ev.synthetic,
+         },
+         ev.id,
+     )
+diff --git a/backend/app/models.py b/backend/app/models.py
+index 304b229..11067e3 100644
+--- a/backend/app/models.py
++++ b/backend/app/models.py
+@@ -1,6 +1,15 @@
+ from datetime import datetime, timezone
+ 
+-from sqlalchemy import BigInteger, Float, ForeignKey, Integer, String, Text, UniqueConstraint
++from sqlalchemy import (
++    BigInteger,
++    Boolean,
++    Float,
++    ForeignKey,
++    Integer,
++    String,
++    Text,
++    UniqueConstraint,
++)
+ from sqlalchemy.orm import Mapped, mapped_column
+ 
+ from app.db import Base
+@@ -47,6 +56,8 @@ class Evidence(Base):
+     acquired_at: Mapped[str] = mapped_column(String(40), default=_now)
+     last_verified_at: Mapped[str] = mapped_column(String(40), default="")
+     last_verify_ok: Mapped[int] = mapped_column(Integer, default=-1)  # -1 never, 0 fail, 1 pass
++    # True when the stored image starts with the 256-byte NIRIKSHAN SYNTHETIC banner (app.synthetic)
++    synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
+ 
+ 
+ class CustodyEntry(Base):
+diff --git a/backend/app/schemas.py b/backend/app/schemas.py
+index f1e668a..bf40109 100644
+--- a/backend/app/schemas.py
++++ b/backend/app/schemas.py
+@@ -38,6 +38,7 @@ class EvidenceOut(BaseModel):
+     acquired_at: str
+     last_verified_at: str
+     last_verify_ok: int
++    synthetic: bool = False
+ 
+ 
+ class CustodyOut(BaseModel):
