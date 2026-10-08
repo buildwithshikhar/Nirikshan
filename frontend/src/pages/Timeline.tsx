@@ -18,7 +18,7 @@ const FLAG_HELP: Record<string, string> = {
 }
 
 function Flags({ flags }: { flags: string[] }) {
-  if (flags.length === 0) return <span className="text-xs text-slate-500">no flags</span>
+  if (flags.length === 0) return <span className="text-xs text-slate-400">no flags</span>
   return (
     <span className="flex flex-wrap gap-1" data-testid="flags">
       {flags.map((f) => (
@@ -159,7 +159,7 @@ export default function TimelinePage() {
               </div>
             </div>
             <TimelineChart items={tl.placed} gaps={tl.gaps} onSelect={setSelected} selected={selected} />
-            <p className="text-xs text-slate-500">Order tie-break: {tl.tie_break}. Order is presentation only when bars overlap.</p>
+            <p className="text-xs text-slate-400">Order tie-break: {tl.tie_break}. Order is presentation only when bars overlap.</p>
             {sel && <ItemDetail item={sel} onOsd={runOsd} osd={osd[sel.clip_id]} busy={busyOsd} />}
           </section>
 

@@ -6,6 +6,7 @@ import {
   apiTimeline,
   ianaZones,
 } from '../api_timeline'
+import { refreshStatusBanners } from './StatusBanners'
 
 const METHODS = [
   ['photo_dvr_clock', 'Photo of the DVR clock vs reference'],
@@ -91,6 +92,7 @@ export default function TimeSettings({
       setMsg(ok)
       load()
       onChanged()
+      refreshStatusBanners()
     } catch (e) {
       setError((e as Error).message)
     }
@@ -119,7 +121,7 @@ export default function TimeSettings({
           <select aria-label="Device timezone" value={tz} onChange={(e) => { touched.current.tz = true; setTz(e.target.value) }}
             className="mt-1 block w-full rounded bg-navy-900 px-2 py-1 text-sm ring-1 ring-navy-700">
             <option value="">(unknown)</option>
-            {zones.map((z) => <option key={z} value={z}>{z}</option>)}
+            {(tz && !zones.includes(tz) ? [tz, ...zones] : zones).map((z) => <option key={z} value={z}>{z}</option>)}
           </select>
         </label>
         <label className="text-xs text-slate-400">
@@ -150,7 +152,7 @@ export default function TimeSettings({
         onClick={() => run(() => apiTimeline.putAssumption(evidenceId, {
           timezone: tz || null, epoch_basis: basis || null, evidence_kind: kind, notes,
         }), 'Time assumption saved (custody entry written).')}
-        className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover">
+        className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy-900 hover:bg-accent-hover">
         Save time assumption
       </button>
 
@@ -190,7 +192,8 @@ export default function TimeSettings({
         </button>
         {refs.length > 0 && (
           <table className="w-full text-left text-xs" data-testid="refs-table">
-            <thead className="text-slate-400"><tr><th>#</th><th>Device shows</th><th>True UTC</th><th>Method</th><th>Notes</th></tr></thead>
+            <caption className="sr-only">Reference observations for evidence {evidenceId}</caption>
+            <thead className="text-slate-400"><tr><th scope="col">#</th><th scope="col">Device shows</th><th scope="col">True UTC</th><th scope="col">Method</th><th scope="col">Notes</th></tr></thead>
             <tbody>
               {refs.map((x) => (
                 <tr key={x.id} className="border-t border-navy-700">
@@ -203,13 +206,13 @@ export default function TimeSettings({
         )}
         <button disabled={refs.length === 0}
           onClick={() => run(async () => setModel(await apiTimeline.fit(evidenceId)), 'Time model fitted and stored.')}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50">
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy-900 hover:bg-accent-hover disabled:opacity-50">
           Fit offset / drift model
         </button>
         {model && <ModelView m={model} />}
       </div>
       {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-      {msg && <p className="text-sm text-emerald-300">{msg}</p>}
+      <p role="status" aria-live="polite" className={msg ? "text-sm text-emerald-300" : "sr-only"}>{msg}</p>
     </section>
   )
 }

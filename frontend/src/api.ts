@@ -42,6 +42,7 @@ export interface Evidence {
   acquired_at: string
   last_verified_at: string
   last_verify_ok: number
+  synthetic?: boolean // true when the image starts with the SYNTHETIC banner
 }
 
 export interface CustodyEntry {

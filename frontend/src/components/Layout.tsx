@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { getExaminer, setExaminer } from '../api'
 import { type BackendStatus, useBackendStatus } from '../useBackendStatus'
+import StatusBanners from './StatusBanners'
 
 const NAV = [
   { to: '/', label: 'Dashboard' },
@@ -15,37 +16,59 @@ const STATUS: Record<BackendStatus, { dot: string; label: string }> = {
   offline: { dot: 'bg-red-500', label: 'API offline' },
 }
 
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  `rounded-md px-3 py-2 text-sm font-medium transition ${
+    isActive ? 'bg-accent text-navy-900' : 'text-slate-300 hover:bg-navy-700'
+  }`
+
+/** After a client-side navigation: set the document title from the page's <h1> and move focus
+ * to <main> so keyboard and screen-reader users start at the new content (WCAG 2.4.3, 2.4.2). */
+function useRouteFocus(mainRef: React.RefObject<HTMLElement | null>) {
+  const { pathname } = useLocation()
+  const first = useRef(true)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const h1 = document.querySelector('main h1')?.textContent?.trim()
+      document.title = h1 ? `${h1} | Nirikshan` : 'Nirikshan'
+      if (first.current) {
+        first.current = false
+        return
+      }
+      const a = document.activeElement
+      // never steal focus from a field the user already moved into
+      if (!a || a === document.body || !mainRef.current?.contains(a)) mainRef.current?.focus()
+    }, 150)
+    return () => clearTimeout(t)
+  }, [pathname, mainRef])
+}
+
 export default function Layout() {
   const status = STATUS[useBackendStatus()]
   const [examiner, setName] = useState(getExaminer())
+  const mainRef = useRef<HTMLElement>(null)
+  useRouteFocus(mainRef)
 
   return (
     <div className="flex min-h-screen">
+      <a href="#main" className="skip-link">
+        Skip to main content
+      </a>
       <aside className="hidden w-56 shrink-0 flex-col gap-1 bg-navy-800 p-4 md:flex">
         <div className="mb-6 text-2xl font-bold text-accent">Nirikshan</div>
-        {NAV.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `rounded-md px-3 py-2 text-sm font-medium transition ${
-                isActive
-                  ? 'bg-accent text-white'
-                  : 'text-slate-300 hover:bg-navy-700'
-              }`
-            }
-          >
-            {label}
-          </NavLink>
-        ))}
+        <nav aria-label="Primary" className="flex flex-col gap-1">
+          {NAV.map(({ to, label }) => (
+            <NavLink key={to} to={to} end={to === '/'} className={linkClass}>
+              {label}
+            </NavLink>
+          ))}
+        </nav>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-navy-700 px-6 py-3">
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-navy-700 px-6 py-3">
           <span className="font-semibold text-accent md:hidden">Nirikshan</span>
-          <nav className="flex gap-3 text-sm md:hidden">
+          <nav aria-label="Primary (compact)" className="flex gap-3 text-sm md:hidden">
             {NAV.map(({ to, label }) => (
-              <NavLink key={to} to={to} end={to === '/'} className="text-slate-300">
+              <NavLink key={to} to={to} end={to === '/'} className="rounded px-1 text-slate-300 underline">
                 {label}
               </NavLink>
             ))}
@@ -58,14 +81,19 @@ export default function Layout() {
               setName(e.target.value)
               setExaminer(e.target.value)
             }}
-            className="ml-auto w-56 rounded-md bg-navy-800 px-3 py-1 text-xs outline-none ring-1 ring-navy-700 focus:ring-accent"
+            className="ml-auto w-56 rounded-md bg-navy-800 px-3 py-1 text-xs ring-1 ring-navy-700 focus:ring-accent"
           />
-          <div className="ml-3 flex items-center gap-2 rounded-full bg-navy-800 px-3 py-1 text-xs">
-            <span className={`h-2 w-2 rounded-full ${status.dot}`} />
+          <div
+            className="ml-3 flex items-center gap-2 rounded-full bg-navy-800 px-3 py-1 text-xs"
+            role="status"
+            aria-live="polite"
+          >
+            <span aria-hidden="true" className={`h-2 w-2 rounded-full ${status.dot}`} />
             {status.label}
           </div>
         </header>
-        <main className="flex-1 p-6">
+        <StatusBanners />
+        <main id="main" ref={mainRef} tabIndex={-1} className="flex-1 p-6">
           <Outlet />
         </main>
       </div>

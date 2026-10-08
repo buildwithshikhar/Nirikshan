@@ -15,14 +15,15 @@ export default function ErrorRatePanel({ rates, classes }: { rates: ErrorRates; 
         </p>
       ) : (
         <table className="w-full text-left">
+          <caption className="sr-only">Measured error rates for this model configuration</caption>
           <thead className="text-slate-400">
             <tr>
-              <th className="py-1">Data</th>
-              <th>Condition</th>
-              <th>Conf.</th>
-              <th>Precision</th>
-              <th>Recall</th>
-              <th>n</th>
+              <th scope="col" className="py-1">Data</th>
+              <th scope="col">Condition</th>
+              <th scope="col">Conf.</th>
+              <th scope="col">Precision</th>
+              <th scope="col">Recall</th>
+              <th scope="col">n</th>
             </tr>
           </thead>
           <tbody>
@@ -36,11 +37,11 @@ export default function ErrorRatePanel({ rates, classes }: { rates: ErrorRates; 
                 <td>{c.confidence_threshold ?? 'n/a'}</td>
                 <td>
                   {pct(c.precision)}
-                  <div className="text-slate-500">{ci(c.precision_ci_wilson)}</div>
+                  <div className="text-slate-400">{ci(c.precision_ci_wilson)}</div>
                 </td>
                 <td>
                   {pct(c.recall)}
-                  <div className="text-slate-500">{ci(c.recall_ci_wilson)}</div>
+                  <div className="text-slate-400">{ci(c.recall_ci_wilson)}</div>
                 </td>
                 <td>{c.n_images}</td>
               </tr>

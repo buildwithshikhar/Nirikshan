@@ -23,7 +23,7 @@ export default function HeadHash({ chain }: { chain: ChainResult | null }) {
       <button className="rounded bg-navy-700 px-2 py-0.5 hover:bg-navy-900" onClick={copy}>
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <span className="text-slate-500">
+      <span className="text-slate-400">
         Record this outside the system; a truncated log is only detectable against it.
       </span>
     </div>

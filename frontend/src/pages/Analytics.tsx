@@ -88,7 +88,7 @@ function RunCard({ run }: { run: AnalyticsRun }) {
         <div className="break-all font-mono text-[11px] text-slate-400">
           clip bitstream sha256 {run.bitstream_sha256 || 'n/a'}
         </div>
-        <div className="text-slate-500">
+        <div className="text-slate-400">
           Frame indices are positions in the exported MP4. Times are NOMINAL (frame index / stream frame rate),
           not recording times.
         </div>
@@ -96,8 +96,9 @@ function RunCard({ run }: { run: AnalyticsRun }) {
 
       {run.kind === 'motion' ? (
         <table className="w-full text-left text-xs" data-testid="motion-results">
+          <caption className="sr-only">Motion intervals detected in the clip</caption>
           <thead className="text-slate-400">
-            <tr><th className="py-1">Frames</th><th>Nominal time</th><th>Peak score</th><th>Mean score</th><th>Label</th></tr>
+            <tr><th scope="col" className="py-1">Frames</th><th scope="col">Nominal time</th><th scope="col">Peak score</th><th scope="col">Mean score</th><th scope="col">Label</th></tr>
           </thead>
           <tbody>
             {run.intervals?.map((i) => (
@@ -114,8 +115,9 @@ function RunCard({ run }: { run: AnalyticsRun }) {
         </table>
       ) : (
         <table className="w-full text-left text-xs" data-testid="detection-results">
+          <caption className="sr-only">Detections found in sampled frames</caption>
           <thead className="text-slate-400">
-            <tr><th className="py-1">Frame</th><th>Nominal time</th><th>Class</th><th>Confidence</th><th>Box (x1,y1,x2,y2)</th><th>Label</th></tr>
+            <tr><th scope="col" className="py-1">Frame</th><th scope="col">Nominal time</th><th scope="col">Class</th><th scope="col">Confidence</th><th scope="col">Box (x1,y1,x2,y2)</th><th scope="col">Label</th></tr>
           </thead>
           <tbody>
             {run.detections?.map((d) => (
@@ -189,7 +191,7 @@ export default function Analytics() {
             <button
               disabled={busy !== null}
               onClick={() => start(k)}
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy-900 hover:bg-accent-hover disabled:opacity-50"
             >
               {busy === k ? 'Running…' : `Run ${k}`}
             </button>

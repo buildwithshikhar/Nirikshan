@@ -52,8 +52,8 @@ export default function TimelineChart({
       <svg
         viewBox={`0 0 ${WIDTH} ${H}`}
         className="w-full min-w-[640px] text-slate-300"
-        role="img"
-        aria-label="Timeline of clips with uncertainty bars, UTC axis"
+        role="group"
+        aria-label="Timeline of clips with uncertainty bars, UTC axis. Each bar is a button; a table with the same data follows."
         data-testid="timeline-svg"
       >
         {ticks.map((t, k) => (
@@ -94,7 +94,10 @@ export default function TimelineChart({
           const x1 = x((ms(e.lo) + ms(e.hi)) / 2)
           const sel = selected === it.clip_id
           return (
-            <g key={it.clip_id} onClick={() => onSelect(it.clip_id)} className="cursor-pointer" data-testid="timeline-bar">
+            <g key={it.clip_id} onClick={() => onSelect(it.clip_id)} className="cursor-pointer" data-testid="timeline-bar"
+              role="button" tabIndex={0} aria-pressed={sel}
+              aria-label={`Clip ${it.clip_id}, evidence ${it.evidence_id}, channel ${it.channel ?? 'n/a'}, ${s.lo} to ${e.hi}`}
+              onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onSelect(it.clip_id) } }}>
               <rect x={x(ms(s.lo))} width={Math.max(3, x(ms(s.hi)) - x(ms(s.lo)))} y={y + 3} height={LANE_H - 10}
                 fill="#fdba74" opacity={0.7} />
               <rect x={x(ms(e.lo))} width={Math.max(3, x(ms(e.hi)) - x(ms(e.lo)))} y={y + 3} height={LANE_H - 10}
@@ -106,7 +109,19 @@ export default function TimelineChart({
           )
         })}
       </svg>
-      <p className="text-xs text-slate-500">
+      <table className="sr-only">
+        <caption>Placed clips (text alternative to the timeline chart)</caption>
+        <thead><tr><th scope="col">Clip</th><th scope="col">Evidence</th><th scope="col">Channel</th><th scope="col">Start (UTC)</th><th scope="col">End (UTC)</th></tr></thead>
+        <tbody>
+          {items.map((it) => (
+            <tr key={it.clip_id}>
+              <td>{it.clip_id}</td><td>{it.evidence_id}</td><td>{it.channel ?? 'n/a'}</td>
+              <td>{it.start!.lo} to {it.start!.hi}</td><td>{it.end!.lo} to {it.end!.hi}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-xs text-slate-400">
         Dark bar: nominal start to end. Light caps: uncertainty of the start/end time (resolution, DST ambiguity,
         drift interval). Shaded: gaps (red = certain, amber = possible). Axis is UTC.
       </p>

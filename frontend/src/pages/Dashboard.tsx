@@ -22,7 +22,7 @@ export default function Dashboard() {
           <div key={c.label} className="rounded-lg bg-navy-800 p-5">
             <div className="text-sm text-slate-400">{c.label}</div>
             <div className="mt-2 text-3xl font-bold text-accent">—</div>
-            <div className="mt-2 text-xs text-slate-500">{c.hint}</div>
+            <div className="mt-2 text-xs text-slate-400">{c.hint}</div>
           </div>
         ))}
       </div>

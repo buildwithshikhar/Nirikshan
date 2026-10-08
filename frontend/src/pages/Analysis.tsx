@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { API_URL, type CarveRunInfo, type ClipRow, type Evidence, type ParserResultInfo, api } from '../api'
+import { type Job, apiJobs } from '../api_jobs'
+import JobProgress from '../components/JobProgress'
+import Skeleton from '../components/Skeleton'
 
 const FIELD_STYLE: Record<string, string> = {
   parsed: 'bg-emerald-900 text-emerald-200',
@@ -23,7 +26,8 @@ function ParserPanel({ p }: { p: ParserResultInfo }) {
         {p.status === 'fallback' && ' Fallback: generic carving results stand.'}
       </p>
       <table className="w-full text-left text-xs">
-        <thead className="text-slate-400"><tr><th className="py-1">Field</th><th>Status</th><th>Value</th><th>Source / note</th></tr></thead>
+        <caption className="sr-only">Fields read by the {p.parser} parser and their status</caption>
+        <thead className="text-slate-400"><tr><th scope="col" className="py-1">Field</th><th scope="col">Status</th><th scope="col">Value</th><th scope="col">Source / note</th></tr></thead>
         <tbody>
           {p.fields.map((f, i) => (
             <tr key={i} className="border-t border-navy-700 align-top" data-testid={`field-${f.status}`}>
@@ -66,7 +70,7 @@ function hex(n: number) {
   return `0x${n.toString(16)}`
 }
 
-function ClipItem({ clip, onVerify }: { clip: ClipRow; onVerify: (id: number) => void }) {
+function ClipItem({ clip, caseId, onVerify }: { clip: ClipRow; caseId: number; onVerify: (id: number) => void }) {
   const errors: string[] = JSON.parse(clip.decode_errors_json || '[]')
   const notes: string[] = JSON.parse(clip.notes_json || '[]')
   return (
@@ -77,8 +81,8 @@ function ClipItem({ clip, onVerify }: { clip: ClipRow; onVerify: (id: number) =>
         {clip.codec}{clip.channel != null ? ` · ch ${clip.channel}` : ''}{clip.reassembled ? <div className="text-xs text-amber-400">reassembled (heuristic)</div> : null}</td>
       <td className="font-mono text-xs">
         {clip.start_offset.toLocaleString()} – {clip.end_offset.toLocaleString()}
-        <div className="text-slate-500">{hex(clip.start_offset)} – {hex(clip.end_offset)}</div>
-        <div className="text-slate-500">{clip.size_bytes.toLocaleString()} B</div>
+        <div className="text-slate-400">{hex(clip.start_offset)} – {hex(clip.end_offset)}</div>
+        <div className="text-slate-400">{clip.size_bytes.toLocaleString()} B</div>
       </td>
       <td className="font-mono text-[11px] break-all">
         <div>bitstream {clip.bitstream_sha256}</div>
@@ -89,24 +93,25 @@ function ClipItem({ clip, onVerify }: { clip: ClipRow; onVerify: (id: number) =>
         <div title="From the stream frame rate (25 fps assumed without timing info); not a recording time">
           {clip.duration_s != null ? `${clip.duration_s.toFixed(2)} s nominal` : '—'} · {clip.packets ?? '?'} frames
         </div>
-        <div className="text-slate-500">{clip.irap_count} IRAP · {clip.nal_count} NAL</div>
+        <div className="text-slate-400">{clip.irap_count} IRAP · {clip.nal_count} NAL</div>
       </td>
       <td className="text-xs">
         <div className={STATUS_STYLE[clip.decode_status] ?? ''} data-testid="decode-status">{clip.decode_status}</div>
         {errors.map((e, i) => <div key={i} className="max-w-xs break-all text-amber-300">{e}</div>)}
         {clip.error && <div className="max-w-xs break-all text-red-400">{clip.error}</div>}
         {notes.map((n, i) => <div key={i} className="text-slate-400">{n}</div>)}
-        <div className="text-slate-500">{clip.reason}</div>
+        <div className="text-slate-400">{clip.reason}</div>
       </td>
       <td>
         {clip.has_video && (
           <div className="space-y-1">
-            <video controls preload="metadata" width={220} data-testid="clip-video"
+            <video controls preload="metadata" width={220} data-testid="clip-video" aria-label={`Preview of clip ${clip.seq}`}
               src={`${API_URL}/api/clips/${clip.id}/video`} />
-            <Link className="block text-xs text-accent hover:underline" to={`/clips/${clip.id}/analytics`}>
+            <Link className="block text-xs text-accent hover:underline" to={`/clips/${clip.id}/analytics?case=${caseId}`}>
               Triage analytics →
             </Link>
-            <button className="rounded bg-navy-700 px-2 py-0.5 text-xs hover:bg-navy-900" onClick={() => onVerify(clip.id)}>
+            <button className="rounded bg-navy-700 px-2 py-0.5 text-xs hover:bg-navy-900" onClick={() => onVerify(clip.id)}
+              aria-label={`Verify MP4 hash of clip ${clip.seq}`}>
               Verify MP4 hash
             </button>
           </div>
@@ -122,36 +127,98 @@ export default function Analysis() {
   const cId = Number(caseId)
   const [ev, setEv] = useState<Evidence | undefined>()
   const [run, setRun] = useState<CarveRunInfo | null>(null)
+  const [loading, setLoading] = useState(true)
   const [joinGap, setJoinGap] = useState(0)
   const [parserOpts, setParserOpts] = useState('{}')
-  const [busy, setBusy] = useState(false)
+  const [job, setJob] = useState<Job | null>(null)
+  const [cancelling, setCancelling] = useState(false)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
 
   const load = useCallback(() => {
     api.getEvidence(cId, evId).then(setEv).catch((e) => setError(e.message))
-    api.runs(evId).then((r) => setRun(r[0] ?? null)).catch((e) => setError(e.message))
+    return api
+      .runs(evId)
+      .then((r) => setRun(r[0] ?? null))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [cId, evId])
-  useEffect(load, [load])
+  useEffect(() => {
+    load()
+    // resume the progress display if an analysis of this evidence is already running
+    apiJobs
+      .active(cId, evId)
+      .then((l) => l[0] && setJob(l[0]))
+      .catch(() => undefined)
+  }, [load, cId, evId])
+
+  // Poll an active job (first poll after 300 ms, then every second).
+  const activeId = job?.active ? job.id : null
+  useEffect(() => {
+    if (activeId == null) return
+    let stop = false
+    let timer: ReturnType<typeof setTimeout>
+    const tick = async () => {
+      try {
+        const j = await apiJobs.get(activeId)
+        if (stop) return
+        setJob(j)
+        if (!j.active) {
+          setCancelling(false)
+          await load()
+          if (j.status === 'cancelled')
+            setNote(
+              `Analysis cancelled. Run #${j.run_id ?? '?'} is partial: ${j.clips_recorded} clip(s) were fully recorded before the cancel and are listed below; half-written files were removed.`,
+            )
+          else if (j.status === 'failed') setError(`Analysis failed: ${j.error}`)
+          else setNote(`Analysis completed (run #${j.run_id}).`)
+          return
+        }
+      } catch (e) {
+        if (stop) return
+        setError(`Lost contact with the job: ${(e as Error).message}`)
+      }
+      timer = setTimeout(tick, 1000)
+    }
+    timer = setTimeout(tick, 300)
+    return () => {
+      stop = true
+      clearTimeout(timer)
+    }
+  }, [activeId, load])
 
   const analyze = async () => {
     setError('')
-    setBusy(true)
+    setNote('')
+    let opts: Record<string, unknown> = {}
     try {
-      let opts: Record<string, unknown> = {}
-      try {
-        opts = JSON.parse(parserOpts || '{}')
-      } catch {
-        throw new Error('Parser options must be valid JSON, e.g. {"Dahua": {"frame_gap_tolerance": 3}}')
-      }
-      setRun(await api.analyze(evId, { join_gap: joinGap, parser_options: opts }))
+      opts = JSON.parse(parserOpts || '{}')
+    } catch {
+      setError('Parser options must be valid JSON, e.g. {"Dahua": {"frame_gap_tolerance": 3}}')
+      return
+    }
+    try {
+      const j = await apiJobs.submitAnalyze(evId, { join_gap: joinGap, parser_options: opts })
+      setJob(j)
+      if (j.existing) setNote('An identical analysis is already running; showing its progress.')
     } catch (e) {
       setError((e as Error).message)
       load()
-    } finally {
-      setBusy(false)
     }
   }
+
+  const cancel = async () => {
+    if (!job) return
+    setCancelling(true)
+    try {
+      setJob(await apiJobs.cancel(job.id))
+    } catch (e) {
+      setError((e as Error).message)
+      setCancelling(false)
+    }
+  }
+
+  const busy = job?.active === true
 
   const verifyClip = async (clipId: number) => {
     try {
@@ -174,7 +241,7 @@ export default function Analysis() {
       <section className="space-y-3 rounded-lg bg-navy-800 p-5">
         <div className="flex flex-wrap items-center gap-4">
           <button disabled={busy} onClick={analyze}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50">
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy-900 hover:bg-accent-hover disabled:opacity-50">
             {busy ? 'Analyzing…' : 'Identify + carve'}
           </button>
           <label className="text-xs text-slate-400">
@@ -188,13 +255,20 @@ export default function Analysis() {
               className="w-72 rounded bg-navy-900 px-2 py-1 font-mono text-xs ring-1 ring-navy-700" />
           </label>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           The image hash is re-verified first. Carving is vendor-agnostic H.264/H.265 recovery; results are leads
           to be reviewed, not a statement of what was recorded. No vendor is validated on a real image (no Tier A).
         </p>
       </section>
+      {job && job.active && <JobProgress job={job} onCancel={cancel} cancelling={cancelling} />}
       {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-      {note && <p className="text-sm text-slate-300">{note}</p>}
+      <p role="status" aria-live="polite" className={note ? 'text-sm text-slate-300' : 'sr-only'} data-testid="analysis-note">{note}</p>
+      {loading && !run && <Skeleton rows={4} label="Loading analysis results" />}
+      {!loading && !run && !busy && (
+        <p className="rounded-lg bg-navy-800 p-5 text-sm text-slate-300" data-testid="no-runs">
+          No analysis has been run on this evidence yet. Choose "Identify + carve" to start a background job.
+        </p>
+      )}
       {run && (
         <>
           <section className="rounded-lg bg-navy-800 p-5 text-sm" data-testid="vendor-section">
@@ -229,10 +303,11 @@ export default function Analysis() {
               <p className="text-sm text-slate-400">No clips recovered.</p>
             ) : (
               <table className="w-full text-left text-sm">
+                <caption className="sr-only">Clips recovered by run {run.id}</caption>
                 <thead className="text-slate-400">
-                  <tr><th className="py-1">#</th><th>Engine / codec</th><th>Offsets</th><th>SHA-256</th><th>Stream</th><th>Decode test</th><th>Preview</th></tr>
+                  <tr><th scope="col" className="py-1">#</th><th scope="col">Engine / codec</th><th scope="col">Offsets</th><th scope="col">SHA-256</th><th scope="col">Stream</th><th scope="col">Decode test</th><th scope="col">Preview</th></tr>
                 </thead>
-                <tbody>{clips.map((c) => <ClipItem key={c.id} clip={c} onVerify={verifyClip} />)}</tbody>
+                <tbody>{clips.map((c) => <ClipItem key={c.id} clip={c} caseId={cId} onVerify={verifyClip} />)}</tbody>
               </table>
             )}
           </section>
