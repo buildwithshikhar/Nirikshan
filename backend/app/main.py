@@ -13,6 +13,8 @@ from app.analytics import models as _analytics_models  # noqa: F401  (tables bef
 from app.analytics.routes import router as analytics_router
 from app.db import SessionLocal, engine
 from app.models import AuditEntry
+from app.report import models as _report_models  # noqa: F401
+from app.report.routes import router as report_router
 from app.routes import audit_case_id, router
 from app.timeline import models as _timeline_models  # noqa: F401
 from app.timeline.routes import router as timeline_router
@@ -44,6 +46,7 @@ def health() -> dict[str, str]:
 app.include_router(router)
 app.include_router(analytics_router)
 app.include_router(timeline_router)
+app.include_router(report_router)
 
 
 @app.middleware("http")

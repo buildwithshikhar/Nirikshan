@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { type Case, type ChainResult, type Evidence, api } from '../api'
 import HeadHash from '../components/HeadHash'
+import ReportPanel from '../components/ReportPanel'
 
 const WB = ['unknown', 'yes', 'no'] as const
 
@@ -118,6 +119,7 @@ export default function CaseDetail() {
           </table>
         )}
       </section>
+      <ReportPanel caseId={id} evidence={evidence.map((e) => ({ id: e.id, label: e.label }))} />
     </div>
   )
 }

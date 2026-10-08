@@ -22,3 +22,5 @@ humanfriendly==10.0
 six==1.17.0
 tqdm==4.70.1
 certifi==2026.7.22  # model fetch script on interpreters without a CA bundle
+reportlab==5.0.1  # P7 PDF report (BSD-3-Clause); embeds Bitstream Vera fonts
+charset-normalizer==3.5.2  # pulled in by reportlab (MIT)
