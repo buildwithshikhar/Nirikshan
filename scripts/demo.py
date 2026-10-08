@@ -24,7 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
-from app import demo_data
+from app import demo_data  # noqa: E402
 
 BANNER = "SYNTHETIC DEMO: generated test images in per-paper vendor layouts, not real DVR data."
 
