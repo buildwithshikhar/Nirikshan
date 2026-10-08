@@ -67,3 +67,6 @@ e2e-keys/
 
 # Claude Code agent worktrees
 .claude/
+
+# Demo data (make demo)
+demo-data/
