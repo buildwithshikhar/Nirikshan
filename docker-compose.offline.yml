@@ -1,0 +1,76 @@
+# Nirikshan offline stack. Separate from docker-compose.yml (that file is the dev Postgres).
+#
+#   NIRIKSHAN_EVIDENCE_DIR=/path/to/evidence \
+#     docker compose -f docker-compose.offline.yml -p nirikshan-offline up -d
+#
+# Database: SQLite on the `nirikshan_data` volume (single-writer, single-host; Postgres is
+# supported by the code but would add a service and was not packaged here).
+# Models are baked into the backend image (checksum-verified at build). To use a read-only
+# volume instead, see docs/OFFLINE_DEPLOYMENT.md.
+# Read docs/SECURITY_REVIEW.md before exposing anything beyond 127.0.0.1.
+
+name: nirikshan-offline
+
+services:
+  backend:
+    image: nirikshan-offline-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      NIRIKSHAN_DATA_DIR: /var/lib/nirikshan/data
+      NIRIKSHAN_KEY_DIR: /var/lib/nirikshan/keys      # its own volume, never inside the data dir
+      NIRIKSHAN_EVIDENCE_ROOTS: /evidence
+      NIRIKSHAN_ALLOW_BLOCK_DEVICES: "0"
+      DATABASE_URL: sqlite:////var/lib/nirikshan/data/nirikshan.db
+      NIRIKSHAN_MODELS_DIR: /opt/nirikshan/models
+      CORS_ORIGINS: "http://127.0.0.1:8080,http://localhost:8080"
+    volumes:
+      - nirikshan_data:/var/lib/nirikshan/data
+      - nirikshan_keys:/var/lib/nirikshan/keys
+      - ${NIRIKSHAN_EVIDENCE_DIR:?set NIRIKSHAN_EVIDENCE_DIR to the folder holding source images}:/evidence:ro
+    tmpfs:
+      - /tmp:size=512m,mode=1777   # ffmpeg / onnxruntime scratch
+    networks: [internal]            # internal: true, so no route to the outside
+    restart: unless-stopped
+
+  frontend:
+    image: nirikshan-offline-frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    tmpfs:
+      - /tmp:size=64m,mode=1777     # nginx temp/pid paths
+    ports:
+      - "127.0.0.1:${NIRIKSHAN_PORT:-8080}:8080"   # loopback only
+    networks: [internal, edge]
+    restart: unless-stopped
+
+networks:
+  # No external route. The backend (which handles evidence) lives only here.
+  internal:
+    internal: true
+  # Needed only because Docker cannot publish a port from an internal-only network (measured).
+  # LIMITATION (measured on Docker Desktop for Mac, Docker 29.7.2): a container on this network
+  # CAN reach the internet; disabling masquerading below did not prevent it there. The frontend
+  # container only serves static files and proxies to the backend, but "no egress" is NOT
+  # enforced for it by Docker on that host. Enforce it with a host firewall rule
+  # (docs/OFFLINE_DEPLOYMENT.md). On a native Linux engine the option below should drop replies;
+  # that is untested here. The backend, which handles evidence, is on `internal` only and was
+  # measured to have no route.
+  edge:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+
+volumes:
+  nirikshan_data:
+  nirikshan_keys:
