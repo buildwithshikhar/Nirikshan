@@ -6,7 +6,7 @@ os.environ["DATABASE_URL"] = TEST_DB  # must be set before the app is imported
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
-from sqlalchemy.pool import StaticPool  # noqa: E402
+from sqlalchemy.pool import QueuePool  # noqa: E402
 
 from app import db  # noqa: E402
 from app.main import app  # noqa: E402
@@ -26,12 +26,22 @@ EXAMINER = {"X-Examiner": "Insp. Test"}
 
 
 @pytest.fixture
-def client():
+def client(tmp_path):
     if TEST_DB.startswith("sqlite"):
+        # One SQLite FILE per test with a normal pool: every session (request thread, job worker
+        # thread, test thread) gets its own connection, like production. A shared in-memory
+        # connection (StaticPool) let threads interleave statements and made job tests flaky.
+        import sqlite3
+
+        path = str(tmp_path / "test.db")
+
+        def connect():
+            conn = sqlite3.connect(path, check_same_thread=False, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            return conn
+
         db.engine.dispose()
-        db.engine.pool = StaticPool(
-            creator=lambda: __import__("sqlite3").connect(":memory:", check_same_thread=False)
-        )
+        db.engine.pool = QueuePool(creator=connect, pool_size=5, max_overflow=20)
     db.Base.metadata.drop_all(db.engine)  # clean slate (Postgres persists between tests)
     with TestClient(app, headers=EXAMINER) as c:  # runs lifespan -> create_all
         yield c
