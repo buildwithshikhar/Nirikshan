@@ -6,6 +6,17 @@ Built for SIH PS 26150 (multi-vendor DVR/NVR forensic analysis).
 
 **Status: working prototype, validated on SYNTHETIC data only.** Evidence core, carving and MP4 export, vendor parsers for Dahua (DHAV frames), Hikvision and Honeywell (all Tier B), timestamp/timeline model, analytics triage and offline packaging exist. **No real DVR/NVR image has been processed and no vendor is Tier A.** CP Plus, Uniview, TP-Link, Godrej and Matrix have generic carving only. A reproducible court-style PDF report, a **draft** BSA 63(4) certificate (not legal advice), a JSON-LD export, background analysis jobs with cancel, a one-command `make demo` (SYNTHETIC data) and an accessibility pass (axe gate) are included. See [docs/FINAL_REPORT.md](docs/FINAL_REPORT.md) for the requirement traceability matrix and honest limits, and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the plan.
 
+## Screenshots
+
+All screenshots show the SYNTHETIC demo case (`make demo`); the amber banner on every page says
+the data is generated test data. Regenerate with `cd frontend && npm run screenshots`.
+
+| | |
+|---|---|
+| ![Dashboard](docs/img/dashboard.png) | ![Case with evidence](docs/img/case.png) |
+| ![Analysis with the parser panel](docs/img/analysis.png) | ![Timeline with unplaceable evidence](docs/img/timeline.png) |
+| ![Triage analytics](docs/img/analytics.png) | ![Custody log](docs/img/custody.png) |
+
 ## Layout
 
 | Path | Purpose |
@@ -19,6 +30,22 @@ Built for SIH PS 26150 (multi-vendor DVR/NVR forensic analysis).
 | `docker-compose.yml` | DEV ONLY Postgres (fixed password, published port) |
 | `docker-compose.offline.yml` | Offline, hardened stack (backend + frontend, SQLite on a volume) |
 
+## Demo (SYNTHETIC data only)
+
+```
+make demo
+```
+
+Starts the backend and the web UI with a throw-away data directory (`./demo-data`, demo-only
+signing key), builds the case `DEMO-SYNTHETIC-001` from three generated images (Hikvision and Dahua
+per-paper layouts, a raw H.264 image), runs the analysis as background jobs with progress, sets time
+assumptions (one image is left with an unknown timezone on purpose), runs triage analytics and
+prints the URLs. Ctrl-C stops everything. Every image, label and screen is marked SYNTHETIC: this is
+generated test data, not real DVR/NVR evidence, and the demo does not validate any real device.
+`make demo-data` builds the same case against a backend that is already running. Details:
+[docs/demo.md](docs/demo.md); background jobs: [docs/jobs.md](docs/jobs.md); accessibility status:
+[docs/accessibility.md](docs/accessibility.md).
+
 ## Development
 
 Requires Python 3.10+, Node 22+, and `ffmpeg` with `ffprobe` (`brew install ffmpeg` on macOS).
@@ -26,7 +53,7 @@ Requires Python 3.10+, Node 22+, and `ffmpeg` with `ffprobe` (`brew install ffmp
 ```bash
 # backend
 cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-python ../scripts/fetch_models.py      # analytics weights, SHA-256 verified, not in git
+.venv/bin/python ../scripts/fetch_models.py      # analytics weights, SHA-256 verified, not in git
 .venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/pytest -q
 NIRIKSHAN_EVIDENCE_ROOTS=/path/to/images .venv/bin/uvicorn app.main:app --reload
 
