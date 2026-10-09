@@ -72,6 +72,12 @@ def _resolvers() -> dict:
         "report_id": (Report, lambda r: r.case_id, "Report not found"),
         "job_id": (Job, lambda r: r.case_id, "Job not found"),
     }
+    from app.acquire.models import AcquisitionSession
+    from app.correlation.models import CorrelationLink, ExternalLog
+
+    out["session_id"] = (AcquisitionSession, lambda r: r.case_id, "Acquisition not found")
+    out["log_id"] = (ExternalLog, lambda r: r.case_id, "External log not found")
+    out["link_id"] = (CorrelationLink, lambda r: r.case_id, "Link not found")
     try:
         from app.package.models import Package
 
@@ -112,6 +118,21 @@ POLICY: dict[tuple[str, str], Rule] = {
     ("GET", "/api/cases/{case_id}/members"): CASE_META,
     ("POST", "/api/cases/{case_id}/members"): ADMIN_CASE,
     ("DELETE", "/api/cases/{case_id}/members/{user_id}"): ADMIN_CASE,
+    # reference / read-only global data (no case content)
+    ("GET", "/api/events/grammar"): ANY,
+    ("GET", "/api/acquisition/capabilities"): ANY,
+    ("GET", "/api/acquisition/ewf"): ANY,
+    ("GET", "/api/recovery/fragment-reassembly"): ANY,
+    ("GET", "/api/recovery/agreement"): ANY,
+    ("GET", "/api/oem-registry"): ANY,
+    ("GET", "/api/validation/summary"): ANY,
+    ("GET", "/api/validation/scorecards"): ANY,
+    ("GET", "/api/validation/regression"): ANY,
+    ("GET", "/api/validation/false-rates"): ANY,
+    ("GET", "/api/validation/crosscheck"): ANY,
+    ("GET", "/api/validation/reruns"): ANY,
+    ("GET", "/api/validation/reruns/{rerun_id}"): ANY,
+    ("POST", "/api/validation/reruns"): CASE_CREATE,  # heavy subprocess: admin or examiner
     # approvals (app.approvals)
     ("POST", "/api/reports/{report_id}/request-approval"): WRITE,
     ("POST", "/api/reports/{report_id}/approve"): REVIEW,

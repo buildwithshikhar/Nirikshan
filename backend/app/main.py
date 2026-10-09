@@ -13,14 +13,14 @@ from app.acquire import models as _acquire_models  # noqa: F401
 from app.acquire.routes import router as acquire_router
 from app.analytics import models as _analytics_models  # noqa: F401  (tables before create_all)
 from app.analytics.routes import router as analytics_router
-from app.correlation import models as _correlation_models  # noqa: F401
-from app.correlation.routes import router as correlation_router
 from app.approvals import models as _approval_models  # noqa: F401
 from app.approvals.routes import router as approvals_router
 from app.auth import models as _auth_models  # noqa: F401
 from app.auth.deps import audit_identity
 from app.auth.policy import authorize
 from app.auth.routes import router as auth_router
+from app.correlation import models as _correlation_models  # noqa: F401
+from app.correlation.routes import router as correlation_router
 from app.db import SessionLocal, engine
 from app.events import fts as _event_fts  # noqa: F401  (drops ai_events_fts with ai_events)
 from app.events import models as _event_models  # noqa: F401
@@ -34,11 +34,11 @@ from app.jobs.manager import manager as job_manager
 from app.jobs.routes import router as jobs_router
 from app.models import AuditEntry
 from app.oem.routes import router as oem_router
-from app.recover.routes import router as recover_router
 from app.package import models as _package_models  # noqa: F401
 from app.package.routes import router as package_router
 from app.perf import models as _perf_models  # noqa: F401
 from app.perf.routes import router as perf_router
+from app.recover.routes import router as recover_router
 from app.report import models as _report_models  # noqa: F401
 from app.report.routes import router as report_router
 from app.routes import audit_case_id, router

@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.analytics import TRIAGE_LABEL, error_rates, runner
 from app.analytics.models import AnalyticsRun, Detection, MotionInterval
 from app.analytics.registry import ModelMissing, model_status
+from app.events.indexer import index_after_run
 from app.models import Clip
 from app.routes import DbSession, Examiner
 
@@ -111,6 +112,8 @@ def run_clip_analytics(clip_id: int, body: AnalyticsIn, db: DbSession, examiner:
         raise HTTPException(503, str(e)) from e
     except runner.ClipNotAnalysable as e:
         raise HTTPException(409, str(e)) from e
+    # Keep the searchable event index current (idempotent; indexes stored rows only).
+    index_after_run(db, run)
     return _detail(db, run)
 
 

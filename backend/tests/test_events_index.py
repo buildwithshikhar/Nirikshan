@@ -249,3 +249,24 @@ def test_end_to_end_real_motion_run_then_index(client, image, session, tmp_path)
     assert len(hits) == run.result_count
     assert hits[0]["utc"]["lo"].startswith("2025-01-02T03:04:0")
     assert hits[0]["clip_hashes"]["mp4_sha256"] == clip.mp4_sha256
+
+
+def test_analytics_endpoint_indexes_automatically(client, image, session, tmp_path):
+    """POST /clips/{id}/analytics keeps the event index current without a manual reindex."""
+    from app.analytics import frames
+    from app.hashing import hash_file
+    from tests.analytics_media import motion_clip
+
+    mp4 = tmp_path / "auto.mp4"
+    motion_clip(mp4, [(20, 39)], n_frames=100, size=(352, 288))
+    c, (ev,) = new_case(client, image, number="EV-AUTO")
+    set_tz(client, ev["id"], "UTC")
+    clip = add_clip(session, c["id"], ev["id"], 2, (2025, 1, 2, 3, 4, 5))
+    info = frames.probe(mp4)
+    clip.mp4_path, clip.mp4_sha256, clip.fps = str(mp4), hash_file(mp4).sha256, info.fps_text
+    clip.decode_status = "ok"
+    session.commit()
+    r = client.post(f"/api/clips/{clip.id}/analytics", json={"kind": "motion"})
+    assert r.status_code == 201, r.text
+    hits = search(client, c["id"], "motion camera 2").json()["hits"]
+    assert len(hits) >= 1  # no reindex call was made
