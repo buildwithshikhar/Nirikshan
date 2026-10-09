@@ -12,6 +12,7 @@ backend must allow --evidence-dir through NIRIKSHAN_EVIDENCE_ROOTS.
 
 import argparse
 import contextlib
+import errno
 import os
 import shutil
 import signal
@@ -34,14 +35,29 @@ BANNER = (
 
 
 def free_port(preferred: int) -> int:
-    for port in (preferred, 0):
-        with socket.socket() as s:
+    """First port from `preferred` upward that is free on both IPv4 and IPv6 loopback (Vite
+    listens on ::1, uvicorn on 127.0.0.1; probing one family hides a listener on the other)."""
+
+    def free(port: int) -> bool:
+        for family, host in ((socket.AF_INET, "127.0.0.1"), (socket.AF_INET6, "::1")):
             try:
-                s.bind(("127.0.0.1", port))
-            except OSError:
-                continue
-            return s.getsockname()[1]
-    raise SystemExit("no free port")
+                with socket.socket(family, socket.SOCK_STREAM) as s:
+                    s.bind((host, port))
+            except OSError as exc:
+                if family == socket.AF_INET6 and exc.errno in (
+                    errno.EADDRNOTAVAIL,
+                    errno.EAFNOSUPPORT,
+                ):
+                    continue  # no IPv6 loopback on this host
+                return False
+        return True
+
+    for port in range(preferred, preferred + 50):
+        if free(port):
+            return port
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
 
 
 def wait_http(url: str, timeout: float, proc: subprocess.Popen | None = None) -> None:
