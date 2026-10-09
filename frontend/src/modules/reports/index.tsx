@@ -1,11 +1,13 @@
-import { EmptyState, PageHeader } from '../../ui'
+import { Route, Routes } from 'react-router-dom'
+import Builder from './Builder'
+import Exports from './Exports'
 
-// Placeholder until the module is built (Round D part 2).
 export default function ReportsModule() {
   return (
-    <div>
-      <PageHeader title="Report Studio" />
-      <EmptyState title="This module is being built" />
-    </div>
+    <Routes>
+      <Route index element={<Builder />} />
+      <Route path="exports" element={<Exports />} />
+      <Route path="*" element={<Builder />} />
+    </Routes>
   )
 }
