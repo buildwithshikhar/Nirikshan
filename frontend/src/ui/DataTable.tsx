@@ -81,7 +81,7 @@ export function DataTable<T>({
           className="mb-2 w-64 rounded-md bg-navy-900 px-3 py-1 text-sm ring-1 ring-navy-600"
         />
       )}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label={`${caption} (scrollable)`}>
         <table className="w-full text-left text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead className="text-xs uppercase text-slate-400">

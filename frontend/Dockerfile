@@ -6,6 +6,7 @@ WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
+COPY docs/ /docs/
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine
