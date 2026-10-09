@@ -3,6 +3,7 @@
 python -m app.cli head <case_id> [--json]   verify a custody chain and print its head_hash
 python -m app.cli reset-db --yes             DEV ONLY: drop and recreate the database schema
 python -m app.cli create-admin <username>    create the FIRST admin (password prompted twice)
+python -m app.cli create-demo-viewer          read-only account limited to the demo case(s)
 python -m app.cli verify-package <file>      verify an evidence package offline (no database)
 python -m app.cli protect-key [--key ...]    passphrase-protect a plaintext signing key
 python -m app.cli key-status                 show whether each signing key is protected
@@ -98,6 +99,29 @@ def create_admin(username: str, display_name: str) -> int:
             print(f"refused: {exc}", file=sys.stderr)
             return 2
     print(f"created admin '{u.username}' (id {u.id}). Log in at POST /api/auth/login.")
+    return 0
+
+
+def create_demo_viewer() -> int:
+    """Read-only account limited to the reference-data demo case(s). Password: prompted, or
+    NIRIKSHAN_DEMO_VIEWER_PASSWORD_FILE / NIRIKSHAN_DEMO_VIEWER_PASSWORD."""
+    from app import bootstrap, schema
+    from app.db import engine
+
+    schema.check_and_init(engine)
+    pw = bootstrap.read_secret("NIRIKSHAN_DEMO_VIEWER_PASSWORD") or _prompt_new_password(
+        "demo viewer password"
+    )
+    if pw is None:
+        return 2
+    with SessionLocal() as db:
+        try:
+            name, added = bootstrap.create_demo_viewer(db, pw)
+        except (ValueError, LookupError) as exc:
+            print(f"refused: {exc}", file=sys.stderr)
+            return 2
+    cases = ", ".join(added) or "none (seed the demo case first)"
+    print(f"demo viewer '{name}' ready; added to demo cases: {cases}")
     return 0
 
 
@@ -247,6 +271,7 @@ def main(argv: list[str] | None = None) -> int:
     a = sub.add_parser("create-admin", help="create the first admin account (prompts)")
     a.add_argument("username")
     a.add_argument("--display-name", default="")
+    sub.add_parser("create-demo-viewer", help="read-only account for the reference-data demo case")
     v = sub.add_parser("verify-package", help="verify an evidence package offline")
     v.add_argument("file")
     v.add_argument("--expect-key-id", default=None, help="key_id recorded outside the package")
@@ -261,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
         return reset_db(args.yes)
     if args.cmd == "create-admin":
         return create_admin(args.username, args.display_name)
+    if args.cmd == "create-demo-viewer":
+        return create_demo_viewer()
     if args.cmd == "verify-package":
         return verify_package_cmd(args.file, args.expect_key_id, args.json)
     if args.cmd == "protect-key":

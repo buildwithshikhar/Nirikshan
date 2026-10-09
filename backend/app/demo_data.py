@@ -129,8 +129,12 @@ class UrlApi:
 
 def ensure_demo_users() -> list[str]:
     """Create the demo accounts in the configured database (DATABASE_URL). Idempotent."""
+    from app import settings
     from app.auth.routes import create_user
     from app.db import SessionLocal
+
+    if settings.production():
+        raise SystemExit("demo accounts cannot be created when NIRIKSHAN_PRODUCTION is set")
 
     created = []
     with SessionLocal() as db:
@@ -143,10 +147,10 @@ def ensure_demo_users() -> list[str]:
     return created
 
 
-def login_api(base: str, username: str) -> UrlApi:
-    """An Api that is logged in as a demo account (session token, not the dev header)."""
+def login_api(base: str, username: str, password: str | None = None) -> UrlApi:
+    """An Api logged in with a session token (not the dev header); the demo password by default."""
     status, body = UrlApi(base).call(
-        "POST", "/api/auth/login", {"username": username, "password": DEMO_PASSWORD}
+        "POST", "/api/auth/login", {"username": username, "password": password or DEMO_PASSWORD}
     )
     if status != 200:
         raise DemoError(f"demo login for {username} failed: HTTP {status} {body}")

@@ -1,13 +1,19 @@
-import os
+import time
 from contextlib import asynccontextmanager
 
 import anyio
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app import (  # noqa: F401  (triggers: DDL events before create_all)
     __version__,
+    bootstrap,
+    logging_setup,
     schema,
+    settings,
     triggers,
 )
 from app.acquire import models as _acquire_models  # noqa: F401
@@ -53,7 +59,14 @@ from app.validation_center.routes import router as validation_router
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # Refuses an outdated database (no migrations yet); creates + stamps a fresh one.
+    settings.check_or_exit()
+    logging_setup.setup()
     schema.check_and_init(engine)
+    with SessionLocal() as db:
+        try:
+            bootstrap.first_admin_from_env(db)
+        except ValueError as exc:
+            raise SystemExit(f"Nirikshan refuses to start: {exc}") from None
     with SessionLocal() as db:  # jobs/runs left running by a previous process cannot be running
         job_manager.recover(db)
     yield
@@ -68,18 +81,34 @@ app = FastAPI(
     dependencies=[Depends(authorize)],
 )
 
-origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if o]
+if settings.allowed_hosts():
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts())
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=settings.cookie_samesite() == "none",  # cross-site cookie deployments only
 )
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "nirikshan-api", "version": app.version}
+
+
+@app.get("/healthz")
+def healthz() -> JSONResponse:
+    """Readiness for load balancers and container healthchecks: the process is up AND the database
+    answers. Public, returns no configuration or case data."""
+    try:
+        with SessionLocal() as db:
+            db.execute(text("SELECT 1"))
+        return JSONResponse({"status": "ok", "database": "ok", "version": app.version})
+    except Exception:  # noqa: BLE001 - any failure means not ready
+        return JSONResponse(
+            {"status": "unavailable", "database": "error", "version": app.version}, 503
+        )
 
 
 app.include_router(router)
@@ -121,6 +150,7 @@ class AuditTrail:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         status = {"code": 500}
+        started = time.perf_counter()
 
         async def tap(message):
             if message["type"] == "http.response.start":
@@ -134,6 +164,18 @@ class AuditTrail:
             if path.startswith("/api/") and path != "/api/audit":
                 request = Request(scope)
                 await anyio.to_thread.run_sync(self._write, request, path, status["code"])
+                logging_setup.access.info(
+                    "request",
+                    extra={
+                        "fields": {
+                            "method": request.method,
+                            "path": path,
+                            "status": status["code"],
+                            "ms": round((time.perf_counter() - started) * 1000, 1),
+                            "principal": audit_identity(request),
+                        }
+                    },
+                )
 
     @staticmethod
     def _write(request: Request, path: str, code: int) -> None:

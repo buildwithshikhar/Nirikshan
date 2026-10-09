@@ -107,14 +107,17 @@ def seed_with_login(api_url: str, evdir: Path) -> dict:
     return summary
 
 
-def print_urls(api_url: str, web_url: str | None, summary: dict) -> None:
+def print_urls(
+    api_url: str, web_url: str | None, summary: dict, show_logins: bool = True
+) -> None:
     cid = summary.get("case_id")
     print("\n" + "=" * 78)
     print(BANNER)
     print(f"  API        {api_url}/docs")
-    print("  Demo logins (DEMO ACCOUNTS, reference data only, never for casework):")
-    for username, _display, role in demo_data.DEMO_USERS:
-        print(f"    {username:<14} {role:<9} password: {demo_data.DEMO_PASSWORD}")
+    if show_logins:
+        print("  Demo logins (DEMO ACCOUNTS, reference data only, never for casework):")
+        for username, _display, role in demo_data.DEMO_USERS:
+            print(f"    {username:<14} {role:<9} password: {demo_data.DEMO_PASSWORD}")
     if web_url:
         print(f"  Web UI     {web_url}")
         if cid:
@@ -127,21 +130,51 @@ def print_urls(api_url: str, web_url: str | None, summary: dict) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("--data-dir", default=str(ROOT / "demo-data"), help="demo data directory")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawTextHelpFormatter
+    )
+    ap.add_argument(
+        "--data-dir", default=str(ROOT / "demo-data"), help="demo data directory"
+    )
     ap.add_argument("--api-port", type=int, default=8100)
     ap.add_argument("--web-port", type=int, default=5273)
-    ap.add_argument("--keep", action="store_true", help="keep an existing demo data dir")
-    ap.add_argument("--no-web", action="store_true", help="API only (no frontend dev server)")
-    ap.add_argument("--exit-after-seed", action="store_true", help="stop after building the data")
-    ap.add_argument("--data-only", action="store_true", help="only build data against --api-url")
-    ap.add_argument("--api-url", default="http://localhost:8000", help="with --data-only")
+    ap.add_argument(
+        "--keep", action="store_true", help="keep an existing demo data dir"
+    )
+    ap.add_argument(
+        "--no-web", action="store_true", help="API only (no frontend dev server)"
+    )
+    ap.add_argument(
+        "--exit-after-seed", action="store_true", help="stop after building the data"
+    )
+    ap.add_argument(
+        "--data-only", action="store_true", help="only build data against --api-url"
+    )
+    ap.add_argument(
+        "--api-url", default="http://localhost:8000", help="with --data-only"
+    )
     ap.add_argument(
         "--evidence-dir",
         default=None,
         help="where reference-data images are written (must be under the backend's evidence roots)",
     )
+    ap.add_argument(
+        "--login",
+        default=None,
+        help="with --data-only: seed as this EXISTING examiner/admin instead of the demo accounts "
+        "(password from NIRIKSHAN_DEMO_SEED_PASSWORD); for a public instance",
+    )
     args = ap.parse_args()
+    if os.environ.get("NIRIKSHAN_PRODUCTION", "").lower() in (
+        "1",
+        "true",
+        "yes",
+    ) and not (args.data_only and args.login):
+        raise SystemExit(
+            "refusing to run: NIRIKSHAN_PRODUCTION is set. `make demo` creates demo accounts "
+            "with a published password. To seed the reference case on a public instance use "
+            "--data-only --api-url ... --login <existing user>."
+        )
     print(BANNER)
 
     if args.data_only:
@@ -149,7 +182,18 @@ def main() -> int:
         status, _ = demo_data.UrlApi(args.api_url).call("GET", "/health")
         if status != 200:
             raise SystemExit(f"no backend answering at {args.api_url}")
-        if os.environ.get("DATABASE_URL"):  # same database as the backend: create the demo accounts
+        if args.login:
+            api = demo_data.login_api(
+                args.api_url,
+                args.login,
+                os.environ.get("NIRIKSHAN_DEMO_SEED_PASSWORD", ""),
+            )
+            summary = demo_data.seed(api, evdir)
+            print_urls(args.api_url, None, summary, show_logins=False)
+            return 0
+        if os.environ.get(
+            "DATABASE_URL"
+        ):  # same database as the backend: create the demo accounts
             seed_users(dict(os.environ))
         summary = seed_with_login(args.api_url, evdir)
         print_urls(args.api_url, None, summary)
@@ -158,7 +202,9 @@ def main() -> int:
     data = Path(args.data_dir).resolve()
     if data.exists() and not args.keep:
         shutil.rmtree(data)
-    evdir = Path(args.evidence_dir).resolve() if args.evidence_dir else data / "evidence"
+    evdir = (
+        Path(args.evidence_dir).resolve() if args.evidence_dir else data / "evidence"
+    )
     for sub in ("data", "keys", "evidence"):
         (data / sub).mkdir(parents=True, exist_ok=True)
     api_port = free_port(args.api_port)
@@ -177,7 +223,10 @@ def main() -> int:
     files = contextlib.ExitStack()
     try:
         print(f"Data dir {data} (demo-only database, workspaces and signing key)")
-        logs = [files.enter_context((data / n).open("w")) for n in ("backend.log", "frontend.log")]
+        logs = [
+            files.enter_context((data / n).open("w"))
+            for n in ("backend.log", "frontend.log")
+        ]
         print(f"Server logs: {data / 'backend.log'}, {data / 'frontend.log'}")
         backend = subprocess.Popen(
             [sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(api_port)],
@@ -192,7 +241,9 @@ def main() -> int:
         web = None
         if not args.no_web:
             if not (ROOT / "frontend" / "node_modules").is_dir():
-                raise SystemExit("frontend/node_modules missing: run `npm ci` in frontend/ first")
+                raise SystemExit(
+                    "frontend/node_modules missing: run `npm ci` in frontend/ first"
+                )
             web = subprocess.Popen(
                 ["npx", "vite", "--port", str(web_port), "--strictPort"],
                 cwd=ROOT / "frontend",

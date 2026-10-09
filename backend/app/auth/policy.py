@@ -97,6 +97,7 @@ def resolver_key(template: str, param: str) -> str:
 # default (GET/HEAD -> READ, else WRITE) from default_rule().
 POLICY: dict[tuple[str, str], Rule] = {
     ("GET", "/health"): PUBLIC,
+    ("GET", "/healthz"): PUBLIC,
     ("GET", "/api/signing-key"): PUBLIC,  # public half only
     ("GET", "/api/package-key"): PUBLIC,  # public half only
     ("POST", "/api/auth/login"): PUBLIC,

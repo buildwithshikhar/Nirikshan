@@ -1,4 +1,4 @@
-import { ApiError, get, getToken, post } from '../../lib/http'
+import { API_URL, ApiError, get, getToken, post } from '../../lib/http'
 
 export interface Evidence {
   id: number
@@ -104,7 +104,7 @@ export const intakeApi = {
   upload: (caseId: number, file: File, onProgress: (frac: number) => void) =>
     new Promise<UploadResult>((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      xhr.open('POST', `/api/cases/${caseId}/uploads?filename=${encodeURIComponent(file.name)}`)
+      xhr.open('POST', `${API_URL}/api/cases/${caseId}/uploads?filename=${encodeURIComponent(file.name)}`)
       const token = getToken()
       if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`)
       xhr.setRequestHeader('Content-Type', 'application/octet-stream')

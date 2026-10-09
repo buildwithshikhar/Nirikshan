@@ -17,7 +17,6 @@ DELETE /api/cases/{case_id}/members/{uid}   admin; custody entry member_removed
 
 from __future__ import annotations
 
-import os
 import re
 from typing import Literal
 
@@ -27,7 +26,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app import custody
+from app import custody, settings
 from app.auth import passwords, service
 from app.auth.access import add_member
 from app.auth.deps import CurrentPrincipal
@@ -176,8 +175,8 @@ def login(body: LoginIn, request: Request, response: Response, db: DbSession):
         token,
         max_age=max_age,
         httponly=True,
-        samesite="strict",
-        secure=os.getenv("NIRIKSHAN_COOKIE_SECURE", "") in ("1", "true", "yes"),
+        samesite=settings.cookie_samesite(),
+        secure=settings.cookie_secure(),
         path="/api",
     )
     return {

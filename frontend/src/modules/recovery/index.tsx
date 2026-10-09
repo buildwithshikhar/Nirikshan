@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Route, Routes, useParams, useSearchParams } from 'react-router-dom'
-import { API_URL } from '../../lib/http'
+import { API_URL, authFetch } from '../../lib/http'
 import { useDetailDrawer } from '../../shell/DetailDrawer'
 import { EvidencePicker } from '../../shell/EvidencePicker'
 import {
@@ -16,6 +16,27 @@ import { type ClipRow, type Job, type ParsedField, type ParserResult, type RawTi
 const fmtVal = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v))
 const DECODE_TONE = { ok: 'ok', decode_errors: 'warn', export_failed: 'bad', not_exported: 'neutral' } as const
 const DecodeChip = ({ s }: { s: string }) => <Chip tone={DECODE_TONE[s as keyof typeof DECODE_TONE] ?? 'neutral'} testId="decode-status">{s}</Chip>
+
+function ClipVideo({ clipId }: { clipId: number }) {
+  // Same-origin deployments stream the MP4 with the session cookie (Range supported). When the API is on
+  // another origin (VITE_API_URL) the cookie is not sent, so the clip is fetched with the bearer token.
+  const [blobUrl, setBlobUrl] = useState('')
+  useEffect(() => {
+    if (!API_URL) return
+    let url = ''
+    let alive = true
+    authFetch(`${API_URL}/api/clips/${clipId}/video`)
+      .then((r) => (r.ok ? r.blob() : Promise.reject(new Error(`video HTTP ${r.status}`))))
+      .then((b) => alive && setBlobUrl((url = URL.createObjectURL(b))))
+      .catch(() => undefined)
+    return () => {
+      alive = false
+      if (url) URL.revokeObjectURL(url)
+    }
+  }, [clipId])
+  const src = API_URL ? blobUrl : `/api/clips/${clipId}/video`
+  return <video controls preload="metadata" data-testid="clip-video" aria-label={`Preview of clip ${clipId}`} src={src || undefined} className="max-w-full rounded" />
+}
 
 function clipColumns(caseId: number): Column<ClipRow>[] {
   return [
@@ -313,7 +334,7 @@ function PlayerTab({ clip, caseId }: { clip: ClipRow; caseId: number }) {
   if (!clip.has_video) return <Unavailable what="Playback" reason="No MP4 was exported for this clip." />
   return (
     <Card title="Player">
-      <video controls preload="metadata" data-testid="clip-video" aria-label={`Preview of clip ${clip.id}`} src={`${API_URL}/api/clips/${clip.id}/video`} className="max-w-full rounded" />
+      <ClipVideo clipId={clip.id} />
       <p className="mt-2 text-xs text-slate-400">Duration is nominal (25 fps assumed without timing info); it is not a recording time. Browser playback depends on H.264 support.</p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button busy={busy} onClick={verify}>Verify clip hash</Button>
