@@ -1,7 +1,8 @@
-export const API_URL = import.meta.env.VITE_API_URL ?? ''
+import { API_URL, authFetch } from './lib/http'
+export { API_URL }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await authFetch(`${API_URL}${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -175,15 +176,9 @@ export interface SystemInfo {
   signing_key_id: string
 }
 
-// Examiner attestation (no authentication): sent as X-Examiner on every call.
-const EXAMINER_KEY = 'nirikshan.examiner'
-export const getExaminer = () => localStorage.getItem(EXAMINER_KEY) ?? ''
-export const setExaminer = (name: string) => localStorage.setItem(EXAMINER_KEY, name)
-
 const post = <T>(path: string, body?: unknown) =>
   request<T>(path, {
     method: 'POST',
-    headers: { 'X-Examiner': getExaminer() },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 

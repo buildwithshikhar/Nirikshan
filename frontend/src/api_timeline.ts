@@ -1,7 +1,7 @@
-import { API_URL, getExaminer } from './api'
+import { API_URL, authFetch } from './lib/http'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await authFetch(`${API_URL}${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -20,7 +20,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const send = <T>(method: 'POST' | 'PUT', path: string, body?: unknown) =>
   request<T>(path, {
     method,
-    headers: { 'X-Examiner': getExaminer() },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 

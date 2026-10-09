@@ -88,11 +88,30 @@ def stop(proc: subprocess.Popen | None) -> None:
             pass
 
 
+def seed_users(env: dict) -> None:
+    """Create the demo accounts in the demo database (the app itself ships no default account)."""
+    subprocess.run(
+        [sys.executable, "-m", "app.demo_data", "seed-users"], cwd=ROOT / "backend", env=env, check=True
+    )
+
+
+def seed_with_login(api_url: str, evdir: Path) -> dict:
+    """Build the demo case as the demo examiner (a real login), then add the other demo accounts."""
+    api = demo_data.login_api(api_url, "demo-examiner")
+    summary = demo_data.seed(api, evdir)
+    if summary.get("case_id"):
+        demo_data.grant_demo_members(api_url, summary["case_id"])
+    return summary
+
+
 def print_urls(api_url: str, web_url: str | None, summary: dict) -> None:
     cid = summary.get("case_id")
     print("\n" + "=" * 78)
     print(BANNER)
     print(f"  API        {api_url}/docs")
+    print("  Demo logins (DEMO ACCOUNTS, reference data only, never for casework):")
+    for username, _display, role in demo_data.DEMO_USERS:
+        print(f"    {username:<14} {role:<9} password: {demo_data.DEMO_PASSWORD}")
     if web_url:
         print(f"  Web UI     {web_url}")
         if cid:
@@ -127,7 +146,9 @@ def main() -> int:
         status, _ = demo_data.UrlApi(args.api_url).call("GET", "/health")
         if status != 200:
             raise SystemExit(f"no backend answering at {args.api_url}")
-        summary = demo_data.seed(demo_data.UrlApi(args.api_url), evdir)
+        if os.environ.get("DATABASE_URL"):  # same database as the backend: create the demo accounts
+            seed_users(dict(os.environ))
+        summary = seed_with_login(args.api_url, evdir)
         print_urls(args.api_url, None, summary)
         return 0
 
@@ -147,9 +168,6 @@ def main() -> int:
         "NIRIKSHAN_KEY_DIR": str(data / "keys"),  # demo-only key, never ~/.nirikshan
         "NIRIKSHAN_EVIDENCE_ROOTS": str(evdir),
         "CORS_ORIGINS": web_url,
-        # The demo UI/seeder still identify the examiner with the X-Examiner attestation header
-        # (the login UI is Round D part 2). Dev-only, unauthenticated; never use for real cases.
-        "NIRIKSHAN_DEV_HEADER_AUTH": "1",
         "PATH": f"/opt/homebrew/bin:/usr/local/bin:{os.environ.get('PATH', '')}",
     }
     procs: list[subprocess.Popen] = []
@@ -182,7 +200,8 @@ def main() -> int:
             )
             procs.append(web)
             wait_http(web_url, 60, web)
-        summary = demo_data.seed(demo_data.UrlApi(api_url), evdir)
+        seed_users(env)
+        summary = seed_with_login(api_url, evdir)
         print_urls(api_url, None if args.no_web else web_url, summary)
         if args.exit_after_seed:
             return 0

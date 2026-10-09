@@ -1,10 +1,8 @@
 // P6 analytics API client (triage only). Same request()/post pattern and X-Examiner header as api.ts.
-const API_URL = import.meta.env.VITE_API_URL ?? ''
-const EXAMINER_KEY = 'nirikshan.examiner'
-const getExaminer = () => localStorage.getItem(EXAMINER_KEY) ?? ''
+import { API_URL, authFetch } from './lib/http'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await authFetch(`${API_URL}${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -23,7 +21,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const post = <T>(path: string, body?: unknown) =>
   request<T>(path, {
     method: 'POST',
-    headers: { 'X-Examiner': getExaminer() },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 

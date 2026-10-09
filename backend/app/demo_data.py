@@ -28,6 +28,16 @@ DEMO_CASE_TITLE = (
 DEMO_EXAMINER = "Demo Examiner (reference data)"
 SEED = 20260101
 
+# Demo accounts created by `make demo` and the e2e suite ONLY (never by the application). They share
+# one published password and exist so the login screen can be exercised; never use them for casework.
+DEMO_PASSWORD = "demo-account-not-for-casework"
+DEMO_USERS = [
+    ("demo-admin", "Demo Admin (demo account)", "admin"),
+    ("demo-examiner", "Demo Examiner (demo account)", "examiner"),
+    ("demo-reviewer", "Demo Reviewer (demo account)", "reviewer"),
+    ("demo-readonly", "Demo Read-only (demo account)", "readonly"),
+]
+
 # Invented device-clock numbers for the reference-data demo; not measurements of anything.
 HIK_TZ = "Asia/Kolkata"
 DHAV_REFERENCES = [
@@ -87,14 +97,24 @@ def build_images(out_dir: Path, seed: int = SEED) -> list[DemoImage]:
 
 # ---- API access --------------------------------------------------------------------------------
 class UrlApi:
-    def __init__(self, base: str, examiner: str = DEMO_EXAMINER, timeout: float = 600.0):
+    def __init__(
+        self,
+        base: str,
+        examiner: str = DEMO_EXAMINER,
+        timeout: float = 600.0,
+        token: str | None = None,
+    ):
         self.base, self.examiner, self.timeout = base.rstrip("/"), examiner, timeout
+        self.token = token
 
     def call(self, method: str, path: str, body=None) -> tuple[int, object]:
         data = None if body is None else json.dumps(body).encode()
         req = urllib.request.Request(self.base + path, data=data, method=method)
         req.add_header("Content-Type", "application/json")
-        req.add_header("X-Examiner", self.examiner)
+        if self.token:
+            req.add_header("Authorization", f"Bearer {self.token}")
+        else:
+            req.add_header("X-Examiner", self.examiner)
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 raw = r.read()
@@ -105,6 +125,45 @@ class UrlApi:
                 return e.code, json.loads(raw)
             except ValueError:
                 return e.code, {"detail": raw.decode(errors="replace")}
+
+
+def ensure_demo_users() -> list[str]:
+    """Create the demo accounts in the configured database (DATABASE_URL). Idempotent."""
+    from app.auth.routes import create_user
+    from app.db import SessionLocal
+
+    created = []
+    with SessionLocal() as db:
+        for username, display, role in DEMO_USERS:
+            try:
+                create_user(db, username, display, role, DEMO_PASSWORD, "demo-seed")
+                created.append(username)
+            except LookupError:
+                pass  # already exists
+    return created
+
+
+def login_api(base: str, username: str) -> UrlApi:
+    """An Api that is logged in as a demo account (session token, not the dev header)."""
+    status, body = UrlApi(base).call(
+        "POST", "/api/auth/login", {"username": username, "password": DEMO_PASSWORD}
+    )
+    if status != 200:
+        raise DemoError(f"demo login for {username} failed: HTTP {status} {body}")
+    return UrlApi(base, token=body["token"])
+
+
+def grant_demo_members(base: str, case_id: int) -> None:
+    """Add every demo account to the demo case (the examiner became a member by creating it)."""
+    admin = login_api(base, "demo-admin")
+    status, users = admin.call("GET", "/api/users")
+    if status != 200:
+        raise DemoError(f"list users failed: HTTP {status} {users}")
+    ids = {u["username"]: u["id"] for u in users}
+    for username, _d, _r in DEMO_USERS:
+        s, b = admin.call("POST", f"/api/cases/{case_id}/members", {"user_id": ids[username]})
+        if s not in (200, 201):
+            raise DemoError(f"add member {username} failed: HTTP {s} {b}")
 
 
 class ClientApi:
@@ -307,3 +366,12 @@ def seed(
         summary["skipped"].append("report: POST /api/cases/{id}/report is not available")
         log("    skipped: this build has no report endpoint (POST /api/cases/{id}/report)")
     return summary
+
+
+if __name__ == "__main__":  # python -m app.demo_data seed-users  (uses DATABASE_URL)
+    import sys
+
+    if sys.argv[1:] == ["seed-users"]:
+        print("demo users created:", ", ".join(ensure_demo_users()) or "none (already present)")
+    else:
+        raise SystemExit("usage: python -m app.demo_data seed-users")

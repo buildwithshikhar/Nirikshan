@@ -1,8 +1,8 @@
 // Report API (P7). Same request()/post pattern and X-Examiner header as src/api.ts.
-import { API_URL, getExaminer } from './api'
+import { API_URL, authFetch } from './lib/http'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await authFetch(`${API_URL}${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -38,7 +38,6 @@ export const reportApi = {
   generate: (caseId: number) =>
     request<ReportRow>(`/api/cases/${caseId}/report`, {
       method: 'POST',
-      headers: { 'X-Examiner': getExaminer() },
     }),
   downloadUrl: (reportId: number) => `${API_URL}/api/reports/${reportId}/download`,
   certificateUrl: (caseId: number, evidenceId: number) =>
