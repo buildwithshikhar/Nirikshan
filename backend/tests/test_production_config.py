@@ -65,7 +65,8 @@ def test_dev_header_with_production_flag_is_refused_at_startup(tmp_path):
         "NIRIKSHAN_EVIDENCE_ROOTS": str(tmp_path),
         "CORS_ORIGINS": "https://app.example.org",
     }
-    code = "from fastapi.testclient import TestClient as T\nfrom app.main import app\nT(app).__enter__()"
+    code = "from fastapi.testclient import TestClient as T\nfrom app.main import app\n"
+    code += "T(app).__enter__()"
     r = subprocess.run(
         [sys.executable, "-c", code], cwd=BACKEND, env=env, capture_output=True, text=True
     )
