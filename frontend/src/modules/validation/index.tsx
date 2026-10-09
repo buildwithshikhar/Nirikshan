@@ -1,11 +1,13 @@
-import { EmptyState, PageHeader } from '../../ui'
+import { Route, Routes } from 'react-router-dom'
+import Registry from './Registry'
+import ValidationCenter from './ValidationCenter'
 
-// Placeholder until the module is built (Round D part 2).
 export default function ValidationModule() {
   return (
-    <div>
-      <PageHeader title="Validation & Compatibility" />
-      <EmptyState title="This module is being built" />
-    </div>
+    <Routes>
+      <Route index element={<ValidationCenter />} />
+      <Route path="compatibility" element={<Registry />} />
+      <Route path="*" element={<ValidationCenter />} />
+    </Routes>
   )
 }
