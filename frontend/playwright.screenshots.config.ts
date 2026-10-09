@@ -9,5 +9,5 @@ export default defineConfig({
   testDir: './scripts',
   testMatch: 'screenshots.ts',
   workers: 1,
-  use: { ...base.use, viewport: { width: 1100, height: 720 }, colorScheme: 'dark' },
+  use: { ...base.use, viewport: { width: 1280, height: 800 }, colorScheme: 'dark' },
 })

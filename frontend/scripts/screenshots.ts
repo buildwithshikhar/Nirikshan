@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@playwright/test'
+import { loginAs } from '../e2e/fixtures'
 import { type Seeded, ensureDemo } from '../e2e/seed'
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'docs', 'img')
@@ -9,35 +10,36 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'docs', 'i
 let s: Seeded
 test.beforeAll(async ({ playwright }) => {
   mkdirSync(OUT, { recursive: true })
-  const request = await playwright.request.newContext({
-    baseURL: `http://localhost:${process.env.WEB_PORT ?? 5183}`,
-  })
+  const request = await playwright.request.newContext({ baseURL: `http://localhost:${process.env.WEB_PORT ?? 5183}` })
   s = await ensureDemo(request)
-  await request.post(`/api/clips/${s.clipId}/analytics`, {
-    headers: { 'X-Examiner': 'Demo Examiner (reference data)' },
-    data: { kind: 'motion' },
-  })
   await request.dispose()
 })
 
-// Every shot must show the reference-data banner; the run fails otherwise.
-const shots: [string, () => string, string, string?][] = [
-  ['dashboard', () => '/', 'System'],
-  ['case', () => `/cases/${s.caseId}`, 'Evidence'],
-  ['analysis', () => `/evidence/${s.caseId}/${s.dahuaEvidenceId}`, 'Parser:', 'Parser:'],
-  ['timeline', () => `/cases/${s.caseId}/timeline`, 'Cross-camera timeline', 'Cross-camera timeline'],
-  ['analytics', () => `/clips/${s.clipId}/analytics?case=${s.caseId}`, 'Motion run'],
-  ['custody', () => `/cases/${s.caseId}/custody`, 'Custody log'],
+// One screenshot per module (reference test data; the data-origin chip is part of every case shot).
+const shots: [string, () => string, string, string][] = [
+  ['dashboard', () => '/', 'Dashboard', 'admin'],
+  ['cases', () => `/cases/${s.caseId}`, 'DEMO-REFERENCE-001', 'examiner'],
+  ['evidence', () => `/cases/${s.caseId}/evidence/${s.hikEvidenceId}`, 'Evidence', 'examiner'],
+  ['device', () => `/cases/${s.caseId}/identification?evidence=${s.hikEvidenceId}`, 'Device Intelligence', 'examiner'],
+  ['explorer', () => `/cases/${s.caseId}/explorer?evidence=${s.hikEvidenceId}`, 'Storage Explorer', 'examiner'],
+  ['recovery', () => `/cases/${s.caseId}/recovery/clips/${s.clipId}`, 'Recovery', 'examiner'],
+  ['timeline', () => `/cases/${s.caseId}/timeline`, 'Timeline', 'examiner'],
+  ['triage', () => `/cases/${s.caseId}/triage?clip=${s.clipId}`, 'AI Triage', 'examiner'],
+  ['correlation', () => `/cases/${s.caseId}/correlation`, 'Correlation', 'examiner'],
+  ['integrity', () => `/cases/${s.caseId}/integrity`, 'Integrity Center', 'examiner'],
+  ['reports', () => `/cases/${s.caseId}/reports`, 'Report Studio', 'examiner'],
+  ['validation', () => '/validation', 'Validation', 'examiner'],
+  ['jobs', () => `/cases/${s.caseId}/jobs?tab=history`, 'Jobs', 'examiner'],
+  ['admin', () => '/admin', 'Admin', 'admin'],
+  ['help', () => '/help', 'Help', 'examiner'],
 ]
 
-for (const [name, url, ready, scrollTo] of shots) {
+for (const [name, url, ready, role] of shots) {
   test(`screenshot ${name}`, async ({ page }) => {
-    await page.goto(url())
-    await expect(page.getByText(ready).first()).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByTestId('status-reference-data')).toContainText('Reference test data')
+    await loginAs(page, role as 'admin' | 'examiner', url())
+    await expect(page.getByRole('heading', { level: 1 }).filter({ hasText: ready }).first()).toBeVisible({ timeout: 20_000 })
     await page.waitForLoadState('networkidle')
-    if (scrollTo) await page.getByText(scrollTo).first().evaluate((el) => { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150) })
-    await page.waitForTimeout(500)
-    await page.screenshot({ path: join(OUT, `${name}.png`), animations: 'disabled' })
+    await page.waitForTimeout(400)
+    await page.screenshot({ path: join(OUT, `ui-${name}.png`), animations: 'disabled' })
   })
 }
