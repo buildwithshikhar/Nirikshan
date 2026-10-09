@@ -1,12 +1,12 @@
 """Ed25519 signing key for the custody log.
 
 The private key lives in key_dir() (default ~/.nirikshan/keys), outside every case workspace, and
-is generated on first use with mode 0600. Whoever holds this file can forge custody entries; back
+is generated on first use with mode 0600, optionally passphrase-protected (app.keystore,
+docs/security/auth.md). Whoever holds this file can forge custody entries; back
 it up and protect it separately from case data (see docs/ARCHITECTURE.md).
 """
 
 import hashlib
-import os
 from pathlib import Path
 
 from cryptography.exceptions import InvalidSignature
@@ -16,13 +16,15 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PublicKey,
 )
 
-from app.config import data_dir, key_dir
+from app import keystore
+from app.config import key_dir
+from app.keystore import KeyStoreError
 
-KEY_FILE = "custody_ed25519.pem"
+KEY_STEM = "custody_ed25519"
+KEY_FILE = f"{KEY_STEM}.pem"  # plaintext form; protected form is f"{KEY_STEM}.key.enc"
 
 
-class SigningKeyError(RuntimeError):
-    pass
+SigningKeyError = KeyStoreError  # kept for callers/tests that import it from here
 
 
 def _raw(pub: Ed25519PublicKey) -> bytes:
@@ -34,28 +36,8 @@ def key_id(pub: Ed25519PublicKey) -> str:
 
 
 def _load_or_create() -> Ed25519PrivateKey:
-    kd, dd = key_dir(), data_dir()
-    if kd == dd or dd in kd.parents:
-        raise SigningKeyError(f"signing key dir {kd} must be outside the data dir {dd}")
-    path = kd / KEY_FILE
-    if path.exists():
-        if path.stat().st_mode & 0o077:
-            raise SigningKeyError(f"{path} must not be accessible by group/others (chmod 600)")
-        key = serialization.load_pem_private_key(path.read_bytes(), password=None)
-        if not isinstance(key, Ed25519PrivateKey):
-            raise SigningKeyError(f"{path} is not an Ed25519 key")
-        return key
-    kd.mkdir(parents=True, exist_ok=True, mode=0o700)
-    key = Ed25519PrivateKey.generate()
-    pem = key.private_bytes(
-        serialization.Encoding.PEM,
-        serialization.PrivateFormat.PKCS8,
-        serialization.NoEncryption(),
-    )
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    with os.fdopen(fd, "wb") as f:
-        f.write(pem)
-    return key
+    """Plaintext PEM (default) or passphrase-protected file: see app.keystore."""
+    return keystore.load_or_create(KEY_STEM)
 
 
 def private_key() -> Ed25519PrivateKey:
