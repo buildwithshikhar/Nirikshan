@@ -4,7 +4,11 @@ Analysis of a large image can take minutes, so the UI starts it as a background 
 progress. The synchronous `POST /api/evidence/{id}/analyze` still exists and behaves exactly as
 before (no progress, no cancel).
 
-## API (all mutations need the `X-Examiner` header)
+Round D: jobs run their parse/carve/analytics compute in isolated worker processes, and can be
+chained, retried and batched; see [workers.md](workers.md). Identity comes from the logged-in
+user ([security/auth.md](security/auth.md)).
+
+## API (all mutations need an authenticated user with write access to the case)
 
 | Call | Result |
 |---|---|
@@ -75,9 +79,8 @@ reused or duplicated.
 * Single process: the worker pool is a `ThreadPoolExecutor` (`NIRIKSHAN_JOB_WORKERS`, default 2).
   There is no broker, no multi-process coordination and no resume after a restart.
 * The queue is in memory; queued jobs lost at restart are marked `failed`.
-* No authentication: the examiner header is an attestation, as everywhere else.
-* The custody log assigns sequence numbers per case without a lock across threads; two simultaneous
-  writers to the same case could collide on the UNIQUE (case_id, seq) constraint. The job manager
-  writes custody entries only from its own worker, but a user action in the same millisecond can
-  still race (pre-existing limitation of the custody writer).
+* Jobs record the authenticated principal (docs/security/auth.md); the `X-Examiner` header is
+  only honoured in the dev-only header mode.
+* Custody appends are serialised in-process and retried on a sequence collision with another
+  process, so concurrent jobs of one case no longer collide on UNIQUE (case_id, seq).
 * A cancel does not interrupt the image re-verification that precedes each run.
