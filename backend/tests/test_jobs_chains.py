@@ -82,7 +82,15 @@ def test_failure_cancels_dependents_transitively_with_reason(client, ev, ev2, se
     assert db_["status"] == "cancelled" and f"dependency job {a['id']} failed" in db_["error"]
     assert dc["status"] == "cancelled" and f"dependency job {b['id']} cancelled" in dc["error"]
     assert db_["run_id"] is None  # never started
-    acts = [e.action for e in session.scalars(select(CustodyEntry).order_by(CustodyEntry.id))]
+    import time
+
+    deadline = time.monotonic() + 10  # the entry is appended right after the status update
+    while True:
+        session.expire_all()
+        acts = [e.action for e in session.scalars(select(CustodyEntry).order_by(CustodyEntry.id))]
+        if acts.count("job_cancelled") == 2 or time.monotonic() > deadline:
+            break
+        time.sleep(0.05)
     assert acts.count("job_cancelled") == 2
     # a dependent cannot be attached to a failed job
     r = client.post(f"/api/evidence/{ev2['id']}/jobs/analyze?depends_on={a['id']}")

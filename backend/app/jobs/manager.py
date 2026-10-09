@@ -645,22 +645,37 @@ class JobManager:
                 job = db.get(Job, job_id)
                 if job is None or job.status not in ACTIVE:
                     return
-                self._finish(job_id, "failed", None, "Failed")
-                db.execute(update(Job).where(Job.id == job_id).values(error=message[:2000]))
-                db.commit()
-                custody.append_entry(
-                    db,
-                    job.case_id,
-                    "analysis_job_failed" if job.kind == "analyze" else "job_failed",
-                    job.examiner,
-                    {
-                        "job_id": job_id,
-                        "kind": job.kind,
-                        "run_id": job.run_id,
-                        "error": message[:2000],
-                    },
-                    job.evidence_id,
+                # Custody entry first, then status + error in one update, so a poller that sees
+                # "failed" also finds the error and the custody entry.
+                try:
+                    custody.append_entry(
+                        db,
+                        job.case_id,
+                        "analysis_job_failed" if job.kind == "analyze" else "job_failed",
+                        job.examiner,
+                        {
+                            "job_id": job_id,
+                            "kind": job.kind,
+                            "run_id": job.run_id,
+                            "error": message[:2000],
+                        },
+                        job.evidence_id,
+                    )
+                except Exception:
+                    db.rollback()
+                    log.exception("job %s: could not write the failure custody entry", job_id)
+                db.execute(
+                    update(Job)
+                    .where(Job.id == job_id)
+                    .values(
+                        status="failed",
+                        active_key=None,
+                        finished_at=utc_now_iso(),
+                        stage="Failed",
+                        error=message[:2000],
+                    )
                 )
+                db.commit()
         except Exception:
             log.exception("job %s: could not record failure", job_id)
 

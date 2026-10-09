@@ -78,3 +78,23 @@ def test_both_forms_present_is_refused(monkeypatch):
     enc.chmod(0o600)
     with pytest.raises(keystore.KeyStoreError, match="both"):
         signing.public_key()
+
+
+def test_protect_all_with_interactive_prompt(monkeypatch, capsys):
+    from app.package import keys as package_keys
+
+    signing.public_key()
+    pkid = package_keys.key_id()
+    answers = iter(["typed at the prompt", "typed at the prompt"])
+    monkeypatch.setattr(cli.getpass, "getpass", lambda prompt="": next(answers))
+    monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: True)
+    assert cli.main(["protect-key"]) == 0
+    assert keystore.status("package_ed25519")["state"] == "protected"
+    assert keystore.status("custody_ed25519")["state"] == "protected"
+    assert "typed at the prompt" not in capsys.readouterr().out
+    monkeypatch.setenv("NIRIKSHAN_KEY_PASSPHRASE", "typed at the prompt")
+    assert package_keys.key_id() == pkid
+    monkeypatch.delenv("NIRIKSHAN_KEY_PASSPHRASE")
+    keystore._cache.clear()
+    with pytest.raises(keystore.KeyStoreError):
+        package_keys.sign(b"manifest")  # fails closed: nothing is signed
