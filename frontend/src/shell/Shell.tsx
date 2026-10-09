@@ -86,7 +86,7 @@ function Sidebar({ collapsed, toggle }: { collapsed: boolean; toggle: () => void
                   return (
                     <li key={i.id}>
                       {to ? (
-                        <NavLink to={to} end={to === '/'} aria-label={collapsed ? i.label : undefined} title={i.label} className={({ isActive }) => link(isActive)}>
+                        <NavLink to={to} end aria-label={collapsed ? i.label : undefined} title={i.label} className={({ isActive }) => link(isActive)}>
                           {collapsed ? <span aria-hidden="true">{short}</span> : i.label}
                         </NavLink>
                       ) : (

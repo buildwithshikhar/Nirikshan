@@ -19,6 +19,7 @@ export default defineConfig({
   testDir: './e2e',
   globalSetup: './e2e/global-setup.ts',
   timeout: 180_000,
+  expect: { timeout: 15_000 }, // the shared case accumulates data over a full run
   workers: 1, // the shared e2e backend has a small DB pool; parallel logins exhausted it
   reporter: 'list',
   use: { baseURL: `http://localhost:${WEB_PORT}`, trace: 'retain-on-failure' },

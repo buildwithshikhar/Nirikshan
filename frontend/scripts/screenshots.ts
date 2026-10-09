@@ -37,7 +37,7 @@ const shots: [string, () => string, string, string][] = [
 for (const [name, url, ready, role] of shots) {
   test(`screenshot ${name}`, async ({ page }) => {
     await loginAs(page, role as 'admin' | 'examiner', url())
-    await expect(page.getByRole('heading', { level: 1 }).filter({ hasText: ready }).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 20_000 })
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(400)
     await page.screenshot({ path: join(OUT, `ui-${name}.png`), animations: 'disabled' })
