@@ -215,7 +215,8 @@ export function ianaZones(): string[] {
   const intl = Intl as unknown as { supportedValuesOf?: (k: string) => string[] }
   try {
     const all = intl.supportedValuesOf?.('timeZone')
-    if (all && all.length > 0) return Array.from(new Set(['UTC', ...all]))
+    // Browsers differ on aliases (Chromium lists Asia/Calcutta, not Asia/Kolkata): always offer the common names.
+    if (all && all.length > 0) return Array.from(new Set([...COMMON_ZONES, ...all]))
   } catch {
     // fall through
   }
