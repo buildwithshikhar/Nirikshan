@@ -1,11 +1,13 @@
-import { EmptyState, PageHeader } from '../../ui'
+import { Route, Routes } from 'react-router-dom'
+import CustodyLog from './CustodyLog'
+import Verification from './Verification'
 
-// Placeholder until the module is built (Round D part 2).
 export default function IntegrityModule() {
   return (
-    <div>
-      <PageHeader title="Integrity Center" />
-      <EmptyState title="This module is being built" />
-    </div>
+    <Routes>
+      <Route index element={<CustodyLog />} />
+      <Route path="verification" element={<Verification />} />
+      <Route path="*" element={<CustodyLog />} />
+    </Routes>
   )
 }
