@@ -1,12 +1,13 @@
-# One-command demo (SYNTHETIC data only)
+# One-command demo (reference test data)
 
 ```
 make demo
 ```
 
 Needs `ffmpeg`, `backend/.venv` and `frontend/node_modules` (`npm ci`). Everything it creates is
-SYNTHETIC: generated test images in per-paper vendor layouts, not real DVR/NVR data, and nothing in
-the demo validates a real device. The Hikvision and Dahua parsers were written from the same
+reference test data: images we generated in per-paper vendor layouts, built from published
+research and open-source format documentation, with known ground truth. They were not captured
+from a physical DVR, and nothing in the demo validates a real device. The Hikvision and Dahua parsers were written from the same
 documents as these layouts, so parsing them is a circular self-consistency check.
 
 ## What it does
@@ -15,9 +16,9 @@ documents as these layouts, so parsing them is a circular self-consistency check
    images and a **demo-only signing key** (`demo-data/keys`; `~/.nirikshan` is never touched).
 2. Starts the backend (uvicorn, default port 8100) and the Vite dev server (default 5273); logs go
    to `demo-data/backend.log` and `frontend.log`.
-3. Through the HTTP API: creates case `DEMO-SYNTHETIC-001`; builds three SYNTHETIC images with the
+3. Through the HTTP API: creates case `DEMO-REFERENCE-001`; builds three reference-data images with the
    validation-harness builders (Hikvision layout, Dahua DHAV layout, raw H.264) in `demo-data/evidence`,
-   each starting with the 256-byte SYNTHETIC banner; acquires them; runs three analysis **jobs**
+   each starting with the 256-byte machine marker ("NIRIKSHAN SYNTHETIC TEST IMAGE - NOT REAL DVR DATA", intentionally unchanged); acquires them; runs three analysis **jobs**
    (progress is polled and printed); sets time assumptions (Asia/Kolkata, invented notes) for the
    Hikvision and Dahua images, adds two invented reference observations and fits a drift model for
    the Dahua image; leaves the raw image's **timezone unknown on purpose** (its clips are

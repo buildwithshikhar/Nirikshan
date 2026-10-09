@@ -4,7 +4,9 @@
 
 *SIH PS 26150, multi-vendor DVR/NVR forensic analysis. Audience: NTRO technical reviewers.*
 
-> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
+{{HIGHLIGHTS}}
+
+> **Reading rule for this report.** Everything below was built and tested on **reference test data** (images we generated from published research and open-source format documentation, with known ground truth; the validation documents call this synthetic data). It was not captured from a physical DVR, and no real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
 
 ## 1. What Nirikshan is
 
@@ -24,7 +26,7 @@ Full detail: [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md).
 | Analytics | Motion (numpy), YOLOX-Nano objects, YuNet face detection; labelled "triage, not identification"; no recognition |
 | Frontend | React + Vite, one page per stage |
 | Packaging | Offline Docker images and hardened compose file ([OFFLINE_DEPLOYMENT.md](OFFLINE_DEPLOYMENT.md)) |
-| Reporting, jobs, demo PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
+| Reporting, jobs, demo | PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
 
 ## 3. Requirement traceability (PS 26150)
 
@@ -61,7 +63,7 @@ These come from public still-image datasets and synthetic clips. They do not des
 - **Not recovered:** MJPEG, MPEG-4 Part 2, encrypted recordings; H.265 has no continuity check.
 - **Chain of custody:** examiner identity is an attestation (no authentication); tail truncation is detectable only against an externally recorded `head_hash`; the holder of the signing key can forge entries; no key rotation.
 - **Analytics are triage.** Face detection is not recognition; error rates do not transfer to DVR footage.
-- **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); one dependency (`cryptography` 46.0.7) has open advisories judged unreachable in our usage but not fixed; the offline stack was tested once on one host and its frontend container is not egress-blocked there.
+- **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); the dependency audits were clean after the `cryptography` 50.0.2 upgrade (they are limited to published advisories; OS packages and container images were not scanned); the offline stack was tested once on one host and its frontend container is not egress-blocked there.
 - **Legal:** the BSA 63(4) draft certificate is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
 - **Licences:** the image's ffmpeg is a GPL build; two datasets have no licence grant ([THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
 - **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis can run as a background job (single process, no quotas).

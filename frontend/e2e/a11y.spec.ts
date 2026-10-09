@@ -1,8 +1,9 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { type Seeded, ensureDemo } from './seed'
+import { ORIGIN_DISCLOSURE, ORIGIN_HEADLINE, ORIGIN_LABEL, TIER_LIMIT } from '../src/dataOrigin'
 
-// WCAG 2.1 A/AA automated checks on every page, with SYNTHETIC seeded data (the demo case).
+// WCAG 2.1 A/AA automated checks on every page, with reference-test-data seeded data (the demo case).
 // The test FAILS on serious and critical violations; minor/moderate ones are logged and tracked
 // in docs/accessibility.md. Automated checks cover only part of WCAG (see that document).
 test.describe.configure({ mode: 'serial' })
@@ -24,7 +25,7 @@ test.beforeAll(async ({ playwright }) => {
 const pages: [string, () => string, string][] = [
   ['dashboard', () => '/', 'Dashboard'],
   ['cases', () => '/cases', 'Cases'],
-  ['case detail', () => `/cases/${s.caseId}`, 'DEMO-SYNTHETIC-001'],
+  ['case detail', () => `/cases/${s.caseId}`, 'DEMO-REFERENCE-001'],
   ['analysis (Hikvision parser, clips)', () => `/evidence/${s.caseId}/${s.hikEvidenceId}`, 'Parser:'],
   ['analysis (Dahua parser, clips)', () => `/evidence/${s.caseId}/${s.dahuaEvidenceId}`, 'Parser:'],
   ['analysis (raw, no parser)', () => `/evidence/${s.caseId}/${s.rawEvidenceId}`, 'Vendor identification'],
@@ -50,15 +51,27 @@ for (const [name, url, ready] of pages) {
   })
 }
 
-test('banners: SYNTHETIC and unknown timezone are persistent on case pages', async ({ page }) => {
+test('banners: data origin and unknown timezone are persistent on case pages', async ({ page }) => {
   for (const url of [`/cases/${s.caseId}`, `/evidence/${s.caseId}/${s.rawEvidenceId}`, `/cases/${s.caseId}/custody`]) {
     await page.goto(url)
-    await expect(page.getByTestId('status-synthetic')).toContainText('SYNTHETIC DATA')
+    await expect(page.getByTestId('status-reference-data')).toContainText(ORIGIN_LABEL)
     await expect(page.getByTestId('status-tz-unknown')).toContainText(`#${s.rawEvidenceId}`)
   }
   await page.goto('/cases')
-  await expect(page.getByTestId('status-synthetic')).toContainText('workspace contains')
+  await expect(page.getByTestId('status-reference-data')).toContainText('This workspace contains')
 })
+
+// Every demo screen states what the data is and the Tier B limit (not just the pages axe scans).
+for (const [name, url, ready] of pages) {
+  test(`origin and tier limit are stated on: ${name}`, async ({ page }) => {
+    await page.goto(url())
+    await expect(page.getByText(ready, { exact: false }).first()).toBeVisible({ timeout: 20_000 })
+    const origin = page.getByTestId('status-reference-data')
+    await expect(origin).toContainText(ORIGIN_HEADLINE)
+    await expect(origin).toContainText(ORIGIN_DISCLOSURE)
+    await expect(page.getByTestId('tier-limit')).toHaveText(TIER_LIMIT)
+  })
+}
 
 test('keyboard: skip link is the first tab stop and moves focus to main', async ({ page }) => {
   await page.goto('/cases')

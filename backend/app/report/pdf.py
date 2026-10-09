@@ -9,6 +9,7 @@ from __future__ import annotations
 from app.analytics import TRIAGE_LABEL
 from app.report import pdfkit as K
 from app.report.build import DISCLAIMER_CLOCK, NOMINAL_NOTE, clip_text
+from app.synthetic import ORIGIN_DISCLOSURE, ORIGIN_HEADLINE, TIER_LIMIT
 
 W = 182 * K.mm
 SECTION_NAMES = [
@@ -63,6 +64,24 @@ def _story(data: dict, san: K.Sanitizer, st: K.Styles) -> list:
     return out
 
 
+def _origin_block(data, P, st):
+    """Data origin (when the case holds generated reference images) and the Tier B limit.
+    Always printed on the cover: neither can be switched off."""
+    ev = data["evidence"]
+    n_ref = sum(1 for e in ev if e.get("reference_data"))
+    out = []
+    if n_ref:
+        out.append(
+            P(
+                f"DATA ORIGIN: {ORIGIN_HEADLINE}. {n_ref} of {len(ev)} evidence item(s) in this "
+                f"case carry the generated-image marker. {ORIGIN_DISCLOSURE}",
+                st.cell_b,
+            )
+        )
+    out.append(P(TIER_LIMIT, st.cell_b))
+    return out
+
+
 def _cover(data, san, st, P):
     c, g = data["cover"], data["generated"]
     ver = data["custody"]["verification"]
@@ -97,6 +116,8 @@ def _cover(data, san, st, P):
             ],
         ),  # fmt: skip
         K.Spacer(1, 6),
+        *_origin_block(data, P, st),
+        K.Spacer(1, 4),
         P(DISCLAIMER_CLOCK, st.note),
         K.Spacer(1, 4),
         P(
@@ -108,7 +129,8 @@ def _cover(data, san, st, P):
         K.Spacer(1, 4),
         P(
             "This report states what the tool recorded and computed. It makes no legal "
-            "assertion. All validation behind it is on SYNTHETIC images (see section 6).",
+            "assertion. All validation behind it is on reference test data, i.e. synthetic "
+            "images (see section 6).",
             st.note,
         ),
     ]

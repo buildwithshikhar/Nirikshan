@@ -18,8 +18,8 @@ section. Nothing here is a conformance claim.
   job progress is a `progressbar` with `aria-valuetext`, analysis result notes, custody chain result,
   time-assumption save message; errors use `role="alert"`.
 * Empty states with guidance, error states, and loading skeletons (`role="status"` "Loading ...").
-* Persistent, sticky banners (`StatusBanners`, mounted in `Layout`): **SYNTHETIC** (evidence flagged
-  from the image banner, or a `DEMO-SYNTHETIC...` case; list pages note that the workspace contains
+* Persistent, sticky banners (`StatusBanners`, mounted in `Layout`): **Reference test data** (evidence flagged
+  from the image banner, or a `DEMO-REFERENCE...` case; list pages note that the workspace contains
   demo cases) and **TIMEZONE UNKNOWN** (any acquired evidence without a P5 time assumption, with a
   link to set it).
 * `prefers-reduced-motion` honoured.
@@ -34,7 +34,7 @@ section. Nothing here is a conformance claim.
 | accent (orange) text on navy-900 / navy-800 | 6.47 / 5.76 | pass |
 | emerald-400, amber-300, red-400 on navy-800 | 8.40, 11.19, 5.84 | pass |
 | chips: emerald-200/emerald-900, amber-200/amber-900, slate-300/slate-700 | 7.58, 7.28, 6.97 | pass |
-| navy-900 on amber-400 (SYNTHETIC banner), red-200 on red-900 (timezone banner) | 10.86, 6.93 | pass |
+| navy-900 on amber-400 (reference-data banner), red-200 on red-900 (timezone banner) | 10.86, 6.93 | pass |
 | **old** slate-500 on navy-800 (hint text, 15 uses) | 3.39 | failed, now slate-400 |
 | **old** white on orange (buttons, active nav) | 2.80 | failed, now navy-900 text (6.47) |
 | **old** red-500 on navy-800 | 4.29 | failed (only used as a status dot, not text) |
@@ -45,7 +45,7 @@ Button hover is now a lighter orange (`#fb923c`) so dark text keeps its contrast
 
 `frontend/e2e/a11y.spec.ts` runs axe-core (`@axe-core/playwright`, tags wcag2a, wcag2aa, wcag21a,
 wcag21aa) on the dashboard, cases, case detail, analysis (Hikvision with parser panel and clips,
-Dahua, raw), custody log, timeline and analytics pages with the SYNTHETIC demo case, and **fails on any
+Dahua, raw), custody log, timeline and analytics pages with the reference-test-data demo case, and **fails on any
 serious or critical violation**. A self-test proves the gate can fail (it flags a known low-contrast,
 unlabelled input). Result on the final code: 0 serious/critical on all 9 pages.
 Minor/moderate findings: none were reported under those tags (the test prints any it sees). Axe

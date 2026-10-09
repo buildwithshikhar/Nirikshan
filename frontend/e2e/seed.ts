@@ -13,11 +13,11 @@ export interface Seeded {
   clipId: number
 }
 
-/** Builds the SYNTHETIC demo case (scripts/demo.py --data-only) in the running e2e backend, once. */
+/** Builds the reference-data demo case (scripts/demo.py --data-only) in the running e2e backend, once. */
 export async function ensureDemo(request: APIRequestContext): Promise<Seeded> {
   const find = async () => {
     const cases = (await (await request.get('/api/cases')).json()) as { id: number; case_number: string }[]
-    return cases.find((c) => c.case_number === 'DEMO-SYNTHETIC-001')
+    return cases.find((c) => c.case_number === 'DEMO-REFERENCE-001')
   }
   let kase = await find()
   if (!kase) {

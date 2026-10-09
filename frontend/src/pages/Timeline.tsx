@@ -129,7 +129,7 @@ export default function TimelinePage() {
       </div>
       <p className="text-xs text-slate-400">
         Timestamps are normalised to UTC only where the examiner entered a timezone assumption with its evidence.
-        Nothing is defaulted. Synthetic-validated only; not validated on any real device.
+        Nothing is defaulted. Validated on reference test data only; not validated on any real device.
       </p>
       {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
       {tl && tl.evidence_without_timezone.length > 0 && (

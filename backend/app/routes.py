@@ -18,6 +18,7 @@ from app.config import allow_block_devices, evidence_roots
 from app.db import get_db
 from app.hashing import hash_file
 from app.models import AuditEntry, CarveRun, Case, Clip, CustodyEntry, Evidence
+from app.synthetic import ORIGIN_DEFINITION, ORIGIN_DISCLOSURE, ORIGIN_LABEL, TIER_LIMIT
 
 router = APIRouter(prefix="/api")
 DbSession = Annotated[Session, Depends(get_db)]
@@ -67,6 +68,12 @@ def system() -> dict:
         "evidence_roots": [str(r) for r in evidence_roots()],
         "block_devices_allowed": allow_block_devices(),
         "signing_key_id": signing.key_id(signing.public_key()),
+        "data_origin": {
+            "label": ORIGIN_LABEL,
+            "definition": ORIGIN_DEFINITION,
+            "disclosure": ORIGIN_DISCLOSURE,
+            "tier_limit": TIER_LIMIT,
+        },
     }
 
 

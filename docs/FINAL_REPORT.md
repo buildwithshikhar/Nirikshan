@@ -4,7 +4,31 @@
 
 *SIH PS 26150, multi-vendor DVR/NVR forensic analysis. Audience: NTRO technical reviewers.*
 
-> **Reading rule for this report.** Everything below was built and tested on **synthetic data**. No real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
+## Measured strengths (numbers computed by code from `docs/stats.json` and `docs/validation/results.json`)
+
+- **492 backend tests and 30 end-to-end browser tests** (6 spec files, including an axe accessibility gate and a check that every demo screen states the data origin and the Tier B limit). CI runs backend tests on Python 3.10 and 3.12, the frontend build and lint, and a traceability/tier consistency check ([![CI](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml/badge.svg)](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml)).
+- **41 known-answer scenarios** (77 scenario x engine results, seed 20260101, 20 trials each, digest `ba75170eb2516cd0`), scored with ground truth computed by byte comparison; the regression thresholds are enforced in CI (violations in the committed baseline: 0).
+- **6 negative scenarios** (encrypted streams, MJPEG, MPEG-4, noise with false start codes): 0 cleanly decoding clips were produced; clips emitted anyway are flagged as failed decodes.
+- **Custody integrity: 40 tests** covering tampering, forgery, recomputed chains without the key, truncation, append-only triggers, and signatures created before a dependency upgrade.
+- **Reports: 30 tests**; the PDF is byte-identical for the same data and generation time, a tampered custody chain is shown as FAILED, and each report records its own SHA-256 in the custody log.
+- **The fragment reassembler is measured, not assumed:** false-accept rate 11.8% (35/297), so it is off by default.
+
+Recovery on the reference test layouts (clip recall / clip precision; generic carver vs vendor parser vs the default parser-first + generic pipeline):
+
+| Scenario | Generic only | Parser only | Parser first + generic (default) |
+|---|---|---|---|
+| Hikvision layout, HIKBTREE entries cleared (deleted-then-intact) | 100% / 100% | 33% / 100% | 100% / 100% |
+| Hikvision layout, clean live clips | 100% / 100% | 100% / 100% | 100% / 100% |
+| Dahua DHAV layout, clean live clips | 100% / 100% | 100% / 100% | 100% / 100% |
+| Dahua DHAV layout, 2-3 cameras frame-interleaved | 100% / 55% | 100% / 100% | 100% / 100% |
+| Honeywell layout, clean live clips | 100% / 100% | 100% / 100% | 100% / 100% |
+| Raw layout, 100-300 B zero padding inside a clip (documented limit) | 0% / n/a | n/a (no parser) | n/a (no parser) |
+| Raw layout, 2-3 cameras GOP-interleaved, identical parameter sets (no channel metadata) | 100% / 40% | n/a (no parser) | n/a (no parser) |
+| Raw layout, one clip fully overwritten (must not be recovered) | 100% / 100% | n/a (no parser) | n/a (no parser) |
+
+These layouts are reference test data: built from published research and open-source format documentation, with known ground truth. They were not captured from a physical DVR, and a parser tested on a layout built from the same document is a circular check. See the limits below.
+
+> **Reading rule for this report.** Everything below was built and tested on **reference test data** (images we generated from published research and open-source format documentation, with known ground truth; the validation documents call this synthetic data). It was not captured from a physical DVR, and no real DVR or NVR image has been processed. No vendor is Tier A. Statements are traceable to code, results files or cited sources; where evidence is missing we say so.
 
 ## 1. What Nirikshan is
 
@@ -24,7 +48,7 @@ Full detail: [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md).
 | Analytics | Motion (numpy), YOLOX-Nano objects, YuNet face detection; labelled "triage, not identification"; no recognition |
 | Frontend | React + Vite, one page per stage |
 | Packaging | Offline Docker images and hardened compose file ([OFFLINE_DEPLOYMENT.md](OFFLINE_DEPLOYMENT.md)) |
-| Reporting, jobs, demo PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
+| Reporting, jobs, demo | PDF report, BSA 63(4) draft certificate, JSON-LD export; background jobs, `make demo`, accessibility pass |
 
 ## 3. Requirement traceability (PS 26150)
 
@@ -153,7 +177,7 @@ On 100 rendered synthetic overlays: 91 exactly correct, 9 unreadable, 0 confiden
 - **Not recovered:** MJPEG, MPEG-4 Part 2, encrypted recordings; H.265 has no continuity check.
 - **Chain of custody:** examiner identity is an attestation (no authentication); tail truncation is detectable only against an externally recorded `head_hash`; the holder of the signing key can forge entries; no key rotation.
 - **Analytics are triage.** Face detection is not recognition; error rates do not transfer to DVR footage.
-- **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); one dependency (`cryptography` 46.0.7) has open advisories judged unreachable in our usage but not fixed; the offline stack was tested once on one host and its frontend container is not egress-blocked there.
+- **Security and packaging:** self-review only ([SECURITY_REVIEW.md](SECURITY_REVIEW.md)); the dependency audits were clean after the `cryptography` 50.0.2 upgrade (they are limited to published advisories; OS packages and container images were not scanned); the offline stack was tested once on one host and its frontend container is not egress-blocked there.
 - **Legal:** the BSA 63(4) draft certificate is a draft and has had no legal review. Nothing here is accredited or admissible by virtue of being in this report.
 - **Licences:** the image's ffmpeg is a GPL build; two datasets have no licence grant ([THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
 - **Performance:** throughput numbers in ARCHITECTURE.md are one Mac, cache-warm, synthetic; analysis can run as a background job (single process, no quotas).

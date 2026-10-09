@@ -4,6 +4,8 @@
 
 Status: draft for Nirikshan v0.1.0 (P1 evidence core, P2 carving and export, P3 synthetic validation, P4 vendor parsers, parser-first pipeline). Everything described in sections 1 to 8 exists in the code. Section 9 lists features that are **in progress or planned** and are not available. **No vendor is Tier A: nothing in this tool has been validated on a real DVR/NVR image.** Procedures that carry evidential weight are in the SOPs: [SOP-01](sop/SOP-01-acquisition.md), [SOP-02](sop/SOP-02-hashing-and-integrity.md), [SOP-03](sop/SOP-03-recovery.md), [SOP-04](sop/SOP-04-timestamp-handling.md), [SOP-05](sop/SOP-05-reporting.md).
 
+**Reading the banners.** An amber banner reading "Reference test data: built from published research and open-source format documentation, with known ground truth" means the evidence in view is an image we generated (it starts with a machine marker and is flagged `synthetic` in the API). It was not captured from a physical DVR, so nothing shown says anything about a real device. The footer on every page repeats the tier limit: no vendor is supported above Tier B and nothing has been validated on a real device. A red banner means an evidence item has no timezone assumption, so its clips cannot be placed on the timeline (nothing is defaulted).
+
 ## 1. Install and run
 
 Requirements: Python 3.10 or newer, Node 22 or newer, and `ffmpeg` with `ffprobe` (`brew install ffmpeg` on macOS; use your package manager elsewhere).
@@ -113,7 +115,7 @@ Raw timestamps appear with the raw integer, its format, the plain decode "as sto
 cd backend
 .venv/bin/python -m app.cli head <case_id> [--json]    # verify chain, print head_hash. exit 0 valid, 1 invalid, 2 no such case
 .venv/bin/python -m app.cli reset-db --yes             # DEV ONLY, destroys the database contents
-make validate                                          # regenerate the SYNTHETIC validation baseline (about 80 s; needs ffmpeg and backend/.venv)
+make validate                                          # regenerate the validation baseline (reference test data) (about 80 s; needs ffmpeg and backend/.venv)
 make validate-quick                                    # 3 trials per scenario
 make test                                              # backend test suite
 ```
@@ -142,5 +144,5 @@ These items are described so you know what is coming; do not rely on them or cit
 - **Timestamp normalization and timeline (P5, now implemented; see [timeline.md](timeline.md). This manual does not yet give step-by-step instructions for it).** Intended: the examiner enters the device time zone and reference times; an unknown time zone is never defaulted; an OCR cross-check of burned-in on-screen time; a drift model with intervals; a cross-camera timeline with uncertainty carried into exports. Today only raw values are shown (SOP-04).
 - **Analytics triage (P6, now implemented; see [analytics/README.md](analytics/README.md). This manual does not yet give step-by-step instructions for it).** Intended: motion, object and face *detection* only, run on CPU and offline, every output labelled "triage, not identification", with model version, parameters and measured error rates stored. Not identification, not recognition.
 - **Court-style PDF report (P7).** On the case page, "Generate report" builds the PDF (see [report.md](report.md)); the page lists earlier reports with their SHA-256 and a download link, a per-evidence "Draft s.63(4) certificate" button (DRAFT, not legal advice) and the JSON-LD export. The PDF has not been reviewed visually; check it before relying on it.
-- **Background analysis (P8).** The Analysis page runs analysis as a job with a progress bar and a Cancel button; see [jobs.md](jobs.md). `make demo` creates a SYNTHETIC demo case ([demo.md](demo.md)).
+- **Background analysis (P8).** The Analysis page runs analysis as a job with a progress bar and a Cancel button; see [jobs.md](jobs.md). `make demo` creates a reference-test-data demo case ([demo.md](demo.md)).
 - Also not built: Dahua DHFS file-system parsing (only DHAV frames), vendor parsers for CP Plus, Uniview, TP-Link, Godrej and Matrix, E01/AFF image formats, acquisition over the network, authentication of examiners, key rotation, schema migrations.

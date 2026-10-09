@@ -124,6 +124,7 @@ def _evidence_rows(db: Session, case_id: int) -> list[dict]:
                 "acquired_at": e.acquired_at,
                 "last_verified_at": e.last_verified_at,
                 "last_verify_result": verified,
+                "reference_data": bool(e.synthetic),
             }
         )
     return out

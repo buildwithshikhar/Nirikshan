@@ -1,0 +1,362 @@
+{
+ "collected_at_utc": "2026-10-09",
+ "git_commit": "c4bc09b",
+ "recovery_rows": [
+  {
+   "combined": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3475,
+     "n": 3475,
+     "rate": 1.0
+    }
+   },
+   "generic": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3475,
+     "n": 3475,
+     "rate": 1.0
+    }
+   },
+   "parser": {
+    "clip_precision": {
+     "k": 20,
+     "n": 20,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 20,
+     "n": 60,
+     "rate": 0.3333
+    },
+    "frame_recall": {
+     "k": 1150,
+     "n": 3475,
+     "rate": 0.3309
+    }
+   },
+   "scenario": "deleted_intact_zero@hik",
+   "title": "Hikvision layout, HIKBTREE entries cleared (deleted-then-intact)"
+  },
+  {
+   "combined": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    }
+   },
+   "generic": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    }
+   },
+   "parser": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3325,
+     "n": 3325,
+     "rate": 1.0
+    }
+   },
+   "scenario": "clean_live@hik",
+   "title": "Hikvision layout, clean live clips"
+  },
+  {
+   "combined": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3250,
+     "n": 3250,
+     "rate": 1.0
+    }
+   },
+   "generic": {
+    "clip_precision": {
+     "k": 68,
+     "n": 68,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3250,
+     "n": 3250,
+     "rate": 1.0
+    }
+   },
+   "parser": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3250,
+     "n": 3250,
+     "rate": 1.0
+    }
+   },
+   "scenario": "clean_live@dhav",
+   "title": "Dahua DHAV layout, clean live clips"
+  },
+  {
+   "combined": {
+    "clip_precision": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 2700,
+     "n": 2700,
+     "rate": 1.0
+    }
+   },
+   "generic": {
+    "clip_precision": {
+     "k": 11,
+     "n": 20,
+     "rate": 0.55
+    },
+    "clip_recall": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 2700,
+     "n": 2700,
+     "rate": 1.0
+    }
+   },
+   "parser": {
+    "clip_precision": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 2700,
+     "n": 2700,
+     "rate": 1.0
+    }
+   },
+   "scenario": "multi_channel_frame@dhav",
+   "title": "Dahua DHAV layout, 2-3 cameras frame-interleaved"
+  },
+  {
+   "combined": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3375,
+     "n": 3375,
+     "rate": 1.0
+    }
+   },
+   "generic": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3375,
+     "n": 3375,
+     "rate": 1.0
+    }
+   },
+   "parser": {
+    "clip_precision": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 60,
+     "n": 60,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 3375,
+     "n": 3375,
+     "rate": 1.0
+    }
+   },
+   "scenario": "clean_live@honeywell",
+   "title": "Honeywell layout, clean live clips"
+  },
+  {
+   "generic": {
+    "clip_precision": null,
+    "clip_recall": {
+     "k": 0,
+     "n": 40,
+     "rate": 0.0
+    },
+    "frame_recall": {
+     "k": 0,
+     "n": 2175,
+     "rate": 0.0
+    }
+   },
+   "scenario": "zero_pad_inside_wide",
+   "title": "Raw layout, 100-300 B zero padding inside a clip (documented limit)"
+  },
+  {
+   "generic": {
+    "clip_precision": {
+     "k": 8,
+     "n": 20,
+     "rate": 0.4
+    },
+    "clip_recall": {
+     "k": 52,
+     "n": 52,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 2950,
+     "n": 2950,
+     "rate": 1.0
+    }
+   },
+   "scenario": "multi_channel_gop",
+   "title": "Raw layout, 2-3 cameras GOP-interleaved, identical parameter sets (no channel metadata)"
+  },
+  {
+   "generic": {
+    "clip_precision": {
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "clip_recall": {
+     "k": 26,
+     "n": 26,
+     "rate": 1.0
+    },
+    "frame_recall": {
+     "k": 1302,
+     "n": 1302,
+     "rate": 1.0
+    }
+   },
+   "scenario": "fully_overwritten",
+   "title": "Raw layout, one clip fully overwritten (must not be recovered)"
+  }
+ ],
+ "tests": {
+  "backend_collected": 492,
+  "custody_integrity": 40,
+  "e2e_collected": 30,
+  "e2e_files": 6,
+  "report_and_origin": 30
+ },
+ "validation": {
+  "distinct_scenarios": 41,
+  "negative_clean_decodes": 0,
+  "negative_scenarios": 6,
+  "reassembler_false_accept": {
+   "k": 35,
+   "n": 297,
+   "rate": 0.1178
+  },
+  "results_digest": "ba75170eb2516cd0306aff1b72c33fd1fc5b32cc8cc613cfb92814802166526b",
+  "scenario_engine_results": 77,
+  "seed": 20260101,
+  "thresholds_violations": [],
+  "trials": 20
+ }
+}

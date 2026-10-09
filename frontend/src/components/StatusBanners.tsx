@@ -2,14 +2,15 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, matchPath, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import { apiTimeline } from '../api_timeline'
+import { ORIGIN_DISCLOSURE, ORIGIN_HEADLINE } from '../dataOrigin'
 
 /** Window event other components dispatch after a change that can alter these banners
  * (acquisition, saving a time assumption). */
 export const STATUS_REFRESH = 'nirikshan:status-refresh'
 export const refreshStatusBanners = () => window.dispatchEvent(new Event(STATUS_REFRESH))
 
-/** Case numbers starting with this prefix are demo cases and always show the SYNTHETIC banner. */
-export const DEMO_PREFIX = 'DEMO-SYNTHETIC'
+/** Case numbers starting with this prefix are demo cases and always show the reference-data banner. */
+export const DEMO_PREFIX = 'DEMO-REFERENCE'
 
 /** The case the current route belongs to, if any. A clip route carries it as ?case=<id>. */
 export function caseIdFromPath(pathname: string, search: string): number | null {
@@ -29,12 +30,13 @@ interface Status {
   demoCase: boolean
   total: number
   unknownTz: number[]
-  demoCases: number // list pages only: SYNTHETIC demo cases present in this workspace
+  demoCases: number // list pages only: reference-data demo cases present in this workspace
 }
 
 /**
  * Two persistent banners, shown on every page that belongs to a case:
- *  1. SYNTHETIC: some evidence carries the SYNTHETIC image banner, or the case is a demo case.
+ *  1. Data origin: some evidence carries the machine marker of a generated reference image, or the
+ *     case is a demo case (`evidence.synthetic` in the API).
  *  2. UNKNOWN TIMEZONE: some evidence has no examiner timezone assumption (P5), so its clips cannot
  *     be placed in UTC. Nothing is defaulted; the banner links to where it is set.
  */
@@ -91,11 +93,11 @@ export default function StatusBanners() {
       <div className="sticky top-0 z-40 bg-navy-900 px-6 py-3" data-testid="status-banners">
         <div
           role="status"
-          data-testid="status-synthetic"
+          data-testid="status-reference-data"
           className="rounded border-2 border-amber-400 bg-amber-400 p-2 text-xs font-semibold text-navy-900"
         >
-          SYNTHETIC DATA: this workspace contains {st.demoCases} SYNTHETIC demo case{st.demoCases === 1 ? '' : 's'}{' '}
-          (generated test images, not real DVR/NVR evidence).
+          {ORIGIN_HEADLINE}. This workspace contains {st.demoCases} demo case{st.demoCases === 1 ? '' : 's'}.{' '}
+          {ORIGIN_DISCLOSURE}
         </div>
       </div>
     )
@@ -108,16 +110,16 @@ export default function StatusBanners() {
       {synthetic && (
         <div
           role="status"
-          data-testid="status-synthetic"
+          data-testid="status-reference-data"
           className="rounded border-2 border-amber-400 bg-amber-400 p-2 text-xs font-semibold text-navy-900"
         >
-          SYNTHETIC DATA: {st.demoCase ? 'this is a demo case; ' : ''}
+          {ORIGIN_HEADLINE}. {st.demoCase ? 'This is a demo case. ' : ''}
           {st.syntheticCount > 0
             ? `${st.syntheticCount} of ${st.total} evidence item${st.total === 1 ? '' : 's'} in this case ${
-                st.syntheticCount === 1 ? 'is' : 'are'
-              } generated test image${st.syntheticCount === 1 ? '' : 's'}`
-            : 'its evidence is generated test data'}
-          , not real DVR/NVR evidence. Results say nothing about any real device.
+                st.syntheticCount === 1 ? 'is a reference image' : 'are reference images'
+              }. `
+            : ''}
+          {ORIGIN_DISCLOSURE} Results say nothing about any real device.
         </div>
       )}
       {st.unknownTz.length > 0 && (

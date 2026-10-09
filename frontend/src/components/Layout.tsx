@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { getExaminer, setExaminer } from '../api'
 import { type BackendStatus, useBackendStatus } from '../useBackendStatus'
+import { TIER_LIMIT } from '../dataOrigin'
 import StatusBanners from './StatusBanners'
 
 const NAV = [
@@ -96,6 +97,9 @@ export default function Layout() {
         <main id="main" ref={mainRef} tabIndex={-1} className="flex-1 p-6">
           <Outlet />
         </main>
+        <footer data-testid="tier-limit" className="border-t border-navy-700 px-6 py-2 text-xs text-slate-400">
+          {TIER_LIMIT}
+        </footer>
       </div>
     </div>
   )

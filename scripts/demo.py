@@ -1,9 +1,10 @@
-"""One-command SYNTHETIC demo: `make demo` (full) or `make demo-data` (data only).
+"""One-command reference-test-data demo: `make demo` (full) or `make demo-data` (data only).
 
 Full mode starts the backend (uvicorn) and the frontend dev server with a dedicated, gitignored
 data directory (./demo-data: database, case workspaces, evidence images and a demo-only signing
-key; ~/.nirikshan is never touched), builds the SYNTHETIC demo case through the HTTP API, prints
-the URLs and waits. Ctrl-C stops everything. Everything shown is SYNTHETIC test data.
+key; ~/.nirikshan is never touched), builds the reference-data demo case through the HTTP API,
+prints the URLs and waits. Ctrl-C stops everything. Everything shown is reference test data, not
+captured from a physical DVR.
 
 Data-only mode (--data-only) builds the demo case against an already running backend. That
 backend must allow --evidence-dir through NIRIKSHAN_EVIDENCE_ROOTS.
@@ -26,7 +27,10 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from app import demo_data  # noqa: E402
 
-BANNER = "SYNTHETIC DEMO: generated test images in per-paper vendor layouts, not real DVR data."
+BANNER = (
+    "REFERENCE TEST DATA: built from published research and open-source format documentation, "
+    "with known ground truth. Not captured from a physical DVR."
+)
 
 
 def free_port(preferred: int) -> int:
@@ -97,7 +101,7 @@ def main() -> int:
     ap.add_argument(
         "--evidence-dir",
         default=None,
-        help="where SYNTHETIC images are written (must be under the backend's evidence roots)",
+        help="where reference-data images are written (must be under the backend's evidence roots)",
     )
     args = ap.parse_args()
     print(BANNER)

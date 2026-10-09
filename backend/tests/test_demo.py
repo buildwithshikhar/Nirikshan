@@ -22,10 +22,14 @@ def test_seed_builds_the_synthetic_demo_case(client, tmp_path, session):
     summary = demo_data.seed(api, tmp_path / "evidence", log=lines.append, poll=0.1)
     cid = summary["case_id"]
     case = client.get(f"/api/cases/{cid}").json()
-    assert case["case_number"] == "DEMO-SYNTHETIC-001" and "SYNTHETIC" in case["title"]
+    assert case["case_number"] == "DEMO-REFERENCE-001"
+    assert (
+        "Reference test data" in case["title"]
+        and "not captured from a physical DVR" in case["title"]
+    )
 
     ev = client.get(f"/api/cases/{cid}/evidence").json()
-    assert len(ev) == 3 and all(e["synthetic"] and "SYNTHETIC" in e["label"] for e in ev)
+    assert len(ev) == 3 and all(e["synthetic"] and "Reference data" in e["label"] for e in ev)
     # three completed runs, clips with exported video, the vendors identified by their parsers
     runs = session.scalars(select(CarveRun).order_by(CarveRun.id)).all()
     assert [r.status for r in runs] == ["completed"] * 3
@@ -69,7 +73,7 @@ def free_port() -> int:
 
 def test_demo_script_runs_end_to_end_in_a_subprocess(tmp_path):
     """`scripts/demo.py --no-web --exit-after-seed`: starts uvicorn on a free port with an
-    isolated data dir and demo-only keys, seeds, prints the SYNTHETIC banner and exits cleanly."""
+    isolated data dir and demo-only keys, seeds, prints the reference-data banner, exits cleanly."""
     data = tmp_path / "demo-data"
     port = free_port()
     proc = subprocess.run(
@@ -89,7 +93,7 @@ def test_demo_script_runs_end_to_end_in_a_subprocess(tmp_path):
     )
     out = proc.stdout + proc.stderr
     assert proc.returncode == 0, out
-    assert "SYNTHETIC" in out and "DEMO-SYNTHETIC-001" in out and "[6/6] report" in out
+    assert "REFERENCE TEST DATA" in out and "DEMO-REFERENCE-001" in out and "[6/6] report" in out
     assert (data / "demo.db").is_file() and (data / "keys").is_dir()
     assert any((data / "data" / "cases").rglob("*.mp4"))
     # the server was stopped when the script exited

@@ -103,7 +103,7 @@ export default function CaseDetail() {
               {evidence.map((ev) => (
                 <tr key={ev.id} className="border-t border-navy-700 align-top">
                   <td className="py-2">{ev.id}</td>
-                  <td>{ev.label}{ev.synthetic && <span className="ml-2 rounded bg-amber-400 px-1.5 py-0.5 text-xs font-semibold text-navy-900">SYNTHETIC</span>}<div className="text-xs text-slate-400">{ev.source_type}</div></td>
+                  <td>{ev.label}{ev.synthetic && <span className="ml-2 rounded bg-amber-400 px-1.5 py-0.5 text-xs font-semibold text-navy-900">Reference data</span>}<div className="text-xs text-slate-400">{ev.source_type}</div></td>
                   <td>{ev.size_bytes.toLocaleString()} B</td>
                   <td className="font-mono text-[11px] break-all">
                     <div>MD5 {ev.md5}</div><div>SHA-256 {ev.sha256}</div>

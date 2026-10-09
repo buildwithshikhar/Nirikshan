@@ -14,13 +14,13 @@ test.beforeAll(async ({ playwright }) => {
   })
   s = await ensureDemo(request)
   await request.post(`/api/clips/${s.clipId}/analytics`, {
-    headers: { 'X-Examiner': 'Demo Examiner (SYNTHETIC)' },
+    headers: { 'X-Examiner': 'Demo Examiner (reference data)' },
     data: { kind: 'motion' },
   })
   await request.dispose()
 })
 
-// Every shot must show the SYNTHETIC banner; the test fails otherwise.
+// Every shot must show the reference-data banner; the run fails otherwise.
 const shots: [string, () => string, string, string?][] = [
   ['dashboard', () => '/', 'System'],
   ['case', () => `/cases/${s.caseId}`, 'Evidence'],
@@ -34,7 +34,7 @@ for (const [name, url, ready, scrollTo] of shots) {
   test(`screenshot ${name}`, async ({ page }) => {
     await page.goto(url())
     await expect(page.getByText(ready).first()).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByTestId('status-synthetic')).toContainText('SYNTHETIC DATA')
+    await expect(page.getByTestId('status-reference-data')).toContainText('Reference test data')
     await page.waitForLoadState('networkidle')
     if (scrollTo) await page.getByText(scrollTo).first().evaluate((el) => { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150) })
     await page.waitForTimeout(500)
