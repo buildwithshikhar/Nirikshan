@@ -55,7 +55,7 @@ Package-level flags found by the classifier:
 | charset-normalizer | 3.5.2 | MIT | permissive |
 | click | 8.5.0 | BSD-3-Clause | permissive |
 | coloredlogs | 15.0.1 | MIT | permissive |
-| cryptography | 46.0.7 | Apache-2.0 OR BSD-3-Clause | permissive |
+| cryptography | 50.0.2 | Apache-2.0 OR BSD-3-Clause | permissive |
 | exceptiongroup | 1.3.1 | MIT License | permissive |
 | fastapi | 0.142.2 | MIT | permissive |
 | flatbuffers | 25.12.19 | Apache 2.0 | permissive |
@@ -227,7 +227,7 @@ Package-level flags found by the classifier:
 | playwright-core | 1.63.0 | Apache-2.0 | permissive |
 | postcss | 8.5.28 | MIT | permissive |
 | rolldown | 1.2.11 | MIT | permissive |
-| source-map-js | 1.2.1 | BSD-3-Clause | permissive |
+| source-map-js | 1.2.2 | BSD-3-Clause | permissive |
 | tailwindcss | 4.3.3 | MIT | permissive |
 | tapable | 2.3.3 | MIT | permissive |
 | tinyglobby | 0.2.17 | MIT | permissive |

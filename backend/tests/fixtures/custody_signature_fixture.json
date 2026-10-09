@@ -1,0 +1,54 @@
+{
+ "entries": [
+  {
+   "action": "case_created",
+   "case_id": 1,
+   "details_json": "{\"i\":0,\"note\":\"stored fixture\"}",
+   "entry_hash": "3d2bc4fecaf6837426833b970d281b4b74d0c931625ae82d5131046be766f21f",
+   "evidence_id": null,
+   "examiner": "fixture",
+   "key_id": "56475aa75463474c",
+   "ntp_status": "unknown",
+   "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+   "seq": 1,
+   "signature": "4c90f6e94c11773308f57b1832dfe31de08f39d046335f5d38f7a92d56e38f29e44427ddc69b2ee4e51583afa3fe6b508d1a779facdde632bc4502ba1e34af0a",
+   "timestamp_utc": "2026-10-09T06:39:31.850406+00:00",
+   "tool_version": "0.1.0"
+  },
+  {
+   "action": "evidence_acquired",
+   "case_id": 1,
+   "details_json": "{\"i\":1,\"note\":\"stored fixture\"}",
+   "entry_hash": "88fb8a5463979b6fd8045f4a55da6626fdcf492b92e2edea57bf2b9dfa3f427d",
+   "evidence_id": null,
+   "examiner": "fixture",
+   "key_id": "56475aa75463474c",
+   "ntp_status": "unknown",
+   "prev_hash": "3d2bc4fecaf6837426833b970d281b4b74d0c931625ae82d5131046be766f21f",
+   "seq": 2,
+   "signature": "d21b5b3edd69b8082cf4f9896a708f3342b7923efbe490fd78678101bf13d6fe3e9cb13ab94ed9e186382bdf925e1df9357a3108fb17beef560232b89623750d",
+   "timestamp_utc": "2026-10-09T06:39:31.857316+00:00",
+   "tool_version": "0.1.0"
+  },
+  {
+   "action": "evidence_verified",
+   "case_id": 1,
+   "details_json": "{\"i\":2,\"note\":\"stored fixture\"}",
+   "entry_hash": "48486fd9fec1f0aaa216e3b43f18054699ac61f30d63832bf2d987f3fbcbbbd1",
+   "evidence_id": null,
+   "examiner": "fixture",
+   "key_id": "56475aa75463474c",
+   "ntp_status": "unknown",
+   "prev_hash": "88fb8a5463979b6fd8045f4a55da6626fdcf492b92e2edea57bf2b9dfa3f427d",
+   "seq": 3,
+   "signature": "a77d7a17e4af9d76a79fb964bb305c34c1f7420e5066e02b5fd3e4d659b5cc6d13211b1d1ff88bad697b308490ed1d725c4d14538d9830362ee499cb97d6b304",
+   "timestamp_utc": "2026-10-09T06:39:31.859057+00:00",
+   "tool_version": "0.1.0"
+  }
+ ],
+ "generated_with": "cryptography 46.0.7",
+ "key_id": "56475aa75463474c",
+ "note": "TEST key from a public constant; protects nothing.",
+ "private_key_pem": "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f\n-----END PRIVATE KEY-----\n",
+ "public_key_hex": "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8"
+}

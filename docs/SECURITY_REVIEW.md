@@ -144,7 +144,12 @@ Measured on 2026-10-09 on Docker Desktop 29.7.2 (macOS, arm64); procedure in [OF
 - [ ] Time: set the host clock from a trusted source and record the offset; NTP status is `unknown` on non-systemd hosts and in containers.
 - [ ] Treat every evidence image as hostile input: do not run the stack on a machine that holds other sensitive data.
 
-## 5. Dependency audit results (2026-10-09, nothing upgraded)
+## 5. Dependency audit results
+
+### 5.0 Update after the upgrade (2026-10-09)
+`cryptography` was upgraded 46.0.7 to **50.0.2** (the `<47` pin became `>=50.0.2,<51`) and `source-map-js` 1.2.1 to 1.2.2 (dev-only, lockfile). Re-run: `pip-audit` reports no known vulnerabilities for `requirements.txt`, `requirements-dev.txt` and the lock file; `npm audit` reports 0 vulnerabilities ([security/audit-after-upgrade.txt](security/audit-after-upgrade.txt), JSON files with `-after-upgrade`). Custody signatures created before the upgrade still verify: `backend/tests/test_signature_compat.py` verifies a chain signed with 46.0.7 (fixture generated before the upgrade) and checks that Ed25519 re-signing reproduces the stored signatures. Still not covered: OS packages and container images were never scanned; auditors only know published advisories. The findings below are the audit as first run (kept as history).
+
+### 5.1 First audit run (2026-10-09, nothing upgraded)
 
 Commands and raw output: [security/audit-pip.txt](security/audit-pip.txt) (+ JSON), [security/audit-npm.txt](security/audit-npm.txt) (+ JSON).
 

@@ -1,0 +1,7 @@
+Audits re-run on 2026-10-09 after the dependency upgrade (cryptography 46.0.7 -> 50.0.2, source-map-js 1.2.1 -> 1.2.2).
+Tools: pip-audit (scratch venv), npm audit (npm 11.6.1). Commands:
+  pip-audit -r backend/requirements.txt ; pip-audit -r backend/requirements-dev.txt ; (frontend) npm audit
+Result: pip-audit "No known vulnerabilities found" for requirements.txt, requirements-dev.txt and the lock file;
+        npm audit: 0 vulnerabilities (info 0, low 0, moderate 0, high 0, critical 0).
+Before (see audit-pip.txt, audit-npm.txt): 4 advisory records, all on cryptography 46.0.7; 1 high dev-only advisory on source-map-js 1.2.1.
+Not covered: OS packages and the container images were never scanned; pip-audit/npm audit only know published advisories.
