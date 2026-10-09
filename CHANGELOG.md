@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Round D Wave 1 (backend; schema version 11, `reset-db` required): local authentication, roles and case membership (X-Examiner now dev-only, default off); two-person report approval and evidence transfers; Ed25519-signed evidence packages with offline `verify-package` and optional AES-GCM encryption; optional key passphrase; subprocess workers, job chains, retries, batches; performance analytics (time saved only against an examiner-entered baseline); resumable acquisition with bad-sector map and native-export ingest; device identification with per-signature breakdown; storage explorer (bounded hex, regions, partitions, anomalies); per-clip recoverability estimate (weak agreement, documented); 16-OEM registry (all Tier B or C); AI event index with offline query grammar and template summaries; rule-based correlation and external log import; Validation Center API. Deferred items: `docs/ROUND_D_DEFERRED.md`.
 - Project scaffold: FastAPI skeleton, React shell (navy/orange theme), CI, compose Postgres, Playwright smoke test.
 - P1 evidence core: cases, read-only acquisition, MD5+SHA-256, Ed25519-signed hash-chained custody log, audit trail, UI.
 - P1 hardening: acquisition restricted to `NIRIKSHAN_EVIDENCE_ROOTS`, block devices gated; DB triggers reject UPDATE/DELETE on custody/audit; `head_hash` shown with copy button and printed by `python -m app.cli head`; compose Postgres port overridable (`NIRIKSHAN_DB_PORT`).

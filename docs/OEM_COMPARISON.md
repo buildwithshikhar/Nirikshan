@@ -6,6 +6,8 @@ Derived from `docs/RESEARCH.md` sections 3 and 4 (compiled 2026-10-05); source i
 
 **No vendor is Tier A. Nothing in Nirikshan has been tested on a real DVR/NVR image; all validation is on SYNTHETIC images and parser-versus-same-layout results are a circular check** (`docs/VALIDATION_REPORT.md`). Tier B means a public byte-level signature we can match plus generic carving, with a vendor parser that is **not validated on any real device**. Tier C means planned only.
 
+**Round D:** the machine-readable registry of all 16 target OEMs (standard-export support, proprietary-storage parsing, deleted-video recovery, tier, evidence, limitations, parser version, sources) is `backend/app/oem/registry.json`, served at `GET /api/oem-registry`, documented in `docs/oem-registry.md` and checked against the parser registry in code by a test. The 13 OEMs without a parser are Tier C: a roughly 15-minute public search found no byte-level storage documentation for them. Only export formats are cited (Matrix, TP-Link, Uniview, Axis, Reolink); Hanwha, Bosch and Avigilon rest on search snippets and are tagged low confidence.
+
 ## 1. Summary table
 
 | OEM | Filesystem | Container / codec | Timestamps | Logs | Public documentation level | Tier today |

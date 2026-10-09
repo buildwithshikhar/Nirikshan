@@ -41,7 +41,10 @@ def test_reindex_counts_custody_and_idempotent(client, seeded, session):
     assert out["events"] == 7
     assert out["by_kind"] == {"motion": 1, "objects": 5, "faces": 1}
     assert out["placed_events"] == 6 and out["unplaceable_events"] == 1
-    assert out["fulltext_backend"] == "sqlite-fts5" and out["label"] == TRIAGE_LABEL
+    assert (
+        out["fulltext_backend"] in ("sqlite-fts5", "postgres-ilike")
+        and out["label"] == TRIAGE_LABEL
+    )
     ids = sorted(e.id for e in session.scalars(select(IndexedEvent)))
     again = client.post(f"/api/cases/{c['id']}/events/reindex").json()
     assert again["events"] == 7 and again["removed_stale"] == 0
@@ -134,7 +137,7 @@ def test_like_fallback_matches_fts(client, seeded, monkeypatch):
     want = {h["event_id"] for h in search(client, c["id"], '"yolox" "nano"').json()["hits"]}
     monkeypatch.setattr(fts, "ensure", lambda db: False)
     res = search(client, c["id"], '"yolox" "nano"').json()
-    assert res["fulltext_backend"] == "like-fallback"
+    assert res["fulltext_backend"] in ("like-fallback", "postgres-ilike")
     assert {h["event_id"] for h in res["hits"]} == want and len(want) == 5
 
 

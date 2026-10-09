@@ -30,6 +30,7 @@ export default defineConfig({
         PATH: `/opt/homebrew/bin:/usr/local/bin:${process.env.PATH ?? ''}`,
         DATABASE_URL: backendDb,
         NIRIKSHAN_EVIDENCE_ROOTS: realpathSync(tmpdir()),
+        NIRIKSHAN_DEV_HEADER_AUTH: '1', // e2e still identifies the examiner by header (login UI: Round D part 2)
         NIRIKSHAN_DATA_DIR: './e2e-data',
         NIRIKSHAN_KEY_DIR: '../e2e-keys',
         CORS_ORIGINS: `http://localhost:${WEB_PORT}`,

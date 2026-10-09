@@ -147,6 +147,9 @@ def main() -> int:
         "NIRIKSHAN_KEY_DIR": str(data / "keys"),  # demo-only key, never ~/.nirikshan
         "NIRIKSHAN_EVIDENCE_ROOTS": str(evdir),
         "CORS_ORIGINS": web_url,
+        # The demo UI/seeder still identify the examiner with the X-Examiner attestation header
+        # (the login UI is Round D part 2). Dev-only, unauthenticated; never use for real cases.
+        "NIRIKSHAN_DEV_HEADER_AUTH": "1",
         "PATH": f"/opt/homebrew/bin:/usr/local/bin:{os.environ.get('PATH', '')}",
     }
     procs: list[subprocess.Popen] = []

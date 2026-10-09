@@ -40,10 +40,11 @@ Scope: the FastAPI backend (`backend/app`), the React frontend, the packaging in
 
 Legend: **Present** = mitigation implemented and tested in this repo; **Partial** = implemented with a stated gap; **Absent** = not implemented.
 
-### 2.1 Examiner identity is an attestation, not authentication
-`routes.examiner_name` takes the `X-Examiner` header; any non-empty value is accepted. Only `POST` calls require it. **`GET` endpoints (cases, evidence, custody, clips, video, audit, system) require nothing.** Anyone who can reach the port can read every case and can create, acquire, analyse and verify as any named examiner; the custody log will faithfully record the false name, and the Ed25519 signature proves only that *this installation* wrote the entry.
-- Status: **Absent** (documented limit since P1).
-- Next step: an authentication and authorisation decision from the operator (OIDC/mTLS/reverse-proxy SSO, per-examiner accounts, roles, and binding the signed examiner field to the authenticated principal). Until then deploy on a single-user workstation or behind an authenticating proxy, bound to loopback (`docker-compose.offline.yml` does this).
+### 2.1 Examiner identity (updated in Round D, Wave 1)
+Authentication now exists (`backend/app/auth/`, `docs/security/auth.md`): local users with scrypt password hashes, opaque session tokens (only a hash is stored), roles Admin / Examiner / Reviewer / Read-only, per-case membership, login rate limiting and lockout. Every `/api` route passes one global permission check and a route with no rule is refused (a test fails if any registered route lacks one). Non-members get 404, not 403. The authenticated user is the identity written into custody, audit and run records. Two-person approval gates finalising a report; evidence transfers are custody entries.
+- **What it protects:** against an unauthenticated or wrongly-privileged API caller reading or changing case content; against one examiner approving their own report; against probing case ids.
+- **What it does not protect:** local accounts only (no SSO, no MFA, no TLS termination in the app: put a TLS reverse proxy in front); the database and case workspaces are not encrypted (use volume encryption); anyone with filesystem access on the same host, or who can run code as the service user, defeats it (they can read the key and the database); the audit log does not yet record client addresses; the optional `X-Examiner` header path (`NIRIKSHAN_DEV_HEADER_AUTH=1`, default **off**) is an unauthenticated attestation for development, tests and the local demo only and skips membership checks.
+- Status: **Partial** (was Absent). The earlier text of this finding (GET endpoints required nothing) described P1 to Round C and no longer applies when the dev flag is off. UI login arrives in Round D part 2, until then the shipped UI and `make demo` run with the dev flag on.
 
 ### 2.2 Signing key directory
 Key generation: mode 0600 file, directory 0700 (`signing._load_or_create`); refused when inside the data directory or group/world-accessible; `O_EXCL` creation. Unencrypted PKCS8 PEM (`NoEncryption`). No rotation (entries carry `key_id`, but only the current key verifies), no backup mechanism, no HSM/TPM support.
@@ -145,6 +146,9 @@ Measured on 2026-10-09 on Docker Desktop 29.7.2 (macOS, arm64); procedure in [OF
 - [ ] Treat every evidence image as hostile input: do not run the stack on a machine that holds other sensitive data.
 
 ## 5. Dependency audit results
+
+### 5.00 Round D Wave 1 (2026-10-09)
+No dependency was added or changed in Wave 1 (scrypt from `hashlib`, AES-GCM and Ed25519 from the existing `cryptography`). `pip-audit -r backend/requirements.txt`: no known vulnerabilities. Other Wave 1 security additions: signed evidence packages with offline `verify-package`, optional key passphrase (`protect-key`), subprocess workers with resource limits (network blocking is best-effort and not an OS sandbox; see `docs/workers.md`), serialised custody appends. Untested: the new Postgres triggers on report reviews were exercised by the full Postgres run only as far as the suite covers them.
 
 ### 5.0 Update after the upgrade (2026-10-09)
 `cryptography` was upgraded 46.0.7 to **50.0.2** (the `<47` pin became `>=50.0.2,<51`) and `source-map-js` 1.2.1 to 1.2.2 (dev-only, lockfile). Re-run: `pip-audit` reports no known vulnerabilities for `requirements.txt`, `requirements-dev.txt` and the lock file; `npm audit` reports 0 vulnerabilities ([security/audit-after-upgrade.txt](security/audit-after-upgrade.txt), JSON files with `-after-upgrade`). Custody signatures created before the upgrade still verify: `backend/tests/test_signature_compat.py` verifies a chain signed with 46.0.7 (fixture generated before the upgrade) and checks that Ed25519 re-signing reproduces the stored signatures. Still not covered: OS packages and container images were never scanned; auditors only know published advisories. The findings below are the audit as first run (kept as history).

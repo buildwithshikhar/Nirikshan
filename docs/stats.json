@@ -1,6 +1,6 @@
 {
  "collected_at_utc": "2026-10-09",
- "git_commit": "6992e36",
+ "git_commit": "e90d65d",
  "recovery_rows": [
   {
    "combined": {
@@ -338,7 +338,7 @@
   }
  ],
  "tests": {
-  "backend_collected": 492,
+  "backend_collected": 694,
   "custody_integrity": 40,
   "e2e_collected": 30,
   "e2e_files": 6,

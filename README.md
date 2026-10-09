@@ -12,7 +12,7 @@ Built for SIH PS 26150 (multi-vendor DVR/NVR forensic analysis).
 
 ### Measured strengths (numbers computed by code from `docs/stats.json` and `docs/validation/results.json`)
 
-- **492 backend tests and 30 end-to-end browser tests** (6 spec files, including an axe accessibility gate and a check that every demo screen states the data origin and the Tier B limit). CI runs backend tests on Python 3.10 and 3.12, the frontend build and lint, and a traceability/tier consistency check ([![CI](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml/badge.svg)](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml)).
+- **694 backend tests and 30 end-to-end browser tests** (6 spec files, including an axe accessibility gate and a check that every demo screen states the data origin and the Tier B limit). CI runs backend tests on Python 3.10 and 3.12, the frontend build and lint, and a traceability/tier consistency check ([![CI](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml/badge.svg)](https://github.com/buildwithshikhar/Nirikshan/actions/workflows/ci.yml)).
 - **41 known-answer scenarios** (77 scenario x engine results, seed 20260101, 20 trials each, digest `ba75170eb2516cd0`), scored with ground truth computed by byte comparison; the regression thresholds are enforced in CI (violations in the committed baseline: 0).
 - **6 negative scenarios** (encrypted streams, MJPEG, MPEG-4, noise with false start codes): 0 cleanly decoding clips were produced; clips emitted anyway are flagged as failed decodes.
 - **Custody integrity: 40 tests** covering tampering, forgery, recomputed chains without the key, truncation, append-only triggers, and signatures created before a dependency upgrade.

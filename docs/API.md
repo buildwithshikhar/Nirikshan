@@ -1,6 +1,6 @@
 # API
 
-Mutating calls (`POST`) require an `X-Examiner: <name>` header (attestation, not authentication). Every `/api` request is written to the audit log.
+Authentication (Round D): log in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Roles: admin, examiner, reviewer, read-only; case content needs case membership (non-members get 404). The `X-Examiner` header is honoured only when `NIRIKSHAN_DEV_HEADER_AUTH=1` (default off; development, tests, `make demo`; unauthenticated attestation). Every `/api` request is written to the audit log. Details: `docs/security/auth.md`.
 
 | Method | Path | Description |
 |---|---|---|
@@ -30,3 +30,26 @@ Timestamps and timeline: `GET/PUT /api/evidence/{id}/time-assumption`, `GET/POST
 Reports and exports (P7): `POST /api/cases/{id}/report` (X-Examiner; stores the PDF, custody entry), `GET /api/cases/{id}/reports`, `GET /api/reports/{id}/download` (re-hashes; 409 on mismatch), `GET /api/cases/{id}/certificate-draft?evidence_id=` (DRAFT s.63(4) certificate PDF), `GET /api/cases/{id}/export.jsonld`.
 Jobs (P8): `POST /api/evidence/{id}/jobs/analyze` (202; same request while active returns the existing job), `GET /api/jobs/{id}` (status, stage, progress), `GET /api/cases/{id}/jobs`, `POST /api/jobs/{id}/cancel` (202). `Evidence` responses include `synthetic`. `GET` endpoints need no `X-Examiner` header and no authentication (docs/SECURITY_REVIEW.md 2.1).
 
+
+
+## Round D additions (Wave 1)
+
+Unavailable capabilities answer `{"available": false, "reason": "..."}`; nothing returns placeholder data. "Write" = case member with role admin or examiner; "read" = any case member; "any" = any authenticated user. Rules live in `backend/app/auth/policy.py`.
+
+**Auth and users** (`docs/security/auth.md`): `POST /api/auth/login` (public), `POST /api/auth/logout`, `GET /api/auth/me`, `POST /api/auth/password`, `GET|POST /api/users`, `GET|PATCH /api/users/{id}`, `POST /api/users/{id}/password|unlock` (admin), `GET /api/cases/{id}/members` (member or admin), `POST /api/cases/{id}/members`, `DELETE /api/cases/{id}/members/{uid}` (admin). CLI: `create-admin`, `protect-key`, `key-status`.
+
+**Approvals, transfers, packages** (`docs/package.md`): `POST /api/reports/{id}/request-approval` (write), `/approve`, `/reject` (reviewer or admin, not the author or requester), `/finalize`, `GET /api/reports/{id}/review`; `POST|GET /api/evidence/{id}/transfers`, `GET /api/cases/{id}/transfers`; `POST /api/cases/{id}/package` (write), `GET /api/cases/{id}/packages`, `GET /api/packages/{id}/download`, `GET /api/package-key` (public). CLI: `verify-package <zip>`.
+
+**Workflow and performance** (`docs/workers.md`, `docs/performance.md`): `POST /api/clips/{id}/jobs/analytics`, `POST /api/jobs/{id}/then/analytics`, `POST /api/jobs/{id}/retry`, `POST /api/cases/{id}/jobs/batch`, `GET /api/cases/{id}/batches/{batch_id}`, `?depends_on=` on `POST /api/evidence/{id}/jobs/analyze`; `GET /api/cases/{id}/performance`, `GET|POST /api/cases/{id}/performance/baselines`.
+
+**Acquisition and identification** (`docs/acquisition.md`, `docs/device-intelligence.md`): `GET /api/acquisition/capabilities`, `GET /api/acquisition/ewf` (not available), `POST|GET /api/cases/{id}/acquisitions`, `GET /api/acquisitions/{id}`, `POST /api/acquisitions/{id}/resume`, `GET /api/evidence/{id}/bad-sectors`, `POST /api/cases/{id}/native-exports`, `GET /api/evidence/{id}/native-export`, `GET /api/evidence/{id}/identification?refresh=`.
+
+**Storage explorer and recovery** (`docs/storage-explorer.md`, `docs/recoverability.md`): `GET /api/evidence/{id}/hex?offset=&length=` (max 4096 bytes), `/regions`, `/partitions`, `/anomalies`; `GET /api/clips/{id}/recoverability`, `GET /api/recovery/fragment-reassembly`, `GET /api/recovery/agreement`.
+
+**OEM registry** (`docs/oem-registry.md`): `GET /api/oem-registry` (16 targets, versioned data file checked against the parser registry).
+
+**AI events** (`docs/events.md`; triage, not identification): `POST /api/cases/{id}/events/reindex` (also runs after each analytics run), `GET /api/cases/{id}/events/status`, `GET /api/cases/{id}/events/search?q=`, `GET /api/cases/{id}/summaries?by=clip|camera`, `GET /api/events/grammar`.
+
+**Correlation** (`docs/correlation.md`; time, topology and class only): `GET|PUT /api/cases/{id}/correlation/topology`, `GET|PUT /api/cases/{id}/correlation/floorplan`, `GET|POST /api/cases/{id}/correlation/external-logs`, `GET /api/correlation/external-logs/{id}`, `POST /api/cases/{id}/correlation/links/generate`, `GET /api/cases/{id}/correlation/links`, `POST /api/correlation/links/{id}/decision`.
+
+**Validation Center** (`docs/validation-center.md`; every number carries the circularity statement): `GET /api/validation/summary|scorecards|regression|false-rates|crosscheck`, `POST /api/validation/reruns` (admin or examiner), `GET /api/validation/reruns[/{id}]`.
