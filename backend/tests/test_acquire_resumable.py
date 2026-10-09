@@ -144,9 +144,7 @@ class Faulty:
         return read
 
 
-def test_bad_sectors_are_zero_filled_mapped_and_hashed_as_copy(
-    session, case_id, src, monkeypatch
-):
+def test_bad_sectors_are_zero_filled_mapped_and_hashed_as_copy(session, case_id, src, monkeypatch):
     data = src.read_bytes()
     lo, hi = CH + 1000, CH + 3000  # sectors 2..5 of chunk 1 (512-byte sectors 1024..3072)
     monkeypatch.setattr(resumable, "READER_FACTORY", Faulty(lo, hi).factory)

@@ -42,7 +42,7 @@ STREAM_KEYS = (
 # alone decided; the stored copy is named <id>.img, which FFmpeg maps to the image2/GEM raster
 # demuxer, so random bytes "probe" as a video at score 50. Only scores above 50 count.
 MIN_PROBE_SCORE = 51
-TAG_NOTE ="container metadata as stored in the file; not a vendor identification"
+TAG_NOTE = "container metadata as stored in the file; not a vendor identification"
 
 
 def _num(v, cast):
