@@ -1,11 +1,15 @@
-import { EmptyState, PageHeader } from '../../ui'
+import { Route, Routes } from 'react-router-dom'
+import Results from './Results'
+import Run from './Run'
+import Search from './Search'
 
-// Placeholder until the module is built (Round D part 2).
 export default function TriageModule() {
   return (
-    <div>
-      <PageHeader title="AI Triage" />
-      <EmptyState title="This module is being built" />
-    </div>
+    <Routes>
+      <Route index element={<Run />} />
+      <Route path="results" element={<Results />} />
+      <Route path="search" element={<Search />} />
+      <Route path="*" element={<Run />} />
+    </Routes>
   )
 }

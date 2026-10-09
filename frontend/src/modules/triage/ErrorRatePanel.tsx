@@ -1,4 +1,4 @@
-import type { ErrorRates } from '../api_analytics'
+import type { ErrorRates } from './api'
 
 const pct = (v: number | null | undefined) => (v == null ? 'n/a' : `${(v * 100).toFixed(1)}%`)
 const ci = (c: (number | null)[]) => `${pct(c[0])} to ${pct(c[1])}`
