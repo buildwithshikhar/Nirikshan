@@ -89,14 +89,24 @@ test('help: SOPs, manual and limits render from bundled docs; axe', async ({ pag
   await axe(page, 'help limits')
 })
 
-test('every case screen states what the data is and the Tier B limit', async ({ page }) => {
-  await loginAs(page, 'examiner', `/cases/${s.caseId}`)
-  for (const url of [`/cases/${s.caseId}`, `/cases/${s.caseId}/jobs`, `/cases/${s.caseId}/integrity`]) {
+test('every authenticated screen states the Tier B limit; case screens also state the data origin; login states neither', async ({ page }) => {
+  await page.goto('/login')
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+  await expect(page.locator('body')).not.toContainText('Tier limit')
+  await expect(page.locator('body')).not.toContainText('known ground truth')
+  await loginAs(page, 'admin', `/cases/${s.caseId}`)
+  const caseScreens = ['', '/evidence', '/identification', '/explorer', '/recovery', '/timeline', '/triage', '/correlation', '/integrity', '/reports', '/jobs'].map((x) => `/cases/${s.caseId}${x}`)
+  const globalScreens = ['/', '/cases', '/validation', '/admin', '/help']
+  for (const url of [...caseScreens, ...globalScreens]) {
     await page.goto(url)
-    const origin = page.getByTestId('status-reference-data')
-    await expect(origin).toContainText(ORIGIN_HEADLINE)
-    await expect(origin).toContainText(ORIGIN_DISCLOSURE)
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible()
     await expect(page.getByTestId('tier-limit')).toHaveText(TIER_LIMIT)
+    if (caseScreens.includes(url)) {
+      const origin = page.getByTestId('status-reference-data')
+      await expect(origin).toContainText(ORIGIN_HEADLINE)
+      await expect(origin).toContainText(ORIGIN_DISCLOSURE)
+      await expect(page.getByTestId('chip-origin')).toBeVisible()
+    }
   }
 })
 

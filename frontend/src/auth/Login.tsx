@@ -1,6 +1,5 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ORIGIN_HEADLINE, TIER_LIMIT } from '../dataOrigin'
 import { ApiError } from '../lib/http'
 import { Button, Field, inputClass } from '../ui'
 import { useAuth } from './AuthContext'
@@ -64,8 +63,6 @@ export default function Login() {
             Sign in
           </Button>
         </form>
-        <p className="mt-6 text-xs text-slate-400">{ORIGIN_HEADLINE}.</p>
-        <p className="mt-1 text-xs text-slate-400">{TIER_LIMIT}</p>
       </main>
     </div>
   )
