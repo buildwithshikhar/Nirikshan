@@ -1,11 +1,13 @@
-import { EmptyState, PageHeader } from '../../ui'
+import { Route, Routes } from 'react-router-dom'
+import TimeSettingsScreen from './TimeSettings'
+import TimelineScreen from './TimelineScreen'
 
-// Placeholder until the module is built (Round D part 2).
 export default function TimelineModule() {
   return (
-    <div>
-      <PageHeader title="Timeline" />
-      <EmptyState title="This module is being built" />
-    </div>
+    <Routes>
+      <Route index element={<TimelineScreen />} />
+      <Route path="time-settings" element={<TimeSettingsScreen />} />
+      <Route path="*" element={<TimelineScreen />} />
+    </Routes>
   )
 }
