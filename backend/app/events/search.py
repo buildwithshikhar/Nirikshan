@@ -64,6 +64,11 @@ def hit(e: IndexedEvent, time_match: str | None = None) -> dict:
             "clip_end_offset": e.clip_end_offset,
             "extents": json.loads(e.clip_extents_json or "[]"),
             "note": SOURCE_NOTE,
+            "frame_byte_offset": {
+                "available": False,
+                "reason": "decoded frames are not mapped back to evidence byte offsets "
+                "(see docs/ROUND_D_DEFERRED.md)",
+            },
         },
         "links": {
             "video": f"/api/clips/{e.clip_id}/video",

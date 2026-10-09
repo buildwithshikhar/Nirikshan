@@ -66,6 +66,7 @@ def test_event_fields_utc_hashes_and_links(client, seeded):
     assert h["frame_index"] == 125 and h["confidence"] == 0.9 and h["camera"] == 1
     assert len(h["model"]["sha256"]) == 64 and h["clip_hashes"]["bitstream_sha256"] == "ab" * 32
     assert h["source"]["clip_start_offset"] == 1000 and h["source"]["extents"] == [[1000, 5096]]
+    assert h["source"]["frame_byte_offset"]["available"] is False
     assert h["links"]["video_at"] == f"/api/clips/{a.id}/video#t=5.000"
     assert h["links"]["analytics_run"].startswith("/api/analytics/")
     assert h["label"] == TRIAGE_LABEL
