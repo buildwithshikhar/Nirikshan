@@ -23,6 +23,7 @@ from app.carving import nal
 from app.carving.carve import CarveParams, Carver
 from app.carving.carve import Clip as CarvedClip
 from app.carving.export import export_clip
+from app.synthetic import ORIGIN_DISCLOSURE, ORIGIN_HEADLINE, TIER_LIMIT
 from app.validation import image as image_mod
 from app.validation import thresholds
 from app.validation.layouts import LAYOUT_DHAV, LAYOUT_RAW
@@ -245,7 +246,14 @@ def pct(m: dict | None) -> str:
 
 
 def to_markdown(res: dict) -> str:
-    L = ["# Nirikshan validation results (SYNTHETIC)", ""]
+    L = [
+        "# Nirikshan validation results (reference test data)",
+        "",
+        f"**{ORIGIN_HEADLINE}.** {ORIGIN_DISCLOSURE} {TIER_LIMIT}",
+        "",
+        "(The machine-readable files and the images themselves keep the technical label SYNTHETIC.)",
+        "",
+    ]
     L += [f"> **{d}**" for d in res["disclaimer"][:2]] + [""]
     L += [
         f"- {res['disclaimer'][2]}",

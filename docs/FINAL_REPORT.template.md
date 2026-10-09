@@ -38,7 +38,7 @@ Source of truth: [traceability.yaml](traceability.yaml). The report builder fail
 
 {{TIER_TABLE}}
 
-## 4. Measured results: recovery on SYNTHETIC images
+## 4. Measured results: recovery on reference test data (generated images, not captured from a physical DVR)
 
 {{VALIDATION}}
 

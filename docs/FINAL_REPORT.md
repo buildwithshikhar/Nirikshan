@@ -98,7 +98,7 @@ Tier A = validated on real images; B = signature + generic carving; C = planned.
 | Godrej | C | C | none | none found |
 | Matrix Comsec | C | C | none | none found |
 
-## 4. Measured results: recovery on SYNTHETIC images
+## 4. Measured results: recovery on reference test data (generated images, not captured from a physical DVR)
 
 Source: `docs/validation/results.json` (tool 0.1.0, seed 20260101, 20 trials per scenario, engine `all`, 77 scenario/engine rows). **Results digest (SHA-256, excludes timings): `ba75170eb2516cd0306aff1b72c33fd1fc5b32cc8cc613cfb92814802166526b`.** All images are SYNTHETIC; vendor-layout rows are a circular check.
 

@@ -1,6 +1,6 @@
 # Court-style report, JSON-LD export and draft certificate (P7)
 
-Status: implemented and tested on SYNTHETIC data only. Nothing here asserts anything legal.
+Status: implemented and tested on reference test data only (generated, not captured from a physical DVR; technically "synthetic"). Nothing here asserts anything legal.
 
 ## What the report contains
 
@@ -62,6 +62,12 @@ ReportLab also pulls in Pillow (HPND) and charset-normalizer (MIT). fpdf2 (LGPL)
 | `uco-observable:sizeInBytes` | on ContentDataFacet | datatype property |
 
 Namespaces `.../uco/types/` and `.../uco/observable/` follow from those class IRIs. Everything else uses the `nk:` vocabulary (`urn:nirikshan:vocab:`), which has no published definitions. Not verified: the hashMethod vocabulary members (the export writes `MD5` and `SHA256`, plain strings), the SHACL shapes (they require properties such as `core:specVersion` that the export omits), the CASE investigation classes. The `core:UcoObject` page was read but its terms are not used.
+
+## Sample
+
+Page 1 of the report built from the demo case (reference test data; the cover block states the data origin and the Tier B limit):
+
+![Page 1 of the demo report](img/report-sample-page1.png)
 
 ## Limits
 
