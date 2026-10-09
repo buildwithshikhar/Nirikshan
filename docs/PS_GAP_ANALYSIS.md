@@ -1,0 +1,30 @@
+# PS 26150 gap analysis (Round D, Step -1)
+
+Written 2026-10-09 from the repository at `main` (CI green, 491 backend tests passed + 1 skipped, 30 e2e). Method: read-only audit of code, tests and docs. **Nothing is counted as Completed without a test or a recorded run.** Everything is validated only on reference test images built from published research and open-source format documentation; no vendor is above Tier B and nothing is validated on a real device. "Wave 1" below means Round D Part 1 (backend); status is the state **before** Wave 1 and is re-stated in `docs/ROUND_D_LOG.md` as streams land.
+
+Legend: **Completed** (code + test/run), **Partial** (some of the item), **Missing**, **Unverified** (code exists, no real-device or no independent evidence).
+
+| # | Feature | Status before Wave 1 | Evidence | Gap / planned in |
+|---|---|---|---|---|
+| 1 | OEM support (16 targets; standard-export vs proprietary parsing vs deleted-video recovery) | **Partial**. Dahua (DHAV frames only), Hikvision, Honeywell Tier B. CP Plus, Uniview, TP-Link, Godrej, Matrix registered Tier C. Axis, Bosch, Hanwha Vision, VIVOTEK, Avigilon, Pelco, Tiandy, Reolink: **Missing**. No per-OEM matrix of the three support kinds | `backend/app/vendors/`, `docs/OEM_COMPARISON.md`, `docs/parsers/`, `backend/tests/test_vendor_*` | Stream 2e: versioned registry for all 16, test against parser registry in code |
+| 2 | Device identification | **Partial**. Signature identification with confidence and parser selection exist (Tier B vendors). No firmware identification; no per-signature breakdown API; unknown-device path exists as generic fallback but is not a structured output | `vendors/base.py`, `analyze.py`, parser tests | Stream 2b |
+| 3 | Acquisition | **Partial**. Logical file-backed acquisition, single-pass MD5+SHA-256, re-read verify, read-only open, block-device opt-in (unverified on real disks). **Missing**: resumable, bad-sector map, native-export (MP4/AVI) ingest, E01 | `evidence.py`, `tests/test_evidence*.py`, `docs/sop/SOP-01` | Stream 2a |
+| 4 | Proprietary storage parsing | **Partial**. Hikvision, Honeywell, Dahua DHAV parsers with tagged fields and anomaly warnings. **Missing**: partition/file-system detection API, offset map API, plugin-style registration beyond the in-code registry | `vendors/*`, `docs/parsers/` | Stream 2c |
+| 5 | Video extraction and decoding | **Completed** for the reference images: streaming Annex-B scanner, clip builder, `ffmpeg -c copy` MP4 with decode test, previews via served MP4. Batch across evidence is **Missing** | `carving/*`, `tests/test_carve*`, `tests/test_export*`, validation harness | Batch: Stream 1d |
+| 6 | Deleted/damaged recovery | **Partial**. Orphans, zero/garbage gap classes, recall/precision measured on reference images, documented failures (e.g. `zero_pad_inside_wide`). **Missing**: per-clip recoverability estimate, per-clip limitations text, exposed fragment-reassembly false-accept rate (off by default) | `docs/validation/results.md`, `docs/VALIDATION_REPORT.md` | Stream 2d |
+| 7 | Timestamps and timeline | **Completed** on reference data: raw originals kept, no default timezone, examiner timezone assumption with custody entry, reference observations, drift fit with uncertainty, gaps, unplaceable group, CSV/JSON export. Cross-camera synchronised view: only through the single case timeline | `timeline/*`, `tests/test_timeline*`, `docs/timeline.md` | Unverified on real devices |
+| 8 | Cross-camera correlation | **Missing** | none | Stream 3b |
+| 9 | AI (face, object, motion; index; NL search; summaries) | **Partial**. Motion, YOLOX-Nano objects, YuNet faces (detection only) with model hash, error-rate panel, run records. **Missing**: persisted per-event index, search, query grammar, summaries | `analytics/*`, `tests/test_analytics*` | Stream 3a |
+| 10 | Integrity and custody | **Partial**. Hash-chained Ed25519-signed log, append-only triggers, verify-on-read, head_hash, tamper tests. **Missing**: authenticated identity (examiner is an unauthenticated header), roles, approvals, transfer records, signed manifest / package | `custody.py`, `signing.py`, `tests/test_custody*`, `docs/SECURITY_REVIEW.md` 2.1 | Stream 1a/1b/1c |
+| 11 | Validation center | **Partial**. Seeded harness (41 scenarios, 77 results), committed baseline + digest, strict CI thresholds, per-engine tables, parser-vs-generic cross-check statistics. **Missing**: API exposure, per-vendor scorecards, safe re-run job | `validation/*`, `docs/validation/`, `make validate` | Stream 3c |
+| 12 | Reporting/export | **Partial**. Reproducible PDF, draft BSA 63(4) certificate, JSON-LD, timeline CSV/JSON. **Missing**: inventories/acquisition-log exports, signed manifest, one-click evidence package, offline verifier | `report/*`, `docs/report.md` | Stream 1c |
+| 13 | Security | **Missing** for authentication, RBAC, case-level access. Present: allow-listed evidence roots, append-only audit, key outside workspace, local-only defaults. Isolated workers: **Missing** (in-process pool). Encryption at rest: **Missing** | `docs/SECURITY_REVIEW.md` | Stream 1a, 1d, 1f |
+| 14 | Workflow | **Partial**. Bounded in-process job pool, progress, cooperative cancel, polling. **Missing**: dependency-aware chains, idempotent retries, batch, subprocess isolation | `jobs/*`, `docs/jobs.md` | Stream 1d |
+| 15 | Knowledge base | **Partial**. Documents only (`RESEARCH.md`, `OEM_COMPARISON.md`, `docs/parsers/`, tier table). No machine-readable catalogue or parser-version record | docs | Stream 2e (registry data file) |
+| 16 | Performance analytics | **Missing** (only wall-clock timings inside validation results, which are excluded from the digest) | n/a | Stream 1e |
+
+## What this audit cannot say
+
+- No feature is verified on a real DVR/NVR image. The public-image search (`docs/REAL_DATA_SEARCH.md`) found none.
+- "Completed" for items 5 and 7 means complete against the reference images and the documentation the parsers were built from, which is a circular check for parsers.
+- Test counts come from `docs/stats.json`; they prove behaviour on generated data only.
