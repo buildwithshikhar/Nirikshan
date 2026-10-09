@@ -68,9 +68,17 @@ def seed_objects(session, case_id: int, evidence_id: int, tmp_path) -> dict:
         case_id=case_id, file_name=pdf.name, file_path=str(pdf),
         sha256=hashlib.sha256(pdf.read_bytes()).hexdigest(), examiner="seed",
     )  # fmt: skip
-    session.add_all([arun, job, rep])
+    from app.package.models import Package
+
+    pkg = Package(
+        case_id=case_id, file_name="seed.zip", file_path=str(pdf), sha256=rep.sha256,
+        size_bytes=1, manifest_sha256="0" * 64, signature_hex="0" * 128, key_id="0" * 16,
+        file_count=0, head_hash_built_from="0" * 64, created_by="seed",
+    )  # fmt: skip
+    session.add_all([arun, job, rep, pkg])
     session.commit()
     return {
+        "package_id": pkg.id,
         "run_id": run.id,
         "clip_id": clip.id,
         "analytics_run_id": arun.id,

@@ -35,6 +35,8 @@ from app.jobs.routes import router as jobs_router
 from app.models import AuditEntry
 from app.oem.routes import router as oem_router
 from app.recover.routes import router as recover_router
+from app.package import models as _package_models  # noqa: F401
+from app.package.routes import router as package_router
 from app.report import models as _report_models  # noqa: F401
 from app.report.routes import router as report_router
 from app.routes import audit_case_id, router
@@ -94,6 +96,7 @@ for _r in (
     app.include_router(_r)
 app.include_router(auth_router)
 app.include_router(approvals_router)
+app.include_router(package_router)
 
 
 @app.middleware("http")

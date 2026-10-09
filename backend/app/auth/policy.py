@@ -92,6 +92,7 @@ def resolver_key(template: str, param: str) -> str:
 POLICY: dict[tuple[str, str], Rule] = {
     ("GET", "/health"): PUBLIC,
     ("GET", "/api/signing-key"): PUBLIC,  # public half only
+    ("GET", "/api/package-key"): PUBLIC,  # public half only
     ("POST", "/api/auth/login"): PUBLIC,
     ("POST", "/api/auth/logout"): USER,
     ("GET", "/api/auth/me"): USER,
