@@ -6,6 +6,8 @@ or does not do, or a documented limitation. Nothing legal is asserted.
 
 from __future__ import annotations
 
+import re
+
 from app.analytics import TRIAGE_LABEL
 from app.report import pdfkit as K
 from app.report.build import DISCLAIMER_CLOCK, NOMINAL_NOTE, clip_text
@@ -62,6 +64,31 @@ def _story(data: dict, san: K.Sanitizer, st: K.Styles) -> list:
     out += _limitations(data, san, st, P)
     out += _colophon(data, san, st, P)
     return out
+
+
+_ISO = re.compile(r"^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(\.\d+)?(Z|\+00:00)$")
+
+
+def _sec(t):
+    """Display a UTC timestamp to the second ('2026-10-09 06:57:26Z'); anything that is not an
+    ISO UTC string is returned unchanged. Full precision stays in the custody log."""
+    m = _ISO.match(str(t)) if t else None
+    return f"{m.group(1)} {m.group(2)}Z" if m else t
+
+
+def _precise(t):
+    """Like _sec but keeps a non-zero fractional part (intervals can be sub-second)."""
+    m = _ISO.match(str(t)) if t else None
+    if not m:
+        return t
+    frac = (m.group(3) or "").rstrip("0")
+    return f"{m.group(1)} {m.group(2)}{frac if frac != '.' else ''}Z"
+
+
+def _interval(lo, hi):
+    if lo is None or hi is None:
+        return "-"
+    return f"{_precise(lo)}\nto {_precise(hi)}"
 
 
 def _origin_block(data, P, st):
@@ -147,21 +174,21 @@ def _evidence(data, san, st, P):
             [
                 e["id"],
                 f"{e['label']}\nsource: {e['source_path']} ({e['source_type']})",
-                f"MD5 {e['md5']}\nSHA-256 {e['sha256']}",
+                f"MD5 {e['md5']}\nSHA-256\n{e['sha256'][:32]}\n{e['sha256'][32:]}",
                 f"{_fmt_bytes(e['size_bytes'])} bytes",
-                f"acquired {e['acquired_at']}\nby {e['examiner']}\nstatus {e['status']}",
+                f"acquired {_sec(e['acquired_at'])}\nby {e['examiner']}\nstatus {e['status']}",
                 f"{e['write_blocker_attested']} ({e['write_blocker_note']})",
                 f"{e['last_verify_result']}"
-                + (f" at {e['last_verified_at']}" if e["last_verified_at"] else ""),
+                + (f" at {_sec(e['last_verified_at'])}" if e["last_verified_at"] else ""),
             ]
         )
     story.append(
         K.table(
             san, st,
             ["ID", "Label and source", "Hashes of the acquired image", "Size", "Acquisition",
-             "Write blocker", "Last verification"],
+             "Write blocker", "Last verified"],
             rows,
-            [8 * K.mm, 36 * K.mm, 50 * K.mm, 16 * K.mm, 30 * K.mm, 24 * K.mm, 18 * K.mm],
+            [8 * K.mm, 33 * K.mm, 49 * K.mm, 16 * K.mm, 30 * K.mm, 28 * K.mm, 18 * K.mm],
         )
     )  # fmt: skip
     story += [
@@ -231,10 +258,12 @@ def _custody(data, san, st, P):
                 [24 * K.mm, 158 * K.mm],
             )  # fmt: skip
         )
-    story.append(P("Custody log (entry hashes shown as 16-character prefixes)", st.h2))
+    story.append(
+        P("Custody log (times to the second, entry hashes as 16-character prefixes)", st.h2)
+    )
     rows = [
         [
-            r["seq"], r["timestamp_utc"], r["action"], r["examiner"],
+            r["seq"], _sec(r["timestamp_utc"]), r["action"], r["examiner"],
             _none(r["evidence_id"], "-"), r["ntp_status"], r["entry_hash"][:16],
         ]
         for r in cu["entry_rows"]
@@ -243,7 +272,7 @@ def _custody(data, san, st, P):
         K.table(
             san, st, ["Seq", "Time (UTC)", "Action", "Examiner", "Evid.", "NTP", "entry_hash"],
             rows,
-            [10 * K.mm, 42 * K.mm, 36 * K.mm, 34 * K.mm, 10 * K.mm, 22 * K.mm, 28 * K.mm],
+            [10 * K.mm, 34 * K.mm, 36 * K.mm, 40 * K.mm, 10 * K.mm, 20 * K.mm, 32 * K.mm],
         )
     )  # fmt: skip
     story.append(
@@ -527,16 +556,16 @@ def _timestamps(data, san, st, P):
                     _ts_cell(p["start_record"]),
                     (f"{_none(s.get('assumed_timezone'), 'n/a')} "
                      f"({_none(s.get('epoch_basis'), 'n/a')})"),
-                    f"{s.get('utc_lo')} to {s.get('utc_hi')}",
+                    _interval(s.get("utc_lo"), s.get("utc_hi")),
                     ("none (no drift model)" if not s.get("corrected_utc_lo")
-                     else f"{s.get('corrected_utc_lo')} to {s.get('corrected_utc_hi')}"),
+                     else _interval(s.get("corrected_utc_lo"), s.get("corrected_utc_hi"))),
                     ", ".join(p["flags"]) or "-",
                 ]
             )  # fmt: skip
         story.append(
             K.table(san, st, ["#", "Clip", "Source", "Raw start timestamp", "Zone (basis)",
                               "UTC uncorrected", "UTC corrected", "Flags"], rows,
-                    [x * K.mm for x in [7, 12, 18, 44, 22, 30, 29, 20]])
+                    [x * K.mm for x in [7, 11, 16, 36, 20, 34, 36, 22]])
         )  # fmt: skip
         story.append(
             P(f"Order rule: {ts['tie_break']}. The order is a presentation order, not a claim "

@@ -97,11 +97,11 @@ class Styles:
         self.cell_b = ParagraphStyle("cell_b", parent=self.cell, fontName="Vera-Bold")
         self.h1 = ParagraphStyle(
             "h1", parent=self.body, fontName="Vera-Bold", fontSize=base + 5, leading=base + 8,
-            spaceBefore=10, spaceAfter=5,
+            spaceBefore=10, spaceAfter=5, keepWithNext=1,
         )  # fmt: skip
         self.h2 = ParagraphStyle(
             "h2", parent=self.body, fontName="Vera-Bold", fontSize=base + 2, leading=base + 5,
-            spaceBefore=8, spaceAfter=3,
+            spaceBefore=8, spaceAfter=3, keepWithNext=1,
         )  # fmt: skip
         self.title = ParagraphStyle(
             "title", parent=self.body, fontName="Vera-Bold", fontSize=22, leading=27, spaceAfter=6
