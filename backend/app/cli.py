@@ -6,6 +6,7 @@ python -m app.cli create-admin <username>    create the FIRST admin (password pr
 python -m app.cli verify-package <file>      verify an evidence package offline (no database)
 python -m app.cli protect-key [--key ...]    passphrase-protect a plaintext signing key
 python -m app.cli key-status                 show whether each signing key is protected
+python -m app.cli worker-selftest            measure what worker isolation enforces on this host
 """
 
 import argparse
@@ -187,6 +188,54 @@ def verify_package_cmd(path: str, expect_key_id: str | None, as_json: bool) -> i
     return 0 if res["ok"] else 1
 
 
+def worker_selftest(as_json: bool) -> int:
+    """Run the diagnostic worker tasks and report what this host actually enforces."""
+    from app.workers import isolate
+
+    lim = isolate.Limits(timeout_s=20, cpu_s=2, mem_mb=256)
+    rows: list[tuple[str, str, bool | None]] = []
+    echo = isolate.run_task("selftest_echo", {"value": 1}, limits=lim)
+    for k, v in sorted(echo["limits_applied"].items()):
+        rows.append((f"applied: {k}", v, None))  # informational
+    leaked = {"DATABASE_URL", "NIRIKSHAN_KEY_PASSPHRASE", "NIRIKSHAN_KEY_PASSPHRASE_FILE"}
+    leaked &= set(echo["result"]["env_keys"])
+    rows.append(
+        ("environment", "scrubbed" if not leaked else f"LEAKS {sorted(leaked)}", not leaked)
+    )
+    net = isolate.run_task("selftest_socket", {}, limits=lim)["result"]
+    ok = all(v.startswith("refused") for v in net.values())
+    rows.append(("network (socket API)", "refused" if ok else json.dumps(net), ok))
+    wr = isolate.run_task("selftest_write", {}, limits=lim)["result"]["write"]
+    rows.append(("file writes", wr, wr.startswith("refused")))
+    try:
+        isolate.run_task("selftest_sleep", {"seconds": 30}, limits=isolate.Limits(1, 2, 256))
+        rows.append(("wall-clock timeout", "NOT enforced", False))
+    except isolate.WorkerTimeout:
+        rows.append(("wall-clock timeout", "enforced (1 s test)", True))
+    try:
+        isolate.run_task("selftest_cpu", {}, limits=isolate.Limits(20, 1, 256))
+        rows.append(("CPU limit", "NOT enforced", False))
+    except isolate.WorkerCrashed as exc:
+        rows.append(("CPU limit", f"enforced ({exc})", True))
+    except isolate.WorkerTimeout:
+        rows.append(("CPU limit", "not enforced (stopped by the wall-clock timeout)", False))
+    try:
+        out = isolate.run_task(
+            "selftest_alloc", {"mb": 1024, "hold": 2}, limits=isolate.Limits(30, 30, 256)
+        )
+        res = out["result"]["alloc"]
+        rows.append(("memory limit (256 MiB test)", res, res.startswith("refused")))
+    except isolate.WorkerCrashed as exc:
+        rows.append(("memory limit (256 MiB test)", f"enforced ({exc})", True))
+    if as_json:
+        print(json.dumps([{"check": a, "result": b, "ok": c} for a, b, c in rows], indent=2))
+    else:
+        for a, b, c in rows:
+            print(f"{'info' if c is None else 'ok  ' if c else 'GAP '}  {a:<30} {b}")
+        print("Network isolation is best-effort (in-process socket guard), not an OS sandbox.")
+    return 0 if all(c is not False for _, _, c in rows) else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="nirikshan")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -205,6 +254,8 @@ def main(argv: list[str] | None = None) -> int:
     k = sub.add_parser("protect-key", help="passphrase-protect plaintext signing key(s)")
     k.add_argument("--key", choices=["custody", "package", "all"], default="all")
     sub.add_parser("key-status", help="show signing key protection state")
+    ws = sub.add_parser("worker-selftest", help="measure worker isolation on this host")
+    ws.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
     if args.cmd == "reset-db":
         return reset_db(args.yes)
@@ -216,6 +267,8 @@ def main(argv: list[str] | None = None) -> int:
         return protect_key(args.key)
     if args.cmd == "key-status":
         return key_status()
+    if args.cmd == "worker-selftest":
+        return worker_selftest(args.json)
     return head(args.case_id, args.json)
 
 

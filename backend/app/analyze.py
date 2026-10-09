@@ -54,6 +54,35 @@ class _Hooks:
             raise AnalysisCancelled
 
 
+class LiveSource:
+    """In-process identification/parsing/carving over the open image (the default). The
+    isolated alternative with the same interface is app.workers.plan.PlannedSource."""
+
+    timings: dict = {}
+
+    def __init__(self, f, size: int, registry, params: CarveParams, parser_options: dict | None):
+        self.f, self.size, self.registry = f, size, registry
+        self.params, self.parser_options = params, parser_options or {}
+
+    def identify(self) -> list:
+        return self.registry.identify(self.f, self.size)
+
+    def parse(self, _index: int, m):
+        parser = self.registry.parser_for(m.vendor)
+        opts = self.parser_options.get(m.vendor)
+        return parser.parse(self.f, self.size, opts) if parser else None
+
+    def generic(self, ranges):
+        return carve_ranges(self.f, ranges, self.params)
+
+    def full_generic(self) -> list:
+        def read_at(off: int, n: int) -> bytes:
+            self.f.seek(off)
+            return self.f.read(n)
+
+        return _dry_generic(self.f, self.size, read_at, self.params)
+
+
 def clips_dir(case_id: int, evidence_id: int, run_id: int) -> Path:
     return data_dir() / "cases" / str(case_id) / "clips" / str(evidence_id) / f"run{run_id}"
 
@@ -75,10 +104,13 @@ def analyze(
     progress: ProgressFn | None = None,
     should_cancel: Callable[[], bool] | None = None,
     on_run: Callable[[CarveRun], None] | None = None,
+    planner: Callable[[_Hooks], object] | None = None,
 ) -> CarveRun:
     """Run the pipeline. `progress(stage, fraction)` and `should_cancel()` are optional; they are
     checked between stages, clips and exports (never inside one ffmpeg call or the initial image
-    hash). A cancelled run is returned with status "cancelled" (see _finish_cancelled)."""
+    hash). A cancelled run is returned with status "cancelled" (see _finish_cancelled).
+    `planner(hooks)`, when given, returns a source with LiveSource's interface computed elsewhere
+    (an isolated worker: app.workers.pipeline); everything is still stored by this function."""
     hooks = _Hooks(progress, should_cancel)
     tool("ffmpeg")  # fail early (FfmpegMissing) before creating a run
     tool("ffprobe")
@@ -113,29 +145,28 @@ def analyze(
             hooks.report("Identifying vendor", 0.10)
             hooks.check()
 
-            def read_at(off: int, n: int) -> bytes:
-                f.seek(off)
-                return f.read(n)
-
             registry = default_registry()
+            if planner is None:
+                src = LiveSource(f, ev.size_bytes, registry, params, parser_options)
+            else:
+                src = planner(hooks)  # runs before anything of this run is stored
+                hooks.check()
             t0 = time.perf_counter()
-            matches = registry.identify(f, ev.size_bytes)
-            run.ident_seconds = time.perf_counter() - t0
+            matches = src.identify()
+            run.ident_seconds = time.perf_counter() - t0 + src.timings.get("identify", 0.0)
             run.vendor_json = json.dumps([_match_dict(m) for m in matches])
 
             # 1) vendor parsers first (their clips are exported and stored)
             t0 = time.perf_counter()
             parse_results = []
             hooks.report("Running vendor parsers", 0.15)
-            for m in matches:
+            for i, m in enumerate(matches):
                 hooks.check()
-                parser = registry.parser_for(m.vendor)
-                opts = (parser_options or {}).get(m.vendor)
-                res = parser.parse(f, ev.size_bytes, opts) if parser else None
+                res = src.parse(i, m)
                 if res is not None:
                     parse_results.append(res)
                     _store_parsed(db, run, ev, f, res, out, ffv, examiner, counts, hooks)
-            parse_seconds = time.perf_counter() - t0
+            parse_seconds = time.perf_counter() - t0 + src.timings.get("parse", 0.0)
             # 2) generic carving over the bytes no parser clip spans (never twice, never lost)
             spans = [(c.start, c.end) for r in parse_results for c in r.clips]
             covered = merge_spans(spans)
@@ -147,7 +178,7 @@ def analyze(
             t0 = time.perf_counter()
             generic: list[CarvedClip] = []
             orphan_seq = 0
-            for item in carve_ranges(f, ranges, params):
+            for item in src.generic(ranges):
                 hooks.check()
                 hooks.report(
                     "Generic carving and exporting clips",
@@ -192,14 +223,19 @@ def analyze(
                         None,
                         counts,
                     )
-            run.carve_seconds = time.perf_counter() - t0
+            run.carve_seconds = time.perf_counter() - t0 + src.timings.get("carve", 0.0)
             # 3) cross-check parser clips against an independent generic pass over the whole
             # image (dry run: nothing exported or stored besides the disagreement list)
             parse_out = []
+            crosscheck_seconds = 0.0
             hooks.check()
             if parse_results:
                 hooks.report("Cross-checking parser output against generic carving", 0.90)
-                full = _dry_generic(f, ev.size_bytes, read_at, params)
+                t1 = time.perf_counter()
+                full = src.full_generic()
+                crosscheck_seconds = (
+                    time.perf_counter() - t1 + src.timings.get("crosscheck_pass", 0.0)
+                )
                 for res in parse_results:
                     res.crosscheck = crosscheck(res.clips, full)
                     parse_out.append(res.to_dict())
@@ -230,7 +266,11 @@ def analyze(
                 "parser_covered_bytes": covered_bytes,
                 "generic_ranges": len(ranges),
                 "parse_seconds": round(parse_seconds, 3),
+                "crosscheck_seconds": round(crosscheck_seconds, 3),
+                "isolated_worker": planner is not None,
             }
+            if planner is not None:
+                pipeline["worker_timings"] = src.timings
             carver_stats: dict = {}
             run.parse_json = json.dumps(parse_out)
             run.stats_json = json.dumps(

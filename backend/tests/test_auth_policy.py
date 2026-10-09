@@ -199,3 +199,14 @@ def test_mismatched_ids_in_one_path_are_refused(client, world):  # noqa: F811
         headers=world.h("exam1"),
     )
     assert r.status_code == 404
+
+
+def test_body_references_to_other_cases_are_refused(client, world):  # noqa: F811
+    """Batch job bodies name evidence ids; ids from another case are treated as not found."""
+    a = world.cases["A"]["case_id"]
+    r = client.post(
+        f"/api/cases/{a}/jobs/batch",
+        json={"evidence_ids": [world.cases["B"]["evidence_id"]]},
+        headers=world.h("exam1"),
+    )
+    assert r.status_code == 404

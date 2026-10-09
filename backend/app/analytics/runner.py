@@ -48,9 +48,24 @@ def tool_info() -> dict:
     }
 
 
+def compute_local(kind: str, mp4_path: str, params, mp4_sha256: str) -> dict:
+    """In-process analysis (the synchronous API). Jobs pass an isolated-worker equivalent."""
+    if kind == "motion":
+        return motion.analyse_motion(mp4_path, params)
+    return detect.analyse_detections(mp4_path, kind, params)
+
+
 def run_analytics(
-    db: Session, clip: Clip, kind: str, raw_params: dict | None, examiner: str
+    db: Session,
+    clip: Clip,
+    kind: str,
+    raw_params: dict | None,
+    examiner: str,
+    compute=None,
+    tool_extra: dict | None = None,
 ) -> AnalyticsRun:
+    """`compute(kind, mp4_path, params, mp4_sha256) -> result dict` defaults to compute_local.
+    Result rows are added in one transaction after compute returns (no partial rows)."""
     if kind not in KINDS:
         raise ValueError(f"kind must be one of {', '.join(KINDS)}")
     params = parse_params(kind, raw_params)
@@ -87,9 +102,9 @@ def run_analytics(
     db.commit()
     t0 = time.perf_counter()
     try:
-        run.tool_json = json.dumps(tool_info(), sort_keys=True)
+        run.tool_json = json.dumps({**tool_info(), **(tool_extra or {})}, sort_keys=True)
+        res = (compute or compute_local)(kind, clip.mp4_path, params, observed)
         if kind == "motion":
-            res = motion.analyse_motion(clip.mp4_path, params)
             for iv in res["intervals"]:
                 db.add(
                     MotionInterval(
@@ -100,7 +115,6 @@ def run_analytics(
                 )
             run.result_count = len(res["intervals"])
         else:
-            res = detect.analyse_detections(clip.mp4_path, kind, params)
             for d in res["detections"]:
                 x1, y1, x2, y2 = d["bbox"]
                 db.add(
