@@ -9,13 +9,21 @@ from app import (  # noqa: F401  (triggers: DDL events before create_all)
     schema,
     triggers,
 )
+from app.acquire import models as _acquire_models  # noqa: F401
+from app.acquire.routes import router as acquire_router
 from app.analytics import models as _analytics_models  # noqa: F401  (tables before create_all)
 from app.analytics.routes import router as analytics_router
 from app.db import SessionLocal, engine
+from app.explorer import models as _explorer_models  # noqa: F401
+from app.explorer.routes import router as explorer_router
+from app.identify import models as _identify_models  # noqa: F401
+from app.identify.routes import router as identify_router
 from app.jobs import models as _jobs_models  # noqa: F401
 from app.jobs.manager import manager as job_manager
 from app.jobs.routes import router as jobs_router
 from app.models import AuditEntry
+from app.oem.routes import router as oem_router
+from app.recover.routes import router as recover_router
 from app.report import models as _report_models  # noqa: F401
 from app.report.routes import router as report_router
 from app.routes import audit_case_id, router
@@ -54,6 +62,8 @@ app.include_router(analytics_router)
 app.include_router(timeline_router)
 app.include_router(report_router)
 app.include_router(jobs_router)
+for _r in (acquire_router, identify_router, explorer_router, recover_router, oem_router):
+    app.include_router(_r)
 
 
 @app.middleware("http")
