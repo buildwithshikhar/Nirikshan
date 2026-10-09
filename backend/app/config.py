@@ -22,5 +22,33 @@ def evidence_roots() -> list[Path]:
 
 
 def allow_block_devices() -> bool:
-    """Block devices are refused unless explicitly enabled."""
+    """Block devices are refused unless explicitly enabled (never on a public instance)."""
+    if public_instance():
+        return False
     return os.getenv("NIRIKSHAN_ALLOW_BLOCK_DEVICES", "").lower() in ("1", "true", "yes")
+
+
+def _flag(name: str) -> bool:
+    return os.getenv(name, "").lower() in ("1", "true", "yes")
+
+
+def public_instance() -> bool:
+    """A public (internet-facing) instance: reference data only. Disables browser uploads and
+    block-device acquisition regardless of their own settings."""
+    return _flag("NIRIKSHAN_PUBLIC_INSTANCE")
+
+
+def max_upload_bytes() -> int:
+    """Largest browser upload accepted (default 2 GiB)."""
+    return int(os.getenv("NIRIKSHAN_MAX_UPLOAD_BYTES", str(2 * 1024**3)))
+
+
+def incoming_dir() -> Path | None:
+    """Locked folder that browser uploads stream into. Always inside an evidence root so that the
+    acquisition policy accepts it; None when no evidence root is configured."""
+    roots = evidence_roots()
+    if not roots:
+        return None
+    raw = os.getenv("NIRIKSHAN_INCOMING_DIR")
+    path = Path(raw).expanduser().resolve() if raw else roots[0] / "incoming"
+    return path if any(path.is_relative_to(r) for r in roots) else None

@@ -1,4 +1,4 @@
-import { get, post } from '../../lib/http'
+import { ApiError, get, getToken, post } from '../../lib/http'
 
 export interface Evidence {
   id: number
@@ -90,4 +90,36 @@ export const evidenceApi = {
   verify: (id: number) => post<{ ok: boolean; error: string }>(`/api/evidence/${id}/verify`),
   badSectors: (id: number, signal?: AbortSignal) => get<BadSectors>(`/api/evidence/${id}/bad-sectors`, signal),
   nativeInfo: (id: number, signal?: AbortSignal) => get<NativeExport>(`/api/evidence/${id}/native-export`, signal),
+}
+
+export interface FileEntry { name: string; kind: 'dir' | 'file'; size: number | null; path: string; symlink?: boolean }
+export interface FileListing { available: boolean; reason?: string; path: string; parent: string | null; entries: FileEntry[]; truncated?: boolean }
+export interface UploadLimits { available: boolean; reason?: string; max_bytes?: number }
+export interface UploadResult { path: string; size_bytes: number; sha256: string; md5: string; original_filename: string; custody_seq: number }
+
+export const intakeApi = {
+  list: (path: string) => get<FileListing>(`/api/evidence-files?path=${encodeURIComponent(path)}`),
+  limits: () => get<UploadLimits>('/api/uploads/limits'),
+  /** XHR (not fetch) so the browser reports upload progress; the body is the raw file, streamed to disk by the server. */
+  upload: (caseId: number, file: File, onProgress: (frac: number) => void) =>
+    new Promise<UploadResult>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', `/api/cases/${caseId}/uploads?filename=${encodeURIComponent(file.name)}`)
+      const token = getToken()
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream')
+      xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total)
+      xhr.onload = () => {
+        let body: unknown = null
+        try {
+          body = JSON.parse(xhr.responseText)
+        } catch {
+          // not JSON
+        }
+        if (xhr.status >= 200 && xhr.status < 300) resolve(body as UploadResult)
+        else reject(new ApiError(xhr.status, (body as { detail?: unknown } | null)?.detail ?? xhr.statusText))
+      }
+      xhr.onerror = () => reject(new Error('upload failed (network error)'))
+      xhr.send(file)
+    }),
 }

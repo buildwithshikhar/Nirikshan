@@ -119,6 +119,8 @@ POLICY: dict[tuple[str, str], Rule] = {
     ("POST", "/api/cases/{case_id}/members"): ADMIN_CASE,
     ("DELETE", "/api/cases/{case_id}/members/{user_id}"): ADMIN_CASE,
     # reference / read-only global data (no case content)
+    ("GET", "/api/evidence-files"): CASE_CREATE,  # server folder names: admin or examiner only
+    ("GET", "/api/uploads/limits"): ANY,
     ("GET", "/api/events/grammar"): ANY,
     ("GET", "/api/acquisition/capabilities"): ANY,
     ("GET", "/api/acquisition/ewf"): ANY,

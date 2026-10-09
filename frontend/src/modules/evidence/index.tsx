@@ -7,6 +7,7 @@ import {
   Button, Can, Card, Chip, type Column, DataTable, Field, HashText, KV, Loadable, PageHeader, Tabs, Unavailable, fmtBytes, fmtTime, inputClass, useAsync, useToast,
 } from '../../ui'
 import { casesApi } from '../cases/api'
+import { SourcePicker } from './SourcePicker'
 import { type BadSectors, type Evidence, evidenceApi } from './api'
 
 const verifyChip = (e: Evidence) =>
@@ -167,9 +168,7 @@ function Wizard() {
                 {caps.data && !caps.data.block_device.available && (
                   <p className="text-xs text-slate-400">Block devices are not available (opt-in {caps.data.block_device.opt_in}; never verified on real disks).</p>
                 )}
-                <Field label="Source path (server-side, inside the configured evidence roots)">
-                  <input className={inputClass} value={f.source_path} onChange={(e) => setF({ ...f, source_path: e.target.value })} />
-                </Field>
+                <SourcePicker caseId={caseId} value={f.source_path} onChange={(p) => setF((cur) => ({ ...cur, source_path: p }))} />
               </>
             )}
             {step === 1 && (

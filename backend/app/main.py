@@ -30,6 +30,7 @@ from app.explorer import models as _explorer_models  # noqa: F401
 from app.explorer.routes import router as explorer_router
 from app.identify import models as _identify_models  # noqa: F401
 from app.identify.routes import router as identify_router
+from app.intake.routes import router as intake_router
 from app.jobs import models as _jobs_models  # noqa: F401
 from app.jobs.manager import manager as job_manager
 from app.jobs.routes import router as jobs_router
@@ -101,6 +102,7 @@ app.include_router(auth_router)
 app.include_router(approvals_router)
 app.include_router(package_router)
 app.include_router(perf_router)
+app.include_router(intake_router)
 
 
 class AuditTrail:

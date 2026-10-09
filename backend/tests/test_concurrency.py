@@ -39,7 +39,16 @@ def test_twenty_parallel_logins_and_requests_do_not_exhaust_the_pool(tmp_path):
     env.pop("NIRIKSHAN_DEV_HEADER_AUTH", None)
     backend = Path(__file__).resolve().parent.parent
     proc = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(port), "--log-level", "warning"],
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "app.main:app",
+            "--port",
+            str(port),
+            "--log-level",
+            "error",
+        ],
         cwd=backend,
         env=env,
     )
@@ -53,7 +62,10 @@ def test_twenty_parallel_logins_and_requests_do_not_exhaust_the_pool(tmp_path):
                 time.sleep(0.2)
         subprocess.run(
             [sys.executable, "-m", "app.demo_data", "seed-users"],
-            cwd=backend, env=env, check=True, capture_output=True,
+            cwd=backend,
+            env=env,
+            check=True,
+            capture_output=True,
         )
 
         def one(_):
@@ -64,7 +76,9 @@ def test_twenty_parallel_logins_and_requests_do_not_exhaust_the_pool(tmp_path):
             )
             token = json.load(urllib.request.urlopen(req, timeout=30))["token"]
             for path in ("/api/auth/me", "/api/cases", "/api/system"):
-                r = urllib.request.Request(base + path, headers={"Authorization": f"Bearer {token}"})
+                r = urllib.request.Request(
+                    base + path, headers={"Authorization": "Bearer " + token}
+                )
                 assert urllib.request.urlopen(r, timeout=30).status == 200
             return True
 

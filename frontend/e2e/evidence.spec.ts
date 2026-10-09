@@ -61,3 +61,49 @@ test('evidence list and detail of the demo case; readonly cannot acquire or veri
   await page.goto(`/cases/${s.caseId}/evidence/new`)
   await expect(page.getByRole('note')).toContainText('read-only')
 })
+
+test('wizard step 1: pick a file from the server folder browser (inside the evidence roots only)', async ({ page, request }) => {
+  const s = await ensureDemo(request)
+  const dir = mkdtempSync(join(realpathSync(tmpdir()), 'nirikshan-e2e-pick-'))
+  writeFileSync(join(dir, 'picked-image.dd'), Buffer.alloc(5000, 3))
+  await loginAs(page, 'examiner', `/cases/${s.caseId}/evidence/new`)
+  await page.getByRole('button', { name: 'Browse evidence folders' }).click()
+  await page.getByLabel('Open folder path').fill(dir)
+  await page.getByRole('button', { name: 'Open', exact: true }).click()
+  await page.getByRole('button', { name: 'Select picked-image.dd' }).click()
+  await expect(page.getByLabel('Source path')).toHaveValue(join(dir, 'picked-image.dd'))
+  await page.getByLabel('Open folder path').fill('/etc')
+  await page.getByRole('button', { name: 'Open', exact: true }).click()
+  await expect(page.getByTestId('error-state')).toContainText('outside the configured evidence roots')
+  await axe(page)
+})
+
+test('wizard step 1: upload from the browser fills the path and records a custody entry', async ({ page, request }) => {
+  const s = await ensureDemo(request)
+  const dir = mkdtempSync(join(realpathSync(tmpdir()), 'nirikshan-e2e-up-'))
+  const f = join(dir, 'my upload.dd')
+  writeFileSync(f, Buffer.alloc(40_000, 9))
+  await loginAs(page, 'examiner', `/cases/${s.caseId}/evidence/new`)
+  await page.getByLabel('Upload a file from this computer').setInputFiles(f)
+  await page.getByRole('button', { name: 'Upload to the incoming folder' }).click()
+  await expect(page.getByTestId('upload-result')).toContainText('my upload.dd')
+  await expect(page.getByLabel('Source path')).toHaveValue(/incoming\/upload-.*\.bin$/)
+  const entries = await page.evaluate(async (id) => {
+    const r = await fetch(`/api/cases/${id}/custody`, { headers: { Authorization: `Bearer ${sessionStorage.getItem('nirikshan.token')}` } })
+    return (await r.json()) as { action: string; examiner: string; details_json: string }[]
+  }, s.caseId)
+  const e = entries.filter((x) => x.action === 'file_uploaded_via_browser').pop()!
+  expect(e.examiner).toContain('demo-examiner')
+  expect(e.details_json).toContain('my upload.dd')
+})
+
+test('read-only role has no acquisition wizard controls and the server refuses its upload', async ({ page, request }) => {
+  const s = await ensureDemo(request)
+  await loginAs(page, 'readonly', `/cases/${s.caseId}/evidence/new`)
+  await expect(page.getByRole('button', { name: 'Browse evidence folders' })).toHaveCount(0)
+  const status = await page.evaluate(async (id) => {
+    const r = await fetch(`/api/cases/${id}/uploads?filename=a.dd`, { method: 'POST', headers: { Authorization: `Bearer ${sessionStorage.getItem('nirikshan.token')}` }, body: 'x' })
+    return r.status
+  }, s.caseId)
+  expect(status).toBe(403)
+})
