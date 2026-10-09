@@ -28,8 +28,8 @@ DEMO_CASE_TITLE = (
 DEMO_EXAMINER = "Demo Examiner (reference data)"
 SEED = 20260101
 
-# Demo accounts created by `make demo` and the e2e suite ONLY (never by the application). They share
-# one published password and exist so the login screen can be exercised; never use them for casework.
+# Demo accounts created by `make demo` and the e2e suite ONLY (never by the application). They
+# share one published password so the login screen can be exercised; never use for casework.
 DEMO_PASSWORD = "demo-account-not-for-casework"
 DEMO_USERS = [
     ("demo-admin", "Demo Admin (demo account)", "admin"),

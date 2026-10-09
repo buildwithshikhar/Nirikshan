@@ -91,7 +91,10 @@ def stop(proc: subprocess.Popen | None) -> None:
 def seed_users(env: dict) -> None:
     """Create the demo accounts in the demo database (the app itself ships no default account)."""
     subprocess.run(
-        [sys.executable, "-m", "app.demo_data", "seed-users"], cwd=ROOT / "backend", env=env, check=True
+        [sys.executable, "-m", "app.demo_data", "seed-users"],
+        cwd=ROOT / "backend",
+        env=env,
+        check=True,
     )
 
 
