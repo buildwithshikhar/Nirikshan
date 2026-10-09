@@ -4,13 +4,16 @@ import subprocess
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError as DbIntegrityError
 from sqlalchemy.orm import Session
 
 from app import __version__, analyze, custody, evidence, schema, schemas, signing
+from app.auth.access import grant_creator
+from app.auth.deps import CurrentPrincipal, examiner_for
+from app.auth.policy import visible_case_ids
 from app.carving.carve import CarveParams
 from app.carving.export import FfmpegMissing, find_tool
 from app.clock import ntp_status
@@ -24,12 +27,10 @@ router = APIRouter(prefix="/api")
 DbSession = Annotated[Session, Depends(get_db)]
 
 
-def examiner_name(x_examiner: Annotated[str, Header()] = "") -> str:
-    """Examiner attestation for mutating calls. There is no authentication in P1."""
-    name = x_examiner.strip()
-    if not name:
-        raise HTTPException(400, "X-Examiner header is required")
-    return name
+def examiner_name(p: CurrentPrincipal) -> str:
+    """Identity for mutating calls: the authenticated user (app.auth). The X-Examiner header is
+    honoured only when NIRIKSHAN_DEV_HEADER_AUTH=1 (dev-only, unauthenticated attestation)."""
+    return examiner_for(p)
 
 
 Examiner = Annotated[str, Depends(examiner_name)]
@@ -88,7 +89,7 @@ def signing_key() -> dict:
 
 
 @router.post("/cases", response_model=schemas.CaseOut, status_code=201)
-def create_case(body: schemas.CaseIn, db: DbSession, examiner: Examiner):
+def create_case(body: schemas.CaseIn, db: DbSession, examiner: Examiner, p: CurrentPrincipal):
     row = Case(**body.model_dump(), examiner=examiner)
     db.add(row)
     try:
@@ -99,12 +100,17 @@ def create_case(body: schemas.CaseIn, db: DbSession, examiner: Examiner):
     custody.append_entry(
         db, row.id, "case_created", examiner, {"case_number": row.case_number, "title": row.title}
     )
+    grant_creator(db, row.id, p)
     return row
 
 
 @router.get("/cases", response_model=list[schemas.CaseOut])
-def list_cases(db: DbSession):
-    return db.scalars(select(Case).order_by(Case.id.desc())).all()
+def list_cases(db: DbSession, p: CurrentPrincipal):
+    q = select(Case).order_by(Case.id.desc())
+    ids = visible_case_ids(db, p)
+    if ids is not None:
+        q = q.where(Case.id.in_(ids))
+    return db.scalars(q).all()
 
 
 @router.get("/cases/{case_id}", response_model=schemas.CaseOut)

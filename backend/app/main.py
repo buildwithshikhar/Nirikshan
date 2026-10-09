@@ -1,7 +1,7 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import (  # noqa: F401  (triggers: DDL events before create_all)
@@ -15,6 +15,12 @@ from app.analytics import models as _analytics_models  # noqa: F401  (tables bef
 from app.analytics.routes import router as analytics_router
 from app.correlation import models as _correlation_models  # noqa: F401
 from app.correlation.routes import router as correlation_router
+from app.approvals import models as _approval_models  # noqa: F401
+from app.approvals.routes import router as approvals_router
+from app.auth import models as _auth_models  # noqa: F401
+from app.auth.deps import audit_identity
+from app.auth.policy import authorize
+from app.auth.routes import router as auth_router
 from app.db import SessionLocal, engine
 from app.events import fts as _event_fts  # noqa: F401  (drops ai_events_fts with ai_events)
 from app.events import models as _event_models  # noqa: F401
@@ -48,7 +54,13 @@ async def lifespan(_: FastAPI):
     job_manager.shutdown()
 
 
-app = FastAPI(title="Nirikshan API", version=__version__, lifespan=lifespan)
+# Every route passes app.auth.policy.authorize (fail closed for routes without a rule).
+app = FastAPI(
+    title="Nirikshan API",
+    version=__version__,
+    lifespan=lifespan,
+    dependencies=[Depends(authorize)],
+)
 
 origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if o]
 app.add_middleware(
@@ -80,17 +92,19 @@ for _r in (
     oem_router,
 ):
     app.include_router(_r)
+app.include_router(auth_router)
+app.include_router(approvals_router)
 
 
 @app.middleware("http")
 async def audit_trail(request: Request, call_next):
-    """Record every /api request (method, path, status, examiner attestation) in audit_log."""
+    """Record every /api request (method, path, status, authenticated principal) in audit_log."""
     response = await call_next(request)
     if request.url.path.startswith("/api/") and request.url.path != "/api/audit":
         with SessionLocal() as db:
             db.add(
                 AuditEntry(
-                    examiner=request.headers.get("x-examiner", "").strip(),
+                    examiner=audit_identity(request),
                     method=request.method,
                     path=request.url.path,
                     status_code=response.status_code,

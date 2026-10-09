@@ -20,6 +20,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import custody
+from app.approvals import routes as approvals
+from app.auth.deps import CurrentPrincipal
 from app.clock import utc_now_iso
 from app.config import data_dir
 from app.hashing import hash_file
@@ -135,16 +137,18 @@ def _case(db: Session, case_id: int) -> Case:
 
 
 @router.post("/cases/{case_id}/report", status_code=201)
-def create_report(case_id: int, db: DbSession, examiner: Examiner):
+def create_report(case_id: int, db: DbSession, examiner: Examiner, p: CurrentPrincipal):
     _case(db, case_id)
-    return report_out(generate_report(db, case_id, examiner))
+    row = generate_report(db, case_id, examiner)
+    approvals.register(db, row, p)  # review state "draft", author = the authenticated user
+    return {**report_out(row), "review_status": "draft"}
 
 
 @router.get("/cases/{case_id}/reports")
 def list_reports(case_id: int, db: DbSession):
     _case(db, case_id)
     rows = db.scalars(select(Report).where(Report.case_id == case_id).order_by(Report.id.desc()))
-    return [report_out(r) for r in rows]
+    return [{**report_out(r), "review_status": approvals.status_of(db, r.id)} for r in rows]
 
 
 @router.get("/reports/{report_id}/download")
@@ -162,7 +166,16 @@ def download_report(report_id: int, db: DbSession):
             f"Stored report no longer matches its recorded SHA-256 (recorded {r.sha256}, "
             f"observed {observed}); it is not served. Investigate before relying on it.",
         )
-    return FileResponse(r.file_path, media_type="application/pdf", filename=r.file_name)
+    # The PDF bytes are never rewritten (their SHA-256 is in the custody log); the review status
+    # travels in a header and in the download file name.
+    status = approvals.status_of(db, r.id)
+    stem = r.file_name[:-4] if r.file_name.endswith(".pdf") else r.file_name
+    return FileResponse(
+        r.file_path,
+        media_type="application/pdf",
+        filename=f"{stem}_{status.upper()}.pdf",
+        headers={"X-Nirikshan-Report-Status": status},
+    )
 
 
 @router.get("/cases/{case_id}/certificate-draft")

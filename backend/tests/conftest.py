@@ -3,6 +3,11 @@ import os
 # Tests use in-memory SQLite unless TEST_DATABASE_URL points at e.g. the compose Postgres.
 TEST_DB = os.getenv("TEST_DATABASE_URL", "sqlite://")
 os.environ["DATABASE_URL"] = TEST_DB  # must be set before the app is imported
+# The pre-auth suite identifies itself with the X-Examiner header, which is honoured only in the
+# dev-only header mode. Auth tests switch it OFF per test with the `no_dev_auth` fixture. Set at
+# import (not via monkeypatch) so a test's monkeypatch.undo() cannot drop it.
+os.environ["NIRIKSHAN_DEV_HEADER_AUTH"] = "1"
+os.environ["NIRIKSHAN_PASSWORD_SCRYPT_LOG2N"] = "10"  # tests only: cheap password hashes
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -19,7 +24,18 @@ def _dirs(tmp_path, monkeypatch):
     monkeypatch.setenv("NIRIKSHAN_KEY_DIR", str(tmp_path / "keys"))
     monkeypatch.setenv("NIRIKSHAN_EVIDENCE_ROOTS", str(tmp_path.resolve()))
     monkeypatch.delenv("NIRIKSHAN_ALLOW_BLOCK_DEVICES", raising=False)
+    for var in ("NIRIKSHAN_KEY_PASSPHRASE", "NIRIKSHAN_KEY_PASSPHRASE_FILE"):
+        monkeypatch.delenv(var, raising=False)
+    from app.auth.ratelimit import address_limiter
+
+    address_limiter.reset()
     return tmp_path
+
+
+@pytest.fixture
+def no_dev_auth(monkeypatch):
+    """Production identity rules: no X-Examiner fallback."""
+    monkeypatch.delenv("NIRIKSHAN_DEV_HEADER_AUTH", raising=False)
 
 
 EXAMINER = {"X-Examiner": "Insp. Test"}
