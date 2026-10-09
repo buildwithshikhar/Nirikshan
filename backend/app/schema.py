@@ -9,7 +9,9 @@ carve_runs.parse_json); 4 = schema_meta introduced; 5 = P6 analytics tables
 7 = P7 reports table;
 8 = P8 jobs table and evidence.synthetic;
 9 = Round D stream 2 tables (acquisition_sessions, native_exports,
-device_identifications, raw_read_audit).
+device_identifications, raw_read_audit);
+10 = Round D stream 3 tables (ai_events, camera_topologies, external_logs,
+external_log_entries, correlation_links, validation_reruns).
 """
 
 from sqlalchemy import Engine, inspect, select
@@ -18,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.db import Base
 from app.models import SchemaMeta
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 
 class SchemaError(RuntimeError):

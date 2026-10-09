@@ -13,7 +13,12 @@ from app.acquire import models as _acquire_models  # noqa: F401
 from app.acquire.routes import router as acquire_router
 from app.analytics import models as _analytics_models  # noqa: F401  (tables before create_all)
 from app.analytics.routes import router as analytics_router
+from app.correlation import models as _correlation_models  # noqa: F401
+from app.correlation.routes import router as correlation_router
 from app.db import SessionLocal, engine
+from app.events import fts as _event_fts  # noqa: F401  (drops ai_events_fts with ai_events)
+from app.events import models as _event_models  # noqa: F401
+from app.events.routes import router as events_router
 from app.explorer import models as _explorer_models  # noqa: F401
 from app.explorer.routes import router as explorer_router
 from app.identify import models as _identify_models  # noqa: F401
@@ -29,6 +34,8 @@ from app.report.routes import router as report_router
 from app.routes import audit_case_id, router
 from app.timeline import models as _timeline_models  # noqa: F401
 from app.timeline.routes import router as timeline_router
+from app.validation_center import models as _vc_models  # noqa: F401
+from app.validation_center.routes import router as validation_router
 
 
 @asynccontextmanager
@@ -62,7 +69,16 @@ app.include_router(analytics_router)
 app.include_router(timeline_router)
 app.include_router(report_router)
 app.include_router(jobs_router)
-for _r in (acquire_router, identify_router, explorer_router, recover_router, oem_router):
+for _r in (
+    events_router,
+    correlation_router,
+    validation_router,
+    acquire_router,
+    identify_router,
+    explorer_router,
+    recover_router,
+    oem_router,
+):
     app.include_router(_r)
 
 
