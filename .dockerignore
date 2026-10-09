@@ -15,5 +15,5 @@ backend/tests
 backend/*.db
 **/*.img
 **/*.dd
-docs
+docs/img
 ml

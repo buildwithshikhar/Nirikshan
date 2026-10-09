@@ -1,0 +1,79 @@
+# Nirikshan PRODUCTION profile (single VM with Docker). Separate from the offline stack
+# (docker-compose.offline.yml) and the dev Postgres (docker-compose.yml). See docs/DEPLOYMENT.md.
+#
+#   cp deploy/prod.env.example deploy/prod.env   # edit: CORS_ORIGINS, first admin, ...
+#   NIRIKSHAN_EVIDENCE_DIR=/srv/evidence \
+#     docker compose -f docker-compose.prod.yml -p nirikshan-prod up -d --build
+#
+# TLS is NOT terminated here: put a TLS reverse proxy (Caddy, nginx, a cloud load balancer) in
+# front of the frontend port. The backend is reachable only from the frontend container.
+
+name: nirikshan-prod
+
+services:
+  backend:
+    image: nirikshan-prod-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: ${NIRIKSHAN_ENV_FILE:-deploy/prod.env}
+    environment:
+      NIRIKSHAN_PRODUCTION: "1"
+      NIRIKSHAN_DATA_DIR: /var/lib/nirikshan/data
+      NIRIKSHAN_KEY_DIR: /var/lib/nirikshan/keys      # own volume, never inside the data dir
+      NIRIKSHAN_EVIDENCE_ROOTS: /evidence:/incoming   # read-only evidence + the upload folder
+      NIRIKSHAN_INCOMING_DIR: /incoming
+      NIRIKSHAN_MODELS_DIR: /opt/nirikshan/models
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - nirikshan_data:/var/lib/nirikshan/data
+      - nirikshan_keys:/var/lib/nirikshan/keys
+      - nirikshan_incoming:/incoming                  # the ONLY writable evidence location
+      - ${NIRIKSHAN_EVIDENCE_DIR:?set NIRIKSHAN_EVIDENCE_DIR to the folder holding source images}:/evidence:ro
+    tmpfs:
+      - /tmp:size=1g,mode=1777   # ffmpeg / onnxruntime scratch
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status==200 else 1)"]
+      interval: 10s
+      timeout: 4s
+      retries: 6
+      start_period: 20s
+    networks: [internal]
+    restart: unless-stopped
+
+  frontend:
+    image: nirikshan-prod-frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}   # empty = same origin (nginx proxies /api)
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    ports:
+      - "${NIRIKSHAN_BIND:-127.0.0.1}:${NIRIKSHAN_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 4s
+      retries: 6
+    networks: [internal, edge]
+    restart: unless-stopped
+
+volumes:
+  nirikshan_data:
+  nirikshan_keys:
+  nirikshan_incoming:
+
+networks:
+  internal:
+    internal: true
+  edge: {}

@@ -39,10 +39,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NIRIKSHAN_KEY_DIR=/var/lib/nirikshan/keys \
     DATABASE_URL=sqlite:////var/lib/nirikshan/data/nirikshan.db
 # Mount points exist and are owned by the service user so a fresh named volume inherits ownership.
-RUN mkdir -p /var/lib/nirikshan/data /var/lib/nirikshan/keys /evidence \
- && chown -R nirikshan:nirikshan /var/lib/nirikshan && chmod 700 /var/lib/nirikshan/keys
+RUN mkdir -p /var/lib/nirikshan/data /var/lib/nirikshan/keys /evidence /incoming \
+ && chown -R nirikshan:nirikshan /var/lib/nirikshan /incoming && chmod 700 /incoming && chmod 700 /var/lib/nirikshan/keys
 USER nirikshan
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --retries=5 \
-  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status==200 else 1)"
+  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status==200 else 1)"
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
