@@ -75,7 +75,7 @@ requirements:
   - id: R08
     requirement: Cross-camera event correlation
     status: Partial
-    code: [backend/app/timeline/timeline.py, backend/app/timeline/routes.py, frontend/src/pages/Timeline.tsx]
+    code: [backend/app/timeline/timeline.py, backend/app/timeline/routes.py, frontend/src/modules/timeline/index.tsx]
     tests: [backend/tests/test_timeline_build.py, backend/tests/test_timeline_api.py, frontend/e2e/timeline.spec.ts]
     docs: [docs/timeline.md]
     note: Interval timeline with gaps/overlaps and CSV/JSON export; clips without parsed timestamps (all generic-carved clips) are unplaceable, and event-level correlation (objects/faces across cameras) is not built.
@@ -92,7 +92,7 @@ requirements:
     requirement: Reporting
     status: Partial
     code: [backend/app/report/build.py, backend/app/report/pdf.py, backend/app/report/routes.py, backend/app/report/certificate.py, backend/app/report/jsonld.py, backend/app/timeline/routes.py]
-    tests: [backend/tests/test_report.py, backend/tests/test_report_exports.py, backend/tests/test_timeline_api.py, frontend/e2e/report.spec.ts]
+    tests: [backend/tests/test_report.py, backend/tests/test_report_exports.py, backend/tests/test_timeline_api.py, frontend/e2e/reports.spec.ts]
     docs: [docs/report.md, docs/legal/BSA-63-4-notes.md, docs/sop/SOP-05-reporting.md, docs/sop/SOP-06-evidence-intake-checklist.md, docs/USER_MANUAL.md]
     note: Reproducible PDF with custody entry, tamper shown as FAILED, draft s.63(4) certificate (not legal advice; official text unconfirmed), JSON-LD (not CASE-conformant). The PDF was checked through text extraction, not visually; Partial until reviewed.
 
@@ -100,7 +100,7 @@ requirements:
     requirement: AI analytics (face, object, motion) as triage
     status: Partial
     code: [backend/app/analytics/runner.py, backend/app/analytics/detect.py, backend/app/analytics/motion.py, backend/app/analytics/registry.py]
-    tests: [backend/tests/test_analytics.py, frontend/e2e/analytics.spec.ts]
+    tests: [backend/tests/test_analytics.py, frontend/e2e/triage.spec.ts]
     docs: [docs/analytics/README.md, docs/analytics/error_rates.json]
     note: Motion, object detection and face detection (no recognition) labelled triage; error rates are from public still-image datasets and synthetic clips, not DVR footage.
 
@@ -147,8 +147,8 @@ requirements:
   - id: R17
     requirement: Working prototype (API and UI)
     status: Built
-    code: [backend/app/main.py, backend/app/jobs/manager.py, frontend/src/App.tsx, frontend/src/pages/Analysis.tsx, frontend/src/pages/CustodyLog.tsx, scripts/demo.py]
-    tests: [backend/tests/test_health.py, backend/tests/test_jobs.py, backend/tests/test_demo.py, frontend/e2e/smoke.spec.ts, frontend/e2e/a11y.spec.ts, frontend/e2e/jobs.spec.ts]
+    code: [backend/app/main.py, backend/app/jobs/manager.py, frontend/src/App.tsx, frontend/src/modules/recovery/index.tsx, frontend/src/modules/integrity/CustodyLog.tsx, scripts/demo.py]
+    tests: [backend/tests/test_health.py, backend/tests/test_jobs.py, backend/tests/test_demo.py, frontend/e2e/evidence.spec.ts, frontend/e2e/system.spec.ts, frontend/e2e/recovery.spec.ts]
     docs: [README.md, docs/API.md, docs/USER_MANUAL.md, docs/jobs.md, docs/demo.md, docs/accessibility.md]
     note: Runs end to end on synthetic data with background jobs and an axe gate (0 serious/critical); no manual screen-reader test; no authentication.
 
