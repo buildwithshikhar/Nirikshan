@@ -1,0 +1,177 @@
+{
+  "registry_version": 1,
+  "updated": "2026-10-09",
+  "policy": [
+    "No vendor is above Tier B and nothing is validated on a real device.",
+    "Tier B: a public byte-level signature we read ourselves plus a parser written from published research; unvalidated on real devices.",
+    "Tier C: no public byte-level storage documentation found; standard-export ingest and generic carving only; images are left unattributed.",
+    "Export formats listed for an OEM are what the cited vendor document says the product can export. Nirikshan has NOT tested any real export file from that OEM; ingest works for any container ffprobe recognises.",
+    "Source confidence: high = primary vendor/research document fetched and read; medium = primary document read in part; low = search-result snippet only (page not retrieved or not readable)."
+  ],
+  "generic": {
+    "standard_export_ingest": "POST /api/cases/{id}/native-exports: hashed read-only copy, ffprobe container/stream description, no vendor claim. Tested with ffmpeg-generated MP4, MKV and AVI files only (tests/test_acquire_native.py).",
+    "generic_carving": "Vendor-agnostic H.264/H.265 Annex-B carving with orphan reporting; measured on reference images (docs/validation/results.md)."
+  },
+  "sources": {
+    "S1": {"title": "Han, Jeong, Lee 2015, Analysis of the HIKVISION DVR File System", "url": "https://eudl.eu/doi/10.1007/978-3-319-25512-5_13", "retrieved": "2026-10-05", "says": "Master Sector, HIKBTREE, RATS, OFNI layouts for one DVR", "does_not_say": "newer firmware, H.265", "confidence": "high", "ref": "docs/RESEARCH.md section 10"},
+    "S2": {"title": "Dragonas doctoral thesis 2023, chapters 4-5", "url": "see docs/RESEARCH.md section 10", "retrieved": "2026-10-05", "says": "Hikvision logs on six devices; Dahua partition layouts and SQLite logs", "does_not_say": "DHFS internals", "confidence": "high", "ref": "docs/RESEARCH.md section 10"},
+    "S5": {"title": "Yoon and Hwang 2026, arXiv:2605.07430 (Honeywell)", "url": "https://arxiv.org/abs/2605.07430", "retrieved": "2026-10-05", "says": "GPT layout, Machine Data, Partition 1 structures, 20-byte custom header for one model", "does_not_say": "other models, H.265, Partition 2", "confidence": "high", "ref": "docs/RESEARCH.md section 10"},
+    "S9": {"title": "FFmpeg libavformat/dhav.c", "url": "https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/dhav.c", "retrieved": "2026-10-05", "says": "DHAV frame container", "does_not_say": "DHFS on-disk structure", "confidence": "high", "ref": "docs/RESEARCH.md section 10"},
+    "S14": {"title": "ICICI Securities, Aditya Infotech IPO review (Jul 2025)", "url": "https://www.icicidirect.com/mailcontent/idirect_adityainfotech_iporeview-jul_25.pdf", "retrieved": "2026-10-05", "says": "Aditya Infotech (CP Plus) holds exclusive Dahua distribution rights in India", "does_not_say": "anything about CP Plus recorder storage or container formats", "confidence": "medium", "ref": "docs/RESEARCH.md section 10"},
+    "S16": {"title": "TP-Link VIGI NVR1016H product page", "url": "https://www.vigi.com/in/business-networking/vigi-network-video-recorder/vigi-nvr1016h/", "retrieved": "2026-10-05", "says": "codec list H.265+/H.265/H.264+/H.264", "does_not_say": "container or disk format", "confidence": "medium", "ref": "docs/RESEARCH.md section 10"},
+    "R1": {"title": "Matrix IPVS SATATYA NVR0801X Technical Specifications (PDF)", "url": "https://matrixcomsec.com/wp-content/uploads/2023/09/Matrix-IPVS-SATATYA-NVR0801X-Technical-Specifications.pdf", "retrieved": "2026-10-09", "says": "Recording Format: AVI, Native; Compression H.265/H.264/Motion JPEG; Snapshot Format JPEG", "does_not_say": "what 'Native' is, the on-disk storage layout, or any byte-level structure", "confidence": "high"},
+    "R2": {"title": "TP-Link VIGI FAQ 5043, How to Export Recording Using the PC Client", "url": "https://www.vigi.com/ae/support/faq/5043", "retrieved": "2026-10-09", "says": "Speed Mode exports recordings 'in the original format'; Compatible Mode converts recordings to H.264", "does_not_say": "the container/file extension of either mode, or the NVR's on-disk format", "confidence": "high"},
+    "R3": {"title": "Uniview, How to backup Recording & image (PDF, 2019)", "url": "https://global.uniview.com/de/res/201907/03/20190703_1730433_How to backup Recording & image_852034_168459_0.pdf", "retrieved": "2026-10-09", "says": "default backup file format .mp4 to USB storage; .TS files when backing up to disc; file name 'camera name-recording start time' e.g. Ch9-20150630183546.mp4; USB device formatted FAT32 or NTFS", "does_not_say": "the NVR's on-disk recording format or any byte-level structure", "confidence": "high"},
+    "R4": {"title": "AXIS Camera Station Pro datasheet (PDF)", "url": "https://www.axis.com/dam/public/9b/38/a4/datasheet-axis-camera-station-pro-en-US-521838.pdf", "retrieved": "2026-10-09", "says": "Export to ASF, MP4 and MKV; digital signature on exported recordings; standalone player; password protection when exporting to ZIP", "does_not_say": "the recording storage format, or the signature scheme of signed exports", "confidence": "high"},
+    "R5": {"title": "Reolink support, Backup Recordings to USB Drive from PoE NVR", "url": "https://support.reolink.com/hc/en-us/articles/360003575873-Backup-Recordings-to-USB-Driver-from-PoE-NVR", "retrieved": "2026-10-09", "says": "check 'MP4 Format File' to export MP4, otherwise files are saved in H.264 format", "does_not_say": "the NVR's on-disk format or USB file-system requirements", "confidence": "high"},
+    "R6": {"title": "Hanwha Vision support FAQ (backup formats), search-result snippet", "url": "https://hanwhavision.com/vn/support/faq/20498", "retrieved": "2026-10-09 (fetch returned HTTP 404; snippet only)", "says": "(snippet) backups as SEC (designated viewer), AVI (regular players), NVR (playable on the NVR only); Wisenet Viewer exports MP4, MKV or native Wisenet format", "does_not_say": "any byte-level structure; the page itself could not be read", "confidence": "low"},
+    "R7": {"title": "Bosch/Keenfinity knowledge base, VRM eXport Wizard article, search-result snippet", "url": "https://knowledge.keenfinity-group.com/video-systems/article/how-to-export-vrm-recordings-of-cameras-convert--1", "retrieved": "2026-10-09 (fetched page showed only an index; snippet only)", "says": "(snippet) the VRM eXport Wizard copies video in its original format without transcoding; MP4 export; BVMS 10.0.1 replaced ASF export with MP4", "does_not_say": "any byte-level structure; the article text could not be read", "confidence": "low"},
+    "R8": {"title": "IPVM discussion, Convert Avigilon .AVE file format to .MP4, search-result snippet", "url": "https://ipvm.com/forums/video-surveillance/topics/convert-avigilon-ave-file-format-to-mp4", "retrieved": "2026-10-09 (not fetched: subscriber forum; snippet only)", "says": "(snippet) ACC Player exports native .AVE or .AVI video", "does_not_say": "any byte-level structure of AVE or of recorder storage", "confidence": "low"}
+  },
+  "oems": [
+    {
+      "name": "Hikvision", "parser_vendor": "Hikvision", "tier": "B", "parser_version": "1.0",
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "any ffprobe-recognised export container; no Hikvision export file tested"},
+      "proprietary_storage_parsing": {"level": "partial", "detail": "Master Sector, RATS logs (bounded sample), HIKBTREE entries, OFNI counts, per the 2015 DVR layout [S1][S2]; H.264 only"},
+      "deleted_video_recovery": {"level": "parser + generic carving", "detail": "generic carving recovers blocks whose HIKBTREE entries were cleared; parser alone does not"},
+      "evidence": {"tests": ["tests/test_hikvision_parser.py", "tests/test_vendors.py"], "docs": ["docs/parsers/hikvision.md", "docs/parsers/hikvision-fields.md", "docs/validation/results.md"]},
+      "limitations": ["Unvalidated on a real device; per-paper layout only (circular check)", "Newer firmware, H.265, encrypted recordings not covered", "Source conflicts (block size, timestamp basis, Master Sector base) unresolved"],
+      "sources": ["S1", "S2"]
+    },
+    {
+      "name": "Dahua", "parser_vendor": "Dahua", "tier": "B", "parser_version": "1.0",
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "ffmpeg's dhav demuxer may describe .dav exports; not tested with a real Dahua export"},
+      "proprietary_storage_parsing": {"level": "partial", "detail": "DHAV frame container only [S9]; DHFS internals are undocumented and not parsed"},
+      "deleted_video_recovery": {"level": "parser + generic carving", "detail": "DHAV frames are found wherever they survive; no file-system metadata is used"},
+      "evidence": {"tests": ["tests/test_dahua_parser.py", "tests/test_vendors.py"], "docs": ["docs/OEM_COMPARISON.md", "docs/validation/results.md"]},
+      "limitations": ["Unvalidated on a real device", "DHFS, XFS partition and SQLite logs not parsed", "Header checksum not verified (algorithm undocumented)"],
+      "sources": ["S9", "S2"]
+    },
+    {
+      "name": "Honeywell", "parser_vendor": "Honeywell", "tier": "B", "parser_version": "1.0",
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no Honeywell export file tested"},
+      "proprietary_storage_parsing": {"level": "partial", "detail": "Machine Data, Partition 1 structures, 20-byte custom headers for ONE model (HN35080200) [S5]"},
+      "deleted_video_recovery": {"level": "parser + generic carving", "detail": "per-paper layout; generic carving covers bytes the parser does not explain"},
+      "evidence": {"tests": ["tests/test_honeywell_parser.py", "tests/test_vendors.py"], "docs": ["docs/parsers/honeywell.md", "docs/parsers/honeywell-fields.md"]},
+      "limitations": ["One model only; the Honeywell label does not imply one on-disk format", "Unvalidated on a real device", "H.265 and Partition 2 not analysed"],
+      "sources": ["S5"]
+    },
+    {
+      "name": "CP Plus", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no CP Plus export documentation found; no CP Plus export file tested"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found (search 2026-10-09)"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["The Dahua distribution relationship [S14] does NOT establish DHFS/DHAV use; not labelled Dahua-compatible", "Needs one real image to determine filesystem and container"],
+      "sources": ["S14"]
+    },
+    {
+      "name": "Uniview", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "documented export formats", "detail": "vendor guide: .mp4 backup to USB, .TS to disc [R3]; ingest via ffprobe; no Uniview file tested"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Export formats are vendor statements, not tested files", "On-disk format unknown"],
+      "sources": ["R3"]
+    },
+    {
+      "name": "TP-Link", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "documented export modes", "detail": "PC Client Speed Mode (original format) or Compatible Mode (converted to H.264) [R2]; container not named; ingest via ffprobe if recognised"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found; codec list only [S16]"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving (H.265+/H.264+ smart codecs not characterised)"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["'Original format' of Speed Mode is not documented", "On-disk format unknown"],
+      "sources": ["R2", "S16"]
+    },
+    {
+      "name": "Godrej", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no Godrej export documentation found"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public technical documentation found (support PDF previously returned 404)"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Nothing public found; do not infer from rebadging relationships"],
+      "sources": []
+    },
+    {
+      "name": "Matrix", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "documented export formats", "detail": "spec sheet: Recording Format AVI, Native [R1]; AVI ingest via ffprobe; 'Native' undocumented"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving; Motion JPEG is not carved"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["'Native' recording format is not described", "MJPEG recordings are not carved"],
+      "sources": ["R1"]
+    },
+    {
+      "name": "Axis", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "documented export formats", "detail": "AXIS Camera Station Pro exports ASF, MP4, MKV, optionally signed [R4]; ingest via ffprobe; the export signature is NOT verified by Nirikshan"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level recorder storage documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Signed-export verification not implemented (scheme not documented in the source read)"],
+      "sources": ["R4"]
+    },
+    {
+      "name": "Bosch", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "export formats (low-confidence source)", "detail": "MP4 export; native copy via VRM eXport Wizard [R7, snippet only]; ingest via ffprobe if recognised"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Source is a search snippet; article text not read", "Native VRM export format unknown"],
+      "sources": ["R7"]
+    },
+    {
+      "name": "Hanwha Vision", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "export formats (low-confidence source)", "detail": "AVI/MP4/MKV exports; SEC needs a designated viewer [R6, snippet only]; ingest via ffprobe if recognised"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Source page returned 404; snippet only", "SEC export package format unknown"],
+      "sources": ["R6"]
+    },
+    {
+      "name": "VIVOTEK", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no VIVOTEK export documentation retrieved"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Nothing public retrieved in the time-boxed search"],
+      "sources": []
+    },
+    {
+      "name": "Avigilon", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "export formats (low-confidence source)", "detail": "AVI export; native .AVE needs the Avigilon player [R8, snippet only]; AVI ingest via ffprobe"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Source is a forum search snippet", "AVE format unknown; not ingested unless ffprobe recognises it"],
+      "sources": ["R8"]
+    },
+    {
+      "name": "Pelco", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no Pelco export documentation retrieved"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Nothing public retrieved in the time-boxed search"],
+      "sources": []
+    },
+    {
+      "name": "Tiandy", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "generic ffprobe ingest", "detail": "no Tiandy export documentation retrieved"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Nothing public retrieved in the time-boxed search"],
+      "sources": []
+    },
+    {
+      "name": "Reolink", "parser_vendor": null, "tier": "C", "parser_version": null,
+      "standard_export_support": {"level": "documented export formats", "detail": "NVR USB backup as MP4 or raw H.264 files [R5]; both ingestible via ffprobe"},
+      "proprietary_storage_parsing": {"level": "none", "detail": "no public byte-level documentation found"},
+      "deleted_video_recovery": {"level": "generic carving only", "detail": "unattributed H.264/H.265 carving"},
+      "evidence": {"tests": ["tests/test_oem_registry.py"], "docs": ["docs/oem-registry.md"]},
+      "limitations": ["Export formats are vendor statements, not tested files", "On-disk format unknown"],
+      "sources": ["R5"]
+    }
+  ]
+}
