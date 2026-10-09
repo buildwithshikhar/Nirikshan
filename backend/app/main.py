@@ -1,6 +1,7 @@
 import os
 from contextlib import asynccontextmanager
 
+import anyio
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -102,20 +103,49 @@ app.include_router(package_router)
 app.include_router(perf_router)
 
 
-@app.middleware("http")
-async def audit_trail(request: Request, call_next):
-    """Record every /api request (method, path, status, authenticated principal) in audit_log."""
-    response = await call_next(request)
-    if request.url.path.startswith("/api/") and request.url.path != "/api/audit":
+class AuditTrail:
+    """Record every /api request (method, path, status, authenticated principal) in audit_log.
+
+    Pure ASGI, written AFTER the inner app has returned. The earlier BaseHTTPMiddleware version
+    opened its own database session while the request's own session (a yield dependency) was still
+    open, so N concurrent requests held N pooled connections and each waited for one more: with
+    more than the pool size in flight, every request blocked for the 30 s pool timeout.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        status = {"code": 500}
+
+        async def tap(message):
+            if message["type"] == "http.response.start":
+                status["code"] = message["status"]
+            await send(message)
+
+        try:
+            await self.app(scope, receive, tap)
+        finally:
+            path = scope["path"]
+            if path.startswith("/api/") and path != "/api/audit":
+                request = Request(scope)
+                await anyio.to_thread.run_sync(self._write, request, path, status["code"])
+
+    @staticmethod
+    def _write(request: Request, path: str, code: int) -> None:
         with SessionLocal() as db:
             db.add(
                 AuditEntry(
                     examiner=audit_identity(request),
                     method=request.method,
-                    path=request.url.path,
-                    status_code=response.status_code,
-                    case_id=audit_case_id(request.url.path),
+                    path=path,
+                    status_code=code,
+                    case_id=audit_case_id(path),
                 )
             )
             db.commit()
-    return response
+
+
+app.add_middleware(AuditTrail)
