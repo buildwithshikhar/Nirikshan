@@ -1,4 +1,4 @@
-import type { Job } from '../api_jobs'
+import type { Job } from './api'
 
 /** Progress bar + stage text + Cancel for a background job. The stage text is a polite live
  * region (announced when the stage changes); the bar is a progressbar with a text value. */
