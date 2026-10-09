@@ -8,8 +8,10 @@ externally (e.g. on the report) to detect truncation.
 
 import hashlib
 import json
+import threading
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import __version__, signing
@@ -43,6 +45,10 @@ def compute_hash(e: CustodyEntry) -> str:
     return hashlib.sha256(canonical_json(entry_payload(e)).encode()).hexdigest()
 
 
+_APPEND_LOCK = threading.Lock()
+APPEND_RETRIES = 5
+
+
 def append_entry(
     db: Session,
     case_id: int,
@@ -51,6 +57,21 @@ def append_entry(
     details: dict,
     evidence_id: int | None = None,
 ) -> CustodyEntry:
+    """Append the next entry of the case chain. Serialised in-process (concurrent jobs of one
+    case would otherwise read the same head and collide on (case_id, seq)); a collision with
+    another process is retried against the new head."""
+    for attempt in range(APPEND_RETRIES):
+        with _APPEND_LOCK:
+            try:
+                return _append(db, case_id, action, examiner, details, evidence_id)
+            except IntegrityError:
+                db.rollback()
+                if attempt == APPEND_RETRIES - 1:
+                    raise
+    raise RuntimeError("unreachable")
+
+
+def _append(db, case_id, action, examiner, details, evidence_id) -> CustodyEntry:
     last = db.scalars(
         select(CustodyEntry)
         .where(CustodyEntry.case_id == case_id)
