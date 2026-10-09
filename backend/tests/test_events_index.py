@@ -194,9 +194,12 @@ def test_summaries_by_clip_and_camera(client, seeded):
     groups = {(x["group"]["evidence_id"], x["group"]["camera"]) for x in cam["summaries"]}
     assert len(groups) == 3
     person = next(
-        k for x in cam["summaries"] if x["group"]["camera"] == 2 for k in x["classes"]
+        k
+        for x in cam["summaries"]
+        if x["group"]["camera"] == 2
+        for k in x["classes"]
         if k["class_name"] == "person" and k["count"] == 2
-    )  # fmt: skip
+    )
     assert person["max_confidence"] == 0.8 and person["clips"] == 1
 
 

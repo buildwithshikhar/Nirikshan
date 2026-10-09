@@ -5,11 +5,13 @@ create_all. A router is added only if app.main does not already serve its paths,
 keep working after the lead wires them into app.main.
 """
 
+from app.correlation import models as _correlation_models  # noqa: F401
+from app.correlation.routes import router as correlation_router
 from app.events import models as _event_models  # noqa: F401
 from app.events.routes import router as events_router
 from app.main import app
 
-ROUTERS = [events_router]
+ROUTERS = [events_router, correlation_router]
 
 
 def mount() -> None:
