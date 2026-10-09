@@ -74,6 +74,7 @@ class VendorParser:
     vendor: str = ""
     tier: str = "C"
     sources: tuple[str, ...] = ()
+    parser_version: str = ""  # structured parsers set their module's PARSER_VERSION
 
     def probes(self) -> list[Probe]:
         return []

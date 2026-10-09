@@ -87,6 +87,9 @@ LOG_NAMES = {
     (2, 0x54): "Hik-Connect Offline Exception",
 }
 MAJOR_NAMES = {1: "Alarm", 2: "Exception", 3: "Operation", 4: "Information"}  # [H] Table 1
+# Version of this parser's output (bump when parse results change). Mirrored in
+# app/oem/registry.json; tests/test_oem_registry.py fails if the two disagree.
+PARSER_VERSION = "1.0"
 
 OPTIONS = {
     "master_sector_offset": {
@@ -175,6 +178,7 @@ def _u32(b: bytes, o: int) -> int:
 
 class HikvisionFsParser(HikvisionParser):
     options_schema = OPTIONS
+    parser_version = PARSER_VERSION
 
     def parse(self, f, size, options=None):
         opts = {k: v["default"] for k, v in OPTIONS.items()} | (options or {})

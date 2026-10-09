@@ -59,6 +59,9 @@ DELIM = bytes(20)  # 3.1: End of Channel Data
 STREAM_TYPES = {0x00: "main", 0x20: "sub"}  # 2.3
 WINDOW = 1 << 20
 MAX_REASONS = 20
+# Version of this parser's output (bump when parse results change). Mirrored in
+# app/oem/registry.json; tests/test_oem_registry.py fails if the two disagree.
+PARSER_VERSION = "1.0"
 
 OPTIONS = {
     "time_basis_label": {
@@ -672,6 +675,7 @@ class HoneywellFsParser(HoneywellParser):
     """Registered (by the lead) in place of the identification-only HoneywellParser."""
 
     options_schema = OPTIONS
+    parser_version = PARSER_VERSION
 
     def parse(self, f, size, options=None):
         opts = {k: v["default"] for k, v in OPTIONS.items()} | (options or {})

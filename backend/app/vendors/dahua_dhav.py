@@ -58,6 +58,9 @@ EXT_SIZES = {
     0x9B: 8,
     0xB3: 8,
 }
+# Version of this parser's output (bump when parse results change). Mirrored in
+# app/oem/registry.json; tests/test_oem_registry.py fails if the two disagree.
+PARSER_VERSION = "1.0"
 OPTIONS = {
     "frame_gap_tolerance": {
         "default": 3,
@@ -222,6 +225,7 @@ class DhavParser(DahuaParser):
     """Registered in place of the identification-only DahuaParser (same signatures/identify)."""
 
     options_schema = OPTIONS
+    parser_version = PARSER_VERSION
 
     def parse(self, f, size, options=None):
         opts = {k: v["default"] for k, v in OPTIONS.items()} | (options or {})
